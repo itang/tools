@@ -27,7 +27,7 @@ module Adimage
         File.write(to, HTTP::Client.get(img_url).body)
       rescue ex
         puts "ERROR: #{ex.message}"
-        generate(to, try + 1)
+        generate!(to, try + 1)
       end
     end
 
