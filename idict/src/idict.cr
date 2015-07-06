@@ -1,6 +1,7 @@
 require "./idict/*"
 
 require "http/client"
+require "crtang"
 
 module Idict
   extend self
@@ -13,9 +14,10 @@ module Idict
       s = content.index("trans-container")
       s = content.index("<li>", s) if s
       s = s + "<li>".length if s
+
       e = content.index("</li>", s) if s
-      e = e - 1 if e
-      content[s..e] if s && e
+
+      content[s...e] if s && e
     end
   end
 end
@@ -23,7 +25,9 @@ end
 word = ARGV[0]? || "hello"
 puts "#{word}:"
 begin
-  puts "\t->: #{Idict.t(word)}"
+  Crtang.time do
+    puts "\t->: #{Idict.t(word)}"
+  end
 rescue ex: Exception
   puts ex
 end
