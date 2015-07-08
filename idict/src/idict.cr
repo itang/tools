@@ -17,7 +17,15 @@ module Idict
 
       e = content.index("</li>", s) if s
 
-      content[s...e] if s && e
+      if s && e
+        to = content[s...e]
+        begin
+          HTTP::Client.post "http://www.haoshuju.net:3000/dict", body: %({"from":"#{word}", "to": "#{to}"})
+        rescue ex
+          puts ex
+        end
+        to
+      end
     end
   end
 end
