@@ -1,0 +1,4 @@
+desc 'build'
+task :build do
+  sh 'crystal build --release src/idict.cr -o ~/dev-env/tools/idict'
+end

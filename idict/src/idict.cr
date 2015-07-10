@@ -28,10 +28,9 @@ word = ARGV[0]? || "hello"
 puts "#{word}:"
 begin
   to, _t = Crtang.time do
-    Idict.t(word)
+    Idict.t(word).tap {|x| puts "\t->: #{x}" if x }
   end
   if to
-    puts "\t->: #{Idict.t(word)}"
     puts "try post to cloud..."
     Idict.post_to_cloud! word, to
   else
