@@ -20,7 +20,8 @@ module Idict
   end
 
   def post_to_cloud!(from, to)
-    HTTP::Client.post "http://www.haoshuju.net:8000/dict", body: %({"from":"#{from}", "to": "#{to}"})
+    resp = HTTP::Client.post "http://www.haoshuju.net:8000/dict", body: %({"from":"#{from}", "to": "#{to}"})
+    resp.body if resp
   end
 
   class Client
@@ -31,7 +32,10 @@ module Idict
         end
         if to
           puts "try post to cloud..."
-          Idict.post_to_cloud! word, to
+          Crtang.time do
+            ret = Idict.post_to_cloud! word, to
+            puts "\t> #{ret}"
+          end
         else
           puts "NORESP"
         end
