@@ -46,10 +46,18 @@ module Idict
   end
 end
 
+def f(w: String)
+  puts "#{w}:"
+  Idict::Client.new.run(w)
+end
+
 word = ARGV[0]?
-unless word
-  puts "Please input the word!"
+if word
+  f word
 else
-  puts "#{word}:"
-  Idict::Client.new.run(word)
+  while true
+    puts "input word:\n"
+    word = gets
+    f word.chomp if word && word != ""
+  end
 end
