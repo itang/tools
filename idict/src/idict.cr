@@ -63,6 +63,7 @@ else
   while true
     puts "input word:\n"
     word = gets
+    word = word.split(" ")[0]? if word
     f word if word
   end
 end
