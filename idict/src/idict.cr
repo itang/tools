@@ -68,8 +68,7 @@ word = ARGV[0]?
 if word
   f word
 else
-  loop = true
-  while loop
+  while true
     puts "input word:\n"
     word = Idict.first_word gets
     if break?(word)
