@@ -44,6 +44,10 @@ module Idict
       end
     end
   end
+
+  def self.first_word(s: String?): String?
+    s.split(" ")[0]? if s
+  end
 end
 
 def f(w: String)
@@ -56,14 +60,21 @@ def f(w: String)
   end
 end
 
+def break?(cmd)
+  cmd && cmd.starts_with? ":q"
+end
+
 word = ARGV[0]?
 if word
   f word
 else
-  while true
+  loop = true
+  while loop
     puts "input word:\n"
-    word = gets
-    word = word.split(" ")[0]? if word
+    word = Idict.first_word gets
+    if break?(word)
+      break
+    end
     f word if word
   end
 end
