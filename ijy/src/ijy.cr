@@ -3,7 +3,7 @@ require "./ijy/*"
 
 class String
   def println; puts self; end
-  def browser
+  def browser!
     system %(xdg-open "#{self}").tap(&.println) + " > /dev/null 2>&1 &"
   end
 end
@@ -11,7 +11,7 @@ end
 module Ijy extend self
 
   def main(config=nil : String)
-    links(config).each &.browser
+    links(config).each &.browser!
   end
 
   private def links(config)
