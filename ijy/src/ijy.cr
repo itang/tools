@@ -12,10 +12,6 @@ module Ijy extend self
 
   def main(config=nil : String)
     links(config).each &.browser
-      #.map {|x| Thread.new { x.browser } }
-      #.each &.join
-  rescue e
-    puts "WARN: #{e}"
   end
 
   private def links(config)
