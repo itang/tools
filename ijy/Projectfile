@@ -1,2 +1,3 @@
 deps do
+  github "itang/crtang"
 end

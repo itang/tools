@@ -1,28 +1,28 @@
+require "crtang"
 require "./ijy/*"
 
-module Ijy
-  extend self
+class String
+  def println; puts self; end
+  def browser
+    system %(xdg-open "#{self}").tap(&.println) + " > /dev/null 2>&1 &"
+  end
+end
+
+module Ijy extend self
 
   def main(config=nil : String)
-    links(config).map do |x|
-      Thread.new do
-        browser(x)
-      end
-    end.each(&.join)
+    links(config).each &.browser
+      #.map {|x| Thread.new { x.browser } }
+      #.each &.join
   rescue e
     puts "WARN: #{e}"
-  end
-
-  private def browser(link)
-    cmd = "xdg-open"
-    system %(#{cmd} "#{link}").tap {|x| puts x } + " > /dev/null 2>&1"
   end
 
   private def links(config)
     if config
       File.read_lines config
     else
-      %w[https://twitter.com/
+      %w[https://twitter.com
         http://www.reddit.com/r/rust
         https://github.com/manastech/crystal
         https://github.com/Codcore/Amethyst
@@ -43,4 +43,6 @@ module Ijy
   end
 end
 
-Ijy.main
+Crtang.time do
+  Ijy.main
+end
