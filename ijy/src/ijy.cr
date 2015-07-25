@@ -15,7 +15,7 @@ module Ijy
 
   private def browser(link)
     cmd = "xdg-open"
-    system "#{cmd} #{link} > /dev/null 2>&1".tap {|x| puts x }
+    system %(#{cmd} "#{link}" > /dev/null 2>&1).tap {|x| puts x }
   end
 
   private def links(config)
