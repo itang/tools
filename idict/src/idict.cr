@@ -20,7 +20,7 @@ module Idict
   end
 
   def post_to_cloud!(from, to)
-    resp = HTTP::Client.post "http://www.haoshuju.net:8000/dict", body: %({"from":"#{from}", "to": "#{to}"})
+    resp = HTTP::Client.post "http://www.haoshuju.net:8000/api/dict", body: %({"from":"#{from}", "to": "#{to}"}), headers: HTTP::Headers.new.tap {|x| x.add("AUTH", "test;test2015")}
     resp.body if resp
   end
 
