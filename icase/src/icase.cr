@@ -12,18 +12,27 @@ module Icase
     Upcase
     Downcase
     Capitalize
+    Underscore
     Sha1
     Md5
     Base64_EN
     Base64_DE
     PrettyJson
+    Camelcase
+    Size
 
     def self.from_str(action: String?): Action
       case action
+      when "size", "length", "len"
+        Size
       when "d", "down", "downcase"
         Downcase
       when "c", "capitalize"
         Capitalize
+      when "camelcase", "cc"
+        Camelcase
+      when "underscore", "us"
+        Underscore
       when "sha1", "sha"
         Sha1
       when "md5"
@@ -46,12 +55,18 @@ module Icase
 
   def encode(str: String, action: Action): String
     case action
+    when Action::Size
+      str.size.to_s
     when Action::Upcase
       str.upcase
     when Action::Downcase
       str.downcase
     when Action::Capitalize
       str.capitalize
+    when Action::Camelcase
+      str.camelcase
+    when Action::Underscore
+      str.underscore
     when Action::Sha1
       OpenSSL::SHA1.hash(str).map {|x| sprintf("%x", x)}.join("")
     when Action::Md5
@@ -72,7 +87,7 @@ end
 private def help()
   puts "USAGE: $ icase str action
 -------------------------
-       * action - upcase | downcase | capitalize | sha1 | md5 | base64 | -base64".colorize(:yellow)
+       * action - size | upcase | downcase | capitalize | camelcase | underscore | sha1 | md5 | base64 | -base64".colorize(:yellow)
 end
 
 def main(argv)
@@ -84,7 +99,7 @@ def main(argv)
       action_s = argv[1]?
       action = Icase::Action.from_str(action_s)
       ret = Icase.encode(str, action)
-      puts "#{str} |> #{action.to_s.downcase.colorize(:red)} =>\n#{ret.colorize(:green)}"
+      puts %('#{str}' |> #{action.to_s.downcase.colorize(:red)} =>\n#{ret.colorize(:green)})
       puts ""
     end
   else
