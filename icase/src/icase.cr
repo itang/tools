@@ -64,23 +64,18 @@ end
 
 ################################################################################
 def main()
-  str = ARGV[0]?
-  mode_s = ARGV[1]?
-
+  str, mode_s = ARGV[0]?, ARGV[1]?
   if !str || %w(--help --h -h).any?{|x|x == str}
     puts "icase str (upcase|downcase|capitalize|sha1|md5|bas64|-base64)".colorize(:red)
-    return
-  end
-
-  begin
+  else
     mode = Icase::Mode.from_str(mode_s)
     ret = Icase.encode str.not_nil!, mode
     puts ""
     puts "#{str} |> #{mode.to_s.downcase.colorize(:red)} => #{ret.colorize(:green)}"
     puts ""
-  rescue ex
-    puts ex.message.colorize(:red)
   end
+rescue ex
+  puts ex.message.colorize(:red)
 end
 
 main()
