@@ -69,18 +69,31 @@ module Icase
 end
 
 ################################################################################
-def main()
-  str, mode_s = ARGV[0]?, ARGV[1]?
-  if !str || %w(--help --h -h).any?{|x|x == str}
-    puts "icase str (upcase|downcase|capitalize|sha1|md5|bas64|-base64)".colorize(:red)
+private def help()
+  puts "USAGE: $ icase str action
+-------------------------
+       * action - upcase | downcase | capitalize | sha1 | md5 | base64 | -base64".colorize(:yellow)
+end
+
+def main(argv)
+  str = argv[0]?
+  if str
+    if %w(--help --h -h).any?{|x| x == str}
+      help
+    else
+      mode_s = argv[1]?
+      mode = Icase::Mode.from_str(mode_s)
+      ret = Icase.encode(str, mode)
+      puts "#{str} |> #{mode.to_s.downcase.colorize(:red)} =>\n#{ret.colorize(:green)}"
+      puts ""
+    end
   else
-    mode = Icase::Mode.from_str(mode_s)
-    ret = Icase.encode str.not_nil!, mode
-    puts "#{str} |> #{mode.to_s.downcase.colorize(:red)} =>\n#{ret.colorize(:green)}"
-    puts ""
+    help
   end
 rescue ex
   puts ex.message.colorize(:red)
+  puts ""
+  help
 end
 
-main()
+main(ARGV)
