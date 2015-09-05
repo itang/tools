@@ -9,6 +9,8 @@ module Ibin
     case
     when Phoenix.detect(dir)
       Phoenix.new
+    when Sbt.detect(dir)
+      Sbt.new
     else
       None.new
     end
@@ -19,6 +21,10 @@ module Ibin
     case cmd
     when "run"
       p.run
+    when "test"
+      p.test
+    when "repl", "console"
+      p.repl
     else
       puts "TODO"
     end
