@@ -25,10 +25,13 @@ module Ibin
   end
 end
 
-cmd = ARGV[0]? || "run"
-
-if cmd
-  puts Ibin.detect
-
-  Ibin.run cmd
+###########################################################################
+private def main(argv)
+  cmd = argv[0]? || "run"
+  if cmd
+    puts Ibin.detect
+    Ibin.run cmd
+  end
 end
+
+main(ARGV)
