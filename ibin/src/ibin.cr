@@ -11,6 +11,8 @@ module Ibin
       Phoenix.new
     when Sbt.detect(dir)
       Sbt.new
+    when Ring.detect(dir)
+      Ring.new
     else
       None.new
     end

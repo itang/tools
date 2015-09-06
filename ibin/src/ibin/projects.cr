@@ -67,6 +67,25 @@ module Ibin::Projects
     end
   end
 
+  class Ring < Project
+    def run()
+      sh "lein ring server"
+    end
+
+    def test()
+      sh "lein test"
+    end
+
+    def repl()
+      sh "lein repl"
+    end
+
+    def self.detect(dir)
+      pclj = dir + "/project.clj"
+      File.exists?(pclj) && File.read(pclj).includes?("lein-ring")
+    end
+  end
+
   class None < Project
     def run()
       puts "Do nothing!"
