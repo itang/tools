@@ -20,12 +20,15 @@ module Icase
     PrettyJson
     Camelcase
     Size
+    ByteSize
     EnvKey
 
     def self.from_str(action: String?): Action
       case action
       when "size", "length", "len"
         Size
+      when "bytesize", "bytes", "byte_size", "byte-size"
+        ByteSize
       when "d", "down", "downcase"
         Downcase
       when "c", "capitalize"
@@ -60,6 +63,8 @@ module Icase
     case action
     when Action::Size
       str.size.to_s
+    when Action::ByteSize
+      str.bytesize.to_s
     when Action::Upcase
       str.upcase
     when Action::Downcase
@@ -92,7 +97,8 @@ end
 private def help()
   puts "USAGE: $ icase str action
 -------------------------
-       * action - size | upcase | downcase | capitalize | camelcase | underscore | env | sha1 | md5 | base64 | -base64".colorize(:yellow)
+      * action:
+          size | bytesize | upcase | downcase | capitalize | camelcase | underscore | env | sha1 | md5 | base64 | -base64".colorize(:yellow)
 end
 
 def main(argv)
