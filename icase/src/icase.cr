@@ -20,6 +20,7 @@ module Icase
     PrettyJson
     Camelcase
     Size
+    EnvKey
 
     def self.from_str(action: String?): Action
       case action
@@ -45,6 +46,8 @@ module Icase
         Upcase
       when "json"
         PrettyJson
+      when "env", "env-key", "env_key"
+        EnvKey
       when nil
         Upcase
       else
@@ -77,6 +80,8 @@ module Icase
       Base64.decode(str)
     when Action::PrettyJson
       JSON.parse(str).to_pretty_json
+    when Action::EnvKey
+      str.upcase.gsub("-", "_")
     else
       raise %(unknow action "#{action}")
     end
@@ -87,7 +92,7 @@ end
 private def help()
   puts "USAGE: $ icase str action
 -------------------------
-       * action - size | upcase | downcase | capitalize | camelcase | underscore | sha1 | md5 | base64 | -base64".colorize(:yellow)
+       * action - size | upcase | downcase | capitalize | camelcase | underscore | env | sha1 | md5 | base64 | -base64".colorize(:yellow)
 end
 
 def main(argv)
