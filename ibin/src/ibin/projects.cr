@@ -1,4 +1,5 @@
 require "process"
+require "uri"
 
 module Ibin::Projects
   abstract class Project
@@ -13,16 +14,27 @@ module Ibin::Projects
       system cmd
     end
 
-    protected def fork_run_browser(cmd: String, url: String, sleeps = 5 : Int32)
+    protected def fork_run_browser(cmd: String, url: String)
       pid = fork do
         sh cmd
       end
-      sleep sleeps
-      puts "start browser..."
+
       fork do
-        sh "xdg-open #{url}"
+        port = URI.parse(url).port
+        wait_until_port_open(port) do
+          puts "start browser..."
+          sh "xdg-open #{url}"
+        end
       end
+
       Process.waitpid(pid)
+    end
+
+    private def wait_until_port_open(port, sleeps = 1, &block)
+      while (ret=`lsof -i :#{port}`).empty?
+        sleep sleeps
+      end
+      block.call
     end
   end
 
@@ -48,7 +60,7 @@ module Ibin::Projects
     def run()
       case
       when File.read("project/plugins.sbt") =~ /.+sbt-revolver.+/
-        fork_run_browser(%(sbt "~re-start"), "http://localhost:7070", 10)
+        fork_run_browser(%(sbt "~re-start"), "http://localhost:7070")
       else
         sh "sbt run"
       end
