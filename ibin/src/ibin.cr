@@ -22,11 +22,13 @@ module Ibin
     p = detect()
     case cmd
     when "run"
-      p.run
+      p.run()
     when "test"
-      p.test
+      p.test()
     when "repl", "console"
-      p.repl
+      p.repl()
+    when "format", "fmt"
+      p.format()
     else
       puts "TODO"
     end

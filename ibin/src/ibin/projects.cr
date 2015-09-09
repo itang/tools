@@ -3,9 +3,17 @@ require "uri"
 
 module Ibin::Projects
   abstract class Project
-    abstract def run()
-    abstract def test()
-    abstract def repl()
+    def run()
+    end
+
+    def test()
+    end
+
+    def repl()
+    end
+
+    def format()
+    end
 
     abstract def self.detect(dir = "."): Bool
 
@@ -15,9 +23,7 @@ module Ibin::Projects
     end
 
     protected def fork_run_browser(cmd: String, url: String)
-      pid = fork do
-        sh cmd
-      end
+      pid = fork { sh cmd }
 
       fork do
         port = URI.parse(url).port
@@ -92,6 +98,10 @@ module Ibin::Projects
       sh "lein repl"
     end
 
+    def format()
+      sh "lein cljfmt fix"
+    end
+
     def self.detect(dir)
       pclj = dir + "/project.clj"
       File.exists?(pclj) && File.read(pclj).includes?("lein-ring")
@@ -101,12 +111,6 @@ module Ibin::Projects
   class None < Project
     def run()
       puts "Do nothing!"
-    end
-
-    def test()
-    end
-
-    def repl()
     end
 
     def self.detect(dir)
