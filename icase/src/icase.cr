@@ -25,34 +25,20 @@ module Icase
 
     def self.from_str(action: String?): Action
       case action
-      when "size", "length", "len"
-        Size
-      when "bytesize", "bytes", "byte_size", "byte-size"
-        ByteSize
-      when "d", "down", "downcase"
-        Downcase
-      when "c", "capitalize"
-        Capitalize
-      when "camelcase", "cc"
-        Camelcase
-      when "underscore", "us"
-        Underscore
-      when "sha1", "sha"
-        Sha1
-      when "md5"
-        Md5
-      when "base64", "+base64"
-        Base64_EN
-      when "-base64"
-        Base64_DE
-      when "u", "up", "upcase"
-        Upcase
-      when "json"
-        PrettyJson
-      when "env", "env-key", "env_key"
-        EnvKey
-      when nil
-        Upcase
+      when "size", "length", "len"                       then Size
+      when "bytesize", "bytes", "byte_size", "byte-size" then ByteSize
+      when "d", "down", "downcase"                       then Downcase
+      when "c", "capitalize"                             then Capitalize
+      when "camelcase", "cc"                             then Camelcase
+      when "underscore", "us"                            then Underscore
+      when "sha1", "sha"                                 then Sha1
+      when "md5"                                         then Md5
+      when "base64", "+base64"                           then Base64_EN
+      when "-base64"                                     then Base64_DE
+      when "u", "up", "upcase"                           then Upcase
+      when "json"                                        then PrettyJson
+      when "env", "env-key", "env_key"                   then EnvKey
+      when nil                                           then Upcase
       else
         raise %(unknow action "#{action}")
       end
@@ -76,9 +62,11 @@ module Icase
     when Action::Underscore
       str.underscore
     when Action::Sha1
-      OpenSSL::SHA1.hash(str).map {|x| sprintf("%x", x)}.join("")
+      # OpenSSL::SHA1.hash(str).map {|x| sprintf("%x", x)}.join("")
+      OpenSSL::SHA1.hash(str).to_slice.hexstring
     when Action::Md5
-      OpenSSL::MD5.hash(str).map {|x| sprintf("%x", x)}.join("")
+      # OpenSSL::MD5.hash(str).map {|x| sprintf("%x", x)}.join("")
+      OpenSSL::MD5.hash(str).to_slice.hexstring
     when Action::Base64_EN
       Base64.urlsafe_encode(str)
     when Action::Base64_DE
