@@ -1,3 +1,4 @@
+require "colorize"
 require "./projects"
 
 include Ibin::Projects
@@ -5,42 +6,27 @@ include Ibin::Projects
 module Ibin
   extend self
 
-  def detect(dir = "."): Project
+  def detect(dir = "."): Project?
     case
-    when Phoenix.detect(dir)
-      Phoenix.new
-    when Sbt.detect(dir)
-      Sbt.new
-    when SpringBoot.detect(dir)
-      SpringBoot.new
-    when Ring.detect(dir)
-      Ring.new
-    else
-      None.new
+    when Phoenix.detect(dir)    then Phoenix.new
+    when Sbt.detect(dir)        then Sbt.new
+    when SpringBoot.detect(dir) then SpringBoot.new
+    when Ring.detect(dir)       then Ring.new
     end
   end
 
   def run(project: Project, cmd: String)
     case cmd
-    when "info"
-      puts "Project Type: #{project}, Info: #{project.info}"
-      puts ""
-    when "run"
-      project.run()
-    when "test"
-      project.test()
-    when "repl", "console"
-      project.repl()
-    when "format", "fmt"
-      project.format()
-    when "compile"
-      project.compile()
-    when "clean"
-      project.clean()
+    when "info"            then puts "Project Type: #{project}, Info: #{project.info}\n".colorize(:green)
+    when "run"             then project.run()
+    when "test"            then project.test()
+    when "repl", "console" then project.repl()
+    when "format", "fmt"   then project.format()
+    when "compile"         then project.compile()
+    when "clean"           then project.clean()
     else
-      puts "
-Usage: ibin task
-  * task: info | compile | run | test | repl | format | clean"
+      puts "Usage: ibin task
+  * task: info | compile | run | test | repl | format | clean".colorize(:yellow)
     end
   end
 end

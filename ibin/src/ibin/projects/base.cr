@@ -72,14 +72,4 @@ module Ibin::Projects
       puts "Do nothing!"
     end
   end
-
-  class None < Project
-    def info: ProjectInfo
-      ProjectInfo.new "None", "-1"
-    end
-
-    def self.detect(dir)
-      true
-    end
-  end
 end
