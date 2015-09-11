@@ -1,5 +1,9 @@
 task :default => :build
 
-task :build do
+task :build => :clean do
   sh 'crystal build src/ibin.cr -o ~/dev-env/tools/ibin'
+end
+
+task :clean do
+  sh 'rm -rf .crystal'
 end

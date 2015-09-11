@@ -1,8 +1,19 @@
 module Ibin::Projects
   class Ring < Project
+    BUILD_FILE = "project.clj"
     def self.detect(dir)
-      pclj = dir + "/project.clj"
+      pclj = dir + "/#{BUILD_FILE}"
       File.exists?(pclj) && File.read(pclj).includes?("lein-ring")
+    end
+
+    def info(): ProjectInfo
+      first_line = File.read(BUILD_FILE).lines[0]
+      _, name, version = first_line.split /\s+/
+      ProjectInfo.new name, version[1..-2]
+    end
+
+    def compile()
+      sh "lein compile"
     end
 
     # @Override
@@ -23,6 +34,10 @@ module Ibin::Projects
     # @Override
     def format()
       sh "lein cljfmt fix"
+    end
+
+    def clean()
+      sh "lein clean"
     end
 
     # @Override

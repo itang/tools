@@ -22,6 +22,9 @@ module Ibin
 
   def run(project: Project, cmd: String)
     case cmd
+    when "info"
+      puts "Project Type: #{project}, Info: #{project.info}"
+      puts ""
     when "run"
       project.run()
     when "test"
@@ -30,8 +33,14 @@ module Ibin
       project.repl()
     when "format", "fmt"
       project.format()
+    when "compile"
+      project.compile()
+    when "clean"
+      project.clean()
     else
-      puts "TODO"
+      puts "
+Usage: ibin task
+  * task: info | compile | run | test | repl | format | clean"
     end
   end
 end

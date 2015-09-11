@@ -1,10 +1,11 @@
 require "./cmd"
 
 private def main(argv)
-  cmd = argv[0]? || "run"
+  #puts "= I-LOVE-BUILD ="
+  cmd = argv[0]? || "unknown"
   if cmd
     project = Ibin.detect()
-    puts "Project Type: #{project}"
+    Ibin.run(project, "info") unless cmd == "info"
     Ibin.run(project, cmd)
   end
 end
