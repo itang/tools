@@ -5,11 +5,17 @@ require "json"
 module Ibin::Projects
   class ProjectInfo
     getter name, version
+
+    json_mapping({
+      name: {type: String, nilable: true},
+      version: {type: String, nilable: true}
+    })
+
     def initialize(@name, @version)
     end
 
     def to_s(io)
-      io << "Project(Name=#{name}, Version=#{version})"
+      io << self.to_json # "Project(Name=#{name}, Version=#{version})"
     end
   end
 

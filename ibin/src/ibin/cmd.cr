@@ -17,7 +17,7 @@ module Ibin
 
   def run(project: Project, cmd: String)
     case cmd
-    when "info"            then puts "Project Type: #{project}, Info: #{project.info}\n".colorize(:green)
+    when "info"            then puts "Project Type: '#{project}', Project Info: #{project.info}\n".colorize(:green)
     when "run"             then project.run()
     when "test"            then project.test()
     when "repl", "console" then project.repl()
