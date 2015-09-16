@@ -1,0 +1,5 @@
+task :default => :build
+
+task :build do
+  sh "crystal build src/ititle.cr -o ~/dev-env/tools/ititle"
+end
