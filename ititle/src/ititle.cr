@@ -13,7 +13,10 @@ end
 
 url = ARGV[0]?
 if url
-  puts ITitle.title(url)
+  puts  %(
+rs << Read.new "#{url}",
+          title: "#{ITitle.title(url)}",
+          created_at: "#{Time.now().to_s("%Y-%m-%d %H:%M")}")
 else
   puts "WARN: please input the url"
 end
