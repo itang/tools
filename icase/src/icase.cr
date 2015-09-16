@@ -74,7 +74,7 @@ module Icase
     when Action::PrettyJson
       JSON.parse(str).to_pretty_json
     when Action::EnvKey
-      str.upcase.gsub("-", "_")
+      str.upcase.gsub("-", "_").gsub(".", "_")
     else
       raise %(unknow action "#{action}")
     end
