@@ -4,16 +4,17 @@ require "./ititle/*"
 
 module ITitle
   extend self
+
+  TITLE_START = "<title>"
+  TITLE_END = "</title>"
+
   def title(url: String): String?
     resp = HTTP::Client.get(url)
-    lines = resp.body.lines # ["<!DOCTYPE html>", "<title>", "test", "</title>"]
-    title_line_start = lines.find {|x| x.strip.starts_with?("<title>")}
+    content = resp.body
+    s = content.index(TITLE_START).try {|x| x + TITLE_START.length}
+    e = content.index(TITLE_END, s) if s
 
-    if title_line_start && title_line_start.strip.ends_with?("</title>")
-      title_line_start.strip[7..-9]
-    else
-      (lines.take_while {|x| !x.strip.ends_with?("</title>")}).last?.try(&.strip)
-    end
+    content[s...e].strip if s && e
   end
 end
 
