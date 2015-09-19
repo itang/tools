@@ -1,0 +1,5 @@
+task :default => :build
+
+task :build do
+  sh 'crystal build --release src/adimage.cr -o ~/dev-env/adimage'
+end

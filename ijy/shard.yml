@@ -1,0 +1,14 @@
+name: ify
+version: 0.1.0-SNAPSHOT
+
+dependencies:
+  crtang:
+    github: itang/crtang
+    branch: master
+
+#development_dependencies:
+#  minitest:
+#    git: https://github.com/ysbaddaden/minitest.cr.git
+#    version: ~> 1.0.0
+
+#license: MIT

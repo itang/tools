@@ -12,7 +12,7 @@ module Idict
     if content = resp.body.to_s
       s = content.index("trans-container")
       s = content.index("<li>", s) if s
-      s = s + "<li>".length if s
+      s = s + "<li>".size if s
       e = content.index("</li>", s) if s
 
       content[s...e] if s && e

@@ -11,7 +11,7 @@ module ITitle
   def title(url: String): String?
     resp = HTTP::Client.get(url)
     content = resp.body
-    s = content.index(TITLE_START).try {|x| x + TITLE_START.length}
+    s = content.index(TITLE_START).try {|x| x + TITLE_START.size}
     e = content.index(TITLE_END, s) if s
 
     content[s...e].strip if s && e

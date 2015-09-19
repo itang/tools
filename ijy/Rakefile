@@ -1,3 +1,5 @@
+task :default => :build
+
 desc 'build'
 task :build do
   sh 'crystal build --release src/ijy.cr -o ~/dev-env/tools/ijy'
