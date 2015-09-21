@@ -70,7 +70,7 @@ module Icase
     when Action::Base64_EN
       Base64.urlsafe_encode(str)
     when Action::Base64_DE
-      Base64.decode(str)
+      String.new(Base64.decode(str))
     when Action::PrettyJson
       JSON.parse(str).to_pretty_json
     when Action::EnvKey

@@ -1,6 +1,6 @@
 version: 1.0
 shards:
-  openssl:
+  crtang:
     github: itang/crtang
     commit: ae6a8c45cac84dd13692c9a38ec0c758b53aeb04
 
