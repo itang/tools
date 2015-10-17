@@ -23,7 +23,7 @@ module Icase
     ByteSize
     EnvKey
 
-    def self.from_str(action: String?): Action
+    def self.from_str(action : String?) : Action
       case action
       when "size", "length", "len"                       then Size
       when "bytesize", "bytes", "byte_size", "byte-size" then ByteSize
@@ -45,7 +45,7 @@ module Icase
     end
   end
 
-  def encode(str: String, action: Action): String
+  def encode(str : String, action : Action) : String
     case action
     when Action::Size
       str.size.to_s
@@ -81,8 +81,8 @@ module Icase
   end
 end
 
-################################################################################
-private def help()
+# ###############################################################################
+private def help
   puts "USAGE: $ icase str action
 -------------------------
       * action:
@@ -92,7 +92,7 @@ end
 def main(argv)
   str = argv[0]?
   if str
-    if %w(--help --h -h).any? {|x| x == str}
+    if %w(--help --h -h).any? { |x| x == str }
       help
     else
       action_s = argv[1]?
