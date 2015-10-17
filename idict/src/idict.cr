@@ -8,7 +8,7 @@ module Idict
 
   def t(word)
     url = "http://dict.youdao.com/search?q=#{word}&keyfrom=dict.index"
-    resp =  HTTP::Client.get(url)
+    resp = HTTP::Client.get(url)
     if content = resp.body.to_s
       s = content.index("trans-container")
       s = content.index("<li>", s) if s
@@ -20,16 +20,16 @@ module Idict
   end
 
   def post_to_cloud!(from, to)
-    resp = HTTP::Client.post "http://www.haoshuju.net:8000/api/dict", body: %({"from":"#{from}", "to": "#{to}"}), headers: HTTP::Headers.new.tap {|x| x.add("AUTH", "test;test2015")}
+    resp = HTTP::Client.post "http://www.haoshuju.net:8000/api/dict", body: %({"from":"#{from}", "to": "#{to}"}), headers: HTTP::Headers.new.tap { |x| x.add("AUTH", "test;test2015") }
     resp.body if resp
   end
 
   class Client
-    def run(word: String)
+    def run(word : String)
       begin
         to, _t = Crtang.time do
-          Idict.t(word).tap {|x| puts "\t->: #{x}" if x }
-        end
+                   Idict.t(word).tap { |x| puts "\t->: #{x}" if x }
+                 end
         if to
           puts "try post to cloud..."
           Crtang.time do
@@ -39,18 +39,18 @@ module Idict
         else
           puts "NORESP"
         end
-      rescue ex: Exception
+      rescue ex : Exception
         puts ex
       end
     end
   end
 
-  def self.first_word(s: String?): String?
+  def self.first_word(s : String?) : String?
     s.split(" ")[0]? if s
   end
 end
 
-def f(w: String)
+def f(w : String)
   w = w.strip
   if w && !w.empty?
     puts "#{w}:"
