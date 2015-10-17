@@ -2,15 +2,19 @@ require "crtang"
 require "./ijy/*"
 
 class String
-  def println; puts self; end
+  def println
+    puts self
+  end
+
   def browser!
     system %(xdg-open "#{self}").tap(&.println) + " > /dev/null 2>&1 &"
   end
 end
 
-module Ijy extend self
+module Ijy
+  extend self
 
-  def main(config=nil : String)
+  def main(config = nil : String)
     links(config).each &.browser!
   end
 
@@ -18,7 +22,7 @@ module Ijy extend self
     if config
       File.read_lines config
     else
-      %w[https://twitter.com
+      %w(https://twitter.com
         http://www.reddit.com/r/rust
         https://github.com/manastech/crystal
         https://github.com/Codcore/Amethyst
@@ -34,7 +38,7 @@ module Ijy extend self
         http://www.adexchanger.cn
         http://www.rtbchina.com
         http://bbs.szhome.com/30017.html
-      ].reverse
+      ).reverse
     end
   end
 end
