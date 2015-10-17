@@ -5,14 +5,14 @@ module Adimage
   class AdImg
     property width, height, text
 
-    def initialize(@width=480, @height=320, @text="测试广告图")
+    def initialize(@width = 480, @height = 320, @text = "测试广告图")
     end
 
     def url
       "http://www.atool.org/placeholder.png?size=#{@width}x#{@height}&text=#{@text}_#{Time.now.to_s.gsub(/\s+/, "")}&&bg=836&fg=fff"
     end
 
-    def generate!(to, try=1, max=3)
+    def generate!(to, try = 1, max = 3)
       if try > max
         return
       end
