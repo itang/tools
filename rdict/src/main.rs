@@ -59,5 +59,5 @@ fn http_get_as_string(url: String) -> String {
 
 #[test]
 fn test_dict() {
-    assert_eq!(dict("hello".to_string()), "int. 喂；哈罗".to_string());
+    assert_eq!(dict("hello".to_string()), Some("int. 喂；哈罗".to_string()));
 }
