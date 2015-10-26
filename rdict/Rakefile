@@ -1,0 +1,10 @@
+task :default => :build
+
+task :build do
+  sh 'multirust run nightly cargo build --release'
+  sh 'cp target/release/rdict ~/dev-env/tools/'
+end
+
+task :run do
+  sh 'multirust run nightly cargo run --release'
+end
