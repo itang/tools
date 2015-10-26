@@ -27,7 +27,11 @@ fn get_word() -> Option<String> {
 fn dict(word: String) -> Option<String> {
     let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
                       word);
-    let mut content = http_get_as_string(url);
+    let content = http_get_as_string(url);
+    extract_title(content)
+}
+
+fn extract_title(mut content: String) -> Option<String> {
     if let Some(p1) = content.find("trans-container") {
         content.drain(..p1);
         if let Some(p2) = content.find("<li>") {
@@ -56,8 +60,8 @@ fn http_get_as_string(url: String) -> String {
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
-
 #[test]
 fn test_dict() {
-    assert_eq!(dict("hello".to_string()), Some("int. 喂；哈罗".to_string()));
+    assert_eq!(dict("hello".to_string()),
+               Some("int. 喂；哈罗".to_string()));
 }
