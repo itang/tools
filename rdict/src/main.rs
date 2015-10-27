@@ -28,10 +28,10 @@ fn dict(word: String) -> Option<String> {
     let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
                       word);
     let content = http_get_as_string(url);
-    extract_title(content)
+    extract_ret(content)
 }
 
-fn extract_title(mut content: String) -> Option<String> {
+fn extract_ret(mut content: String) -> Option<String> {
     if let Some(p1) = content.find("trans-container") {
         content.drain(..p1);
         if let Some(p2) = content.find("<li>") {
