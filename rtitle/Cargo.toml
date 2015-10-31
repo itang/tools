@@ -1,0 +1,8 @@
+[package]
+authors = ["itang <live.tang@gmail.com>"]
+name = "rtitle"
+version = "0.1.0"
+
+[dependencies]
+chrono = "0.2.16"
+hyper = "0.6.15"
