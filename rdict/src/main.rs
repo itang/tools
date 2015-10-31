@@ -19,7 +19,7 @@ use hyper::client::Body::BufBody;
 header! { (Auth, "Auth") => [String] }
 
 #[derive(RustcDecodable, RustcEncodable)]
-struct RequestBody {
+struct TransResult {
     to: String,
     from: String,
 }
@@ -27,13 +27,16 @@ struct RequestBody {
 fn main() {
     if let Some(word) = get_word() {
         println!("{}:", word);
-        let w = word.clone();
+        let word_clone = word.clone();
         match dict(word) {
             Some(ret) => {
                 println!("\t->: {}", ret);
 
                 println!("post to cloud...");
-                let resp = post_to_cloud(w, ret);
+                let resp = post_to_cloud(&TransResult {
+                    to: ret,
+                    from: word_clone,
+                });
                 println!("{}", resp);
             }
             _ => println!("\tUnknown!"),
@@ -48,12 +51,12 @@ fn get_word() -> Option<String> {
 }
 
 fn dict(word: String) -> Option<String> {
-    fn http_get_as_string(url: String) -> String {
+    fn http_get_as_string(url: &String) -> String {
         let client = Client::new();
 
         // Creating an outgoing request.
         // &String can automatically coerce to a &str.
-        let mut res = client.get(&url)
+        let mut res = client.get(url)
                             .header(Connection::close())
                             .send()
                             .unwrap();
@@ -79,13 +82,13 @@ fn dict(word: String) -> Option<String> {
 
     let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
                       word);
-    let content = http_get_as_string(url);
+    let content = http_get_as_string(&url);
 
     extract_ret(content)
 }
 
 
-fn post_to_cloud(from: String, to: String) -> String {
+fn post_to_cloud(tr: &TransResult) -> String {
     let http_post_as_string = |url: String| -> String {
         let client = Client::new();
 
@@ -94,11 +97,7 @@ fn post_to_cloud(from: String, to: String) -> String {
         headers.set(Auth("test;test2015".to_owned()));
 
         // let body_str = form_urlencoded::serialize(vec!(("from", from), ("to", to)));
-        let rb = RequestBody {
-            to: to,
-            from: from,
-        };
-        let body_str = json::encode(&rb).unwrap();
+        let body_str = json::encode(tr).unwrap();
         let bytes = body_str.as_bytes();
         let length = bytes.len();
         let mut res = client.post(&url)
