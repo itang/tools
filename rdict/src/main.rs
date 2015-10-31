@@ -32,12 +32,12 @@ fn main() {
             Some(ret) => {
                 println!("\t->: {}", ret);
 
-                println!("post to cloud...");
+                println!("\ntry post to cloud...");
                 let resp = post_to_cloud(&TransResult {
                     to: ret,
                     from: word_clone,
                 });
-                println!("{}", resp);
+                println!("\t->: {}", resp);
             }
             _ => println!("\tUnknown!"),
         }
