@@ -3,6 +3,8 @@ name = "rdict"
 version = "0.1.0"
 dependencies = [
  "hyper 0.6.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "url 0.2.37 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
