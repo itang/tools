@@ -6,6 +6,7 @@ extern crate rustc_serialize;
 #[macro_use]
 extern crate hyper;
 
+use std::io;
 use std::io::Read;
 use std::env;
 
@@ -25,16 +26,35 @@ struct TransResult {
 }
 
 fn main() {
-    if let Some(word) = get_word() {
+    if env::args().len() > 1 {
+        process_word(env::args().nth(1));
+    } else {
+        loop {
+            println!("Please input word:");
+            let mut word = String::new();
+            let ret = io::stdin().read_line(&mut word).ok();
+            process_word(if ret.is_some() {
+                Some(word)
+            } else {
+                None
+            });
+            println!("-------------------------------------");
+        }
+    }
+}
+
+fn process_word(input: Option<String>) {
+    if let Some(word_input) = input {
+        let word = word_input.trim().to_string();
         println!("{}:", word);
         let word_clone = word.clone();
         match dict(word) {
-            Some(ret) => {
-                println!("\t->: {}", ret);
+            Some(trans) => {
+                println!("\t->: {}", trans);
 
                 println!("\ntry post to cloud...");
                 let resp = post_to_cloud(&TransResult {
-                    to: ret,
+                    to: trans,
                     from: word_clone,
                 });
                 println!("\t->: {}", resp);
@@ -42,12 +62,8 @@ fn main() {
             _ => println!("\tUnknown!"),
         }
     } else {
-        println!("Please input the word.");
+        println!("Please input word.")
     }
-}
-
-fn get_word() -> Option<String> {
-    env::args().nth(1)
 }
 
 fn dict(word: String) -> Option<String> {
