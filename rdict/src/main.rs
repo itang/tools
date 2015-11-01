@@ -26,18 +26,27 @@ struct TransResult {
 }
 
 fn main() {
+    fn word_from_args() -> Option<String> {
+        env::args().nth(1)
+    }
+
+    fn word_from_input() -> Option<String> {
+        let mut word = String::new();
+        let ret = io::stdin().read_line(&mut word);
+        if ret.is_ok() && word.trim().len() > 0 {
+            return Some(word.trim().to_string());
+        }
+        return None;
+    }
+
     if env::args().len() > 1 {
-        process_word(env::args().nth(1));
+        process_word(word_from_args());
     } else {
+        let mut count = 0;
         loop {
-            println!("Please input word:");
-            let mut word = String::new();
-            let ret = io::stdin().read_line(&mut word).ok();
-            process_word(if ret.is_some() {
-                Some(word)
-            } else {
-                None
-            });
+            count += 1;
+            println!("[{}]Please input word:", count);
+            process_word(word_from_input());
             println!("-------------------------------------");
         }
     }
