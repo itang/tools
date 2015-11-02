@@ -46,7 +46,10 @@ fn main() {
         loop {
             count += 1;
             println!("[{}]Please input word:", count);
-            process_word(word_from_input());
+            match word_from_input() {
+                Some(ref v) if *v == ":quit" || *v == ":q" => break,
+                it => process_word(it),
+            }
             println!("-------------------------------------");
         }
     }
@@ -56,15 +59,14 @@ fn process_word(input: Option<String>) {
     if let Some(word_input) = input {
         let word = word_input.trim().to_string();
         println!("{}:", word);
-        let word_clone = word.clone();
-        match dict(word) {
+        match dict(&word) {
             Some(trans) => {
                 println!("\t->: {}", trans);
 
                 println!("\ntry post to cloud...");
                 let resp = post_to_cloud(&TransResult {
                     to: trans,
-                    from: word_clone,
+                    from: word,
                 });
                 println!("\t->: {}", resp);
             }
@@ -75,7 +77,7 @@ fn process_word(input: Option<String>) {
     }
 }
 
-fn dict(word: String) -> Option<String> {
+fn dict(word: &String) -> Option<String> {
     fn http_get_as_string(url: &String) -> String {
         let client = Client::new();
 
@@ -92,8 +94,8 @@ fn dict(word: String) -> Option<String> {
         body
     }
 
-
-    fn extract_ret(mut content: String) -> Option<String> {
+    // content: owned move ?
+    fn extract_result(mut content: String) -> Option<String> {
         if let Some(p1) = content.find("trans-container") {
             content.drain(..p1);
             if let Some(p2) = content.find("<li>") {
@@ -109,12 +111,11 @@ fn dict(word: String) -> Option<String> {
                       word);
     let content = http_get_as_string(&url);
 
-    extract_ret(content)
+    extract_result(content)
 }
 
-
 fn post_to_cloud(tr: &TransResult) -> String {
-    let http_post_as_string = |url: String| -> String {
+    let http_post_as_string = |url: &str| -> String {
         let client = Client::new();
 
         let mut headers = Headers::new();
@@ -125,7 +126,7 @@ fn post_to_cloud(tr: &TransResult) -> String {
         let body_str = json::encode(tr).unwrap();
         let bytes = body_str.as_bytes();
         let length = bytes.len();
-        let mut res = client.post(&url)
+        let mut res = client.post(url)
                             .body(BufBody(bytes, length))
                             .headers(headers)
                             .send()
@@ -135,7 +136,7 @@ fn post_to_cloud(tr: &TransResult) -> String {
         body
     };
 
-    let ret = http_post_as_string("http://www.haoshuju.net:8000/api/dict".to_string());
+    let ret = http_post_as_string("http://www.haoshuju.net:8000/api/dict");
     // let ret = http_post_as_string("http://localhost:8000/api/dict".to_string());
     ret
 }
