@@ -1,6 +1,5 @@
 #![feature(drain)]
 
-// extern crate url;
 extern crate chrono;
 
 #[macro_use]
@@ -11,71 +10,82 @@ use std::env;
 
 use chrono::*;
 
-// use url::form_urlencoded;
 use hyper::Client;
 use hyper::header::Connection;
 
+
+struct Item {
+    url: String,
+    title: String,
+}
+
+impl Item {
+    fn new(url: String, title: String) -> Item {
+        Item {
+            url: url,
+            title: title,
+        }
+    }
+}
+
+
 fn main() {
-    if let Some(url) = get_url() {
-        println!("{} ->:", url);
-        let url_clone = url.clone();
-        match title(url) {
-            Some(ret) => {
-                let local: DateTime<Local> = Local::now();
-                let now = local.format("%Y-%m-%d %H:%M").to_string();
+    match url_from_args().and_then(|ref url| title(url)) {
+        Ok(Item{url, title}) => {
+            let local: DateTime<Local> = Local::now();
+            let now = local.format("%Y-%m-%d %H:%M");
 
-                println!("\nrs << Read.new \"{}\",\n  title: \"{}\",\n  created_at: \"{}\"",
-                         url_clone,
-                         ret.trim(),
-                         now);
-            }
-            _ => println!("\tUnknown!"),
+            println!("\nrs << Read.new \"{}\",\n  title: \"{}\",\n  created_at: \"{}\"\n",
+                     url,
+                     title,
+                     now);
         }
-    } else {
-        println!("Please input the url.");
+        Err(e) => println!("\t{}", e),
     }
 }
 
-fn get_url() -> Option<String> {
-    env::args().nth(1)
+fn url_from_args() -> Result<String, String> {
+    env::args().nth(1).ok_or("Please input the url.".to_owned())
 }
 
-fn title(url: String) -> Option<String> {
-    fn http_get_as_string(url: &String) -> String {
+fn title(url: &str) -> Result<Item, String> {
+    fn http_get_as_string(url: &str) -> Result<String, String> {
         let client = Client::new();
+        let mut res = try!(client.get(url)
+                                 .header(Connection::close())
+                                 .send()
+                                 .map_err(|e| e.to_string()));
 
-        // Creating an outgoing request.
-        // &String can automatically coerce to a &str.
-        let mut res = client.get(url)
-                            .header(Connection::close())
-                            .send()
-                            .unwrap();
-
-        // Read the Response.
         let mut body = String::new();
-        res.read_to_string(&mut body).unwrap();
-        body
+        try!(res.read_to_string(&mut body).map_err(|e| e.to_string()));
+
+        Ok(body)
     }
 
-    fn extract_ret(mut content: String) -> Option<String> {
-        if let Some(p1) = content.find("<title>") {
-            content.drain(..p1);
-            if let Some(p2) = content.find("</title>") {
-                let (start, end) = ("<title>".len(), p2);
-                return Some(content.drain(start..end).collect());
-            }
-        }
-        return None;
+    fn extract_ret(mut content: String) -> Result<String, String> {
+        content.find("<title>")
+               .and_then(|p1| {
+                   content.drain(..p1);
+                   content.find("</title")
+               })
+               .and_then(|p2| {
+                   let (start, end) = ("<title>".len(), p2);
+                   // @TODO: the type of this value must be known in this context
+                   let title: String = content.drain(start..end).collect();
+                   let title = title.trim().to_string();
+                   Some(title)
+               })
+               .ok_or("无法解析html".to_string())
     }
 
-    let content = http_get_as_string(&url);
-
-    extract_ret(content)
+    http_get_as_string(url)
+        .and_then(extract_ret)
+        .and_then(|title| Ok(Item::new(url.to_string(), title)))
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
 #[test]
 fn test_title() {
-    assert_eq!(title("http://www.baidu.com".to_string()),
-               Some("百度一下，你就知道".to_string()));
+    assert_eq!(title("http://www.baidu.com").unwrap().title,
+               "百度一下，你就知道".to_string());
 }
