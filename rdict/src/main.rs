@@ -77,8 +77,8 @@ fn process_word(input: Option<String>) {
     }
 }
 
-fn dict(word: &String) -> Option<String> {
-    fn http_get_as_string(url: &String) -> String {
+fn dict(word: &str) -> Option<String> {
+    fn http_get_as_string(url: &str) -> String {
         let client = Client::new();
 
         // Creating an outgoing request.
@@ -144,6 +144,5 @@ fn post_to_cloud(tr: &TransResult) -> String {
 /// ////////////////////////////////////////////////////////////////////////////
 #[test]
 fn test_dict() {
-    assert_eq!(dict("hello".to_string()),
-               Some("int. 喂；哈罗".to_string()));
+    assert_eq!(dict("hello"), Some("int. 喂；哈罗".to_string()));
 }
