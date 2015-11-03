@@ -20,7 +20,7 @@ struct Item {
 }
 
 impl Item {
-    fn new(url: String, title: String) -> Item {
+    fn new(url: String, title: String) -> Self {
         Item {
             url: url,
             title: title,
