@@ -3,6 +3,7 @@ require "openssl/sha1"
 require "base64"
 require "colorize"
 require "json"
+require "secure_random"
 require "./icase/*"
 
 module Icase
@@ -17,13 +18,15 @@ module Icase
     Md5
     Base64_EN
     Base64_DE
+    SecureBase64
     PrettyJson
     Camelcase
     Size
     ByteSize
     EnvKey
 
-    def self.from_str(action : String?) : Action
+    def self.from_str(s : String?, action : String?) : Action
+      action = action || s
       case action
       when "size", "length", "len"                       then Size
       when "bytesize", "bytes", "byte_size", "byte-size" then ByteSize
@@ -35,6 +38,7 @@ module Icase
       when "md5"                                         then Md5
       when "base64", "+base64"                           then Base64_EN
       when "-base64"                                     then Base64_DE
+      when "sbase64", "+sbase64"                         then SecureBase64
       when "u", "up", "upcase"                           then Upcase
       when "json"                                        then PrettyJson
       when "env", "env-key", "env_key"                   then EnvKey
@@ -71,6 +75,8 @@ module Icase
       Base64.urlsafe_encode(str)
     when Action::Base64_DE
       String.new(Base64.decode(str))
+    when Action::SecureBase64
+      SecureRandom.urlsafe_base64
     when Action::PrettyJson
       JSON.parse(str).to_pretty_json
     when Action::EnvKey
@@ -86,7 +92,7 @@ private def help
   puts "USAGE: $ icase str action
 -------------------------
       * action:
-          size | bytesize | upcase | downcase | capitalize | camelcase | underscore | env | sha1 | md5 | base64 | -base64".colorize(:yellow)
+          size | bytesize | upcase | downcase | capitalize | camelcase | underscore | env | sha1 | md5 | base64 | -base64 | sbase64".colorize(:yellow)
 end
 
 def main(argv)
@@ -96,7 +102,7 @@ def main(argv)
       help
     else
       action_s = argv[1]?
-      action = Icase::Action.from_str(action_s)
+      action = Icase::Action.from_str(str, action_s)
       ret = Icase.encode(str, action)
       puts %('#{str}' |> #{action.to_s.downcase.colorize(:red)} =>\n#{ret.colorize(:green)})
       puts ""
