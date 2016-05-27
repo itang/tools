@@ -1,7 +1,7 @@
-task :default => :build
+task default: :build
 
 def nightly_cargo(cmd)
-  sh "multirust run nightly cargo #{cmd}"
+  sh "rustup run nightly cargo #{cmd}"
 end
 
 task :build do
