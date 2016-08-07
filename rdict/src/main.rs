@@ -3,18 +3,16 @@
 // extern crate url;
 extern crate rustc_serialize;
 
-#[macro_use]
-extern crate hyper;
+#[macro_use] extern crate hyper;
 
 use std::io;
 use std::io::Read;
 use std::env;
 
 use rustc_serialize::json;
-// use url::form_urlencoded;
 use hyper::Client;
-use hyper::header::Connection;
-use hyper::header::Headers;
+use hyper::header::{Connection, Headers, ContentType};
+use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use hyper::client::Body::BufBody;
 
 header! { (Auth, "Auth") => [String] }
@@ -84,9 +82,9 @@ fn dict(word: &str) -> Option<String> {
         // Creating an outgoing request.
         // &String can automatically coerce to a &str.
         let mut res = client.get(url)
-                            .header(Connection::close())
-                            .send()
-                            .unwrap();
+            .header(Connection::close())
+            .send()
+            .unwrap();
 
         // Read the Response.
         let mut body = String::new();
@@ -121,23 +119,24 @@ fn post_to_cloud(tr: &TransResult) -> String {
         let mut headers = Headers::new();
         headers.set(Connection::close());
         headers.set(Auth("test;test2015".to_owned()));
+        headers.set(ContentType(Mime(TopLevel::Application, SubLevel::Json, vec![(Attr::Charset, Value::Utf8)])));
 
         // let body_str = form_urlencoded::serialize(vec!(("from", from), ("to", to)));
         let body_str = json::encode(tr).unwrap();
         let bytes = body_str.as_bytes();
         let length = bytes.len();
         let mut res = client.post(url)
-                            .body(BufBody(bytes, length))
-                            .headers(headers)
-                            .send()
-                            .unwrap();
+            .body(BufBody(bytes, length))
+            .headers(headers)
+            .send()
+            .unwrap();
         let mut body = String::new();
         res.read_to_string(&mut body).unwrap();
         body
     };
 
-    let ret = http_post_as_string("http://www.haoshuju.net:8000/api/dict");
-    // let ret = http_post_as_string("http://localhost:8000/api/dict".to_string());
+    let ret = http_post_as_string("http://www.haoshuju.net:9800/dict/logs");
+
     ret
 }
 

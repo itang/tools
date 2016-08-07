@@ -14,7 +14,7 @@ end
 module Ijy
   extend self
 
-  def main(config = nil : String)
+  def main(config : String = nil)
     links(config).each &.browser!
   end
 
