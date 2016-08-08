@@ -4,6 +4,7 @@ name = "rdict"
 version = "0.2.0"
 
 [dependencies]
+ansi_term = "0.8.0"
 hyper = "*"
-url = "*"
 rustc-serialize = "*"
+url = "*"

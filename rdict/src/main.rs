@@ -1,19 +1,24 @@
-//#![feature(drain)]
+// #![feature(drain)]
 
 // extern crate url;
 extern crate rustc_serialize;
 
-#[macro_use] extern crate hyper;
+#[macro_use]
+extern crate hyper;
+
+extern crate ansi_term;
 
 use std::io;
 use std::io::Read;
 use std::env;
 
+use ansi_term::Colour;
 use rustc_serialize::json;
 use hyper::Client;
 use hyper::header::{Connection, Headers, ContentType};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use hyper::client::Body::BufBody;
+
 
 header! { (Auth, "Auth") => [String] }
 
@@ -59,7 +64,7 @@ fn process_word(input: Option<String>) {
         println!("{}:", word);
         match dict(&word) {
             Some(trans) => {
-                println!("\t->: {}", trans);
+                println!("\t->: {}", Colour::Blue.paint(trans.as_ref()));
 
                 println!("\ntry post to cloud...");
                 let resp = post_to_cloud(&TransResult {
@@ -119,9 +124,10 @@ fn post_to_cloud(tr: &TransResult) -> String {
         let mut headers = Headers::new();
         headers.set(Connection::close());
         headers.set(Auth("test;test2015".to_owned()));
-        headers.set(ContentType(Mime(TopLevel::Application, SubLevel::Json, vec![(Attr::Charset, Value::Utf8)])));
+        headers.set(ContentType(Mime(TopLevel::Application,
+                                     SubLevel::Json,
+                                     vec![(Attr::Charset, Value::Utf8)])));
 
-        // let body_str = form_urlencoded::serialize(vec!(("from", from), ("to", to)));
         let body_str = json::encode(tr).unwrap();
         let bytes = body_str.as_bytes();
         let length = bytes.len();
