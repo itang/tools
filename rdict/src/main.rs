@@ -141,7 +141,7 @@ fn post_to_cloud(tr: &TransResult) -> String {
         body
     };
 
-    let ret = http_post_as_string("http://www.haoshuju.net:9800/dict/logs");
+    let ret = http_post_as_string("http://haoshuju.net/api/dict/logs");
 
     ret
 }

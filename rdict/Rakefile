@@ -1,18 +1,21 @@
 task default: :build
 
 def nightly_cargo(cmd)
-  sh "rustup run nightly cargo #{cmd}"
+    sh "rustup run nightly cargo #{cmd}"
 end
 
 task :build do
-  nightly_cargo 'build --release'
-  sh 'cp target/release/rdict ~/dev-env/tools/'
+    nightly_cargo 'build --release'
+end
+
+task :install do
+    nightly_cargo 'install --force'
 end
 
 task :run do
-  nightly_cargo 'run --release'
+    nightly_cargo 'run --release'
 end
 
 task :test do
-  nightly_cargo 'test --release'
+    nightly_cargo 'test --release'
 end
