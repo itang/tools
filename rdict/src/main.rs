@@ -141,7 +141,7 @@ fn post_to_cloud(tr: &TransResult) -> String {
         body
     };
 
-    let ret = http_post_as_string("http://haoshuju.net/api/dict/logs");
+    let ret = http_post_as_string("http://dict.godocking.com/api/dict/logs");
 
     ret
 }
