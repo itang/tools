@@ -1,11 +1,7 @@
-// #![feature(drain)]
-
-// extern crate url;
-extern crate rustc_serialize;
-
 #[macro_use]
-extern crate hyper;
-
+extern crate serde_derive;
+//extern crate serde_json;
+extern crate reqwest;
 extern crate ansi_term;
 
 use std::io;
@@ -13,16 +9,9 @@ use std::io::Read;
 use std::env;
 
 use ansi_term::Colour;
-use rustc_serialize::json;
-use hyper::Client;
-use hyper::header::{Connection, Headers, ContentType};
-use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
-use hyper::client::Body::BufBody;
 
 
-header! { (Auth, "Auth") => [String] }
-
-#[derive(RustcDecodable, RustcEncodable)]
+#[derive(Serialize, Deserialize, Debug)]
 struct TransResult {
     to: String,
     from: String,
@@ -67,11 +56,13 @@ fn process_word(input: Option<String>) {
                 println!("\t->: {}", Colour::Blue.paint(trans.as_ref()));
 
                 println!("\ntry post to cloud...");
-                let resp = post_to_cloud(&TransResult {
+                match post_to_cloud(&TransResult {
                     to: trans,
                     from: word,
-                });
-                println!("\t->: {}", resp);
+                }) {
+                    Some(resp) => println!("\t->: {}", resp),
+                    None => (),
+                }
             }
             _ => println!("\tUnknown!"),
         }
@@ -82,14 +73,8 @@ fn process_word(input: Option<String>) {
 
 fn dict(word: &str) -> Option<String> {
     fn http_get_as_string(url: &str) -> String {
-        let client = Client::new();
-
-        // Creating an outgoing request.
-        // &String can automatically coerce to a &str.
-        let mut res = client.get(url)
-            .header(Connection::close())
-            .send()
-            .unwrap();
+        let client = reqwest::Client::new().unwrap();
+        let mut res = client.get(url).send().unwrap();
 
         // Read the Response.
         let mut body = String::new();
@@ -117,25 +102,22 @@ fn dict(word: &str) -> Option<String> {
     extract_result(content)
 }
 
-fn post_to_cloud(tr: &TransResult) -> String {
+const MAX_TO_CHARS: usize = 100;
+
+fn post_to_cloud(tr: &TransResult) -> Option<String> {
+    if tr.to.len() > MAX_TO_CHARS {
+        println!("INFO: Too large content({} chars), ignore to post!",
+                 tr.to.len());
+        return None;
+    }
+
     let http_post_as_string = |url: &str| -> String {
-        let client = Client::new();
-
-        let mut headers = Headers::new();
-        headers.set(Connection::close());
-        headers.set(Auth("test;test2015".to_owned()));
-        headers.set(ContentType(Mime(TopLevel::Application,
-                                     SubLevel::Json,
-                                     vec![(Attr::Charset, Value::Utf8)])));
-
-        let body_str = json::encode(tr).unwrap();
-        let bytes = body_str.as_bytes();
-        let length = bytes.len();
+        let client = reqwest::Client::new().unwrap();
         let mut res = client.post(url)
-            .body(BufBody(bytes, length))
-            .headers(headers)
+            .form(&tr)
             .send()
             .unwrap();
+
         let mut body = String::new();
         res.read_to_string(&mut body).unwrap();
         body
@@ -143,7 +125,7 @@ fn post_to_cloud(tr: &TransResult) -> String {
 
     let ret = http_post_as_string("http://dict.godocking.com/api/dict/logs");
 
-    ret
+    Some(ret)
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
