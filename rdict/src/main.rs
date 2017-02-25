@@ -1,15 +1,15 @@
 #[macro_use]
 extern crate serde_derive;
-//extern crate serde_json;
-extern crate reqwest;
+extern crate serde;
+
 extern crate ansi_term;
 
 use std::io;
-use std::io::Read;
 use std::env;
 
 use ansi_term::Colour;
 
+mod util;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TransResult {
@@ -31,60 +31,45 @@ fn main() {
         return None;
     }
 
-    if env::args().len() > 1 {
-        process_word(word_from_args());
-    } else {
-        let mut count = 0;
-        loop {
-            count += 1;
-            println!("[{}]Please input word:", count);
-            match word_from_input() {
-                Some(ref v) if *v == ":quit" || *v == ":q" => break,
-                it => process_word(it),
+    match word_from_args() {
+        Some(ref word) => process_word(word),
+        None => {
+            let mut count = 0;
+            loop {
+                count += 1;
+                println!("[{}]Please input word:", count);
+                match word_from_input() {
+                    Some(ref v) if *v == ":quit" || *v == ":q" => break,
+                    Some(ref v) => process_word(v),
+                    None => println!("Please input word."),
+                }
+                println!("-------------------------------------");
             }
-            println!("-------------------------------------");
         }
     }
 }
 
-fn process_word(input: Option<String>) {
-    if let Some(word_input) = input {
-        let word = word_input.trim().to_string();
-        println!("{}:", word);
+fn process_word(word: &str) {
+    println!("{}:", word);
 
-        match dict(&word) {
-            Ok(trans) => {
-                println!("\t->: {}", Colour::Blue.paint(trans.as_ref()));
+    match dict(word) {
+        Ok(trans) => {
+            println!("\t->: {}", Colour::Blue.paint(trans.as_ref()));
 
-                println!("\ntry post to cloud...");
-                match post_to_cloud(&TransResult {
-                    to: trans,
-                    from: word,
-                }) {
-                    Ok(resp) => println!("\t->: {}", resp),
-                    Err(err) => println!("error: {}", err),
-                }
+            println!("\ntry post to cloud...");
+            match post_to_cloud(&TransResult {
+                to: trans,
+                from: word.to_string(),
+            }) {
+                Ok(resp) => println!("\t->: {}", resp),
+                Err(err) => println!("error: {}", err),
             }
-            Err(err) => println!("\terror: {}", err),
         }
-    } else {
-        println!("Please input word.")
+        Err(err) => println!("\terror: {}", err),
     }
 }
 
 fn dict(word: &str) -> Result<String, String> {
-    fn http_get_as_string(url: &str) -> Result<String, String> {
-        let client = reqwest::Client::new().unwrap();
-        let mut res = client.get(url).send().map_err(|x| format!("{}", x))?;
-
-        // Read the Response.
-        let mut body = String::new();
-
-        res.read_to_string(&mut body).map_err(|x| format!("{}", x))?;
-
-        Ok(body)
-    }
-
     // content: owned move ?
     fn extract_result(mut content: String) -> Option<String> {
         if let Some(p1) = content.find("trans-container") {
@@ -100,7 +85,7 @@ fn dict(word: &str) -> Result<String, String> {
 
     let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
                       word);
-    let content = http_get_as_string(&url)?;
+    let content = util::http_get_as_string(&url)?;
 
     extract_result(content).ok_or("无法解析获取翻译内容".to_string())
 }
@@ -114,25 +99,11 @@ fn post_to_cloud(tr: &TransResult) -> Result<String, String> {
         return Err(msg);
     }
 
-    let http_post_as_string = |url: &str| -> Result<String, String> {
-        let client = reqwest::Client::new().unwrap();
-        let mut res = client.post(url)
-            .form(&tr)
-            .send()
-            .map_err(|x| format!("{}", x))?;
-
-        let mut body = String::new();
-
-        res.read_to_string(&mut body).map_err(|x| format!("{}", x))?;
-
-        Ok(body)
-    };
-
-    http_post_as_string("http://dict.godocking.com/api/dict/logs")
+    util::http_post_as_string("http://dict.godocking.com/api/dict/logs", tr)
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
 #[test]
 fn test_dict() {
-    assert_eq!(dict("hello"), Some("int. 喂；哈罗".to_string()));
+    assert_eq!(dict("hello"), Ok("int. 喂；哈罗".to_string()));
 }
