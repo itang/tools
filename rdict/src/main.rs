@@ -51,8 +51,9 @@ fn process_word(input: Option<String>) {
     if let Some(word_input) = input {
         let word = word_input.trim().to_string();
         println!("{}:", word);
+
         match dict(&word) {
-            Some(trans) => {
+            Ok(trans) => {
                 println!("\t->: {}", Colour::Blue.paint(trans.as_ref()));
 
                 println!("\ntry post to cloud...");
@@ -60,26 +61,28 @@ fn process_word(input: Option<String>) {
                     to: trans,
                     from: word,
                 }) {
-                    Some(resp) => println!("\t->: {}", resp),
-                    None => (),
+                    Ok(resp) => println!("\t->: {}", resp),
+                    Err(err) => println!("error: {}", err),
                 }
             }
-            _ => println!("\tUnknown!"),
+            Err(err) => println!("\terror: {}", err),
         }
     } else {
         println!("Please input word.")
     }
 }
 
-fn dict(word: &str) -> Option<String> {
-    fn http_get_as_string(url: &str) -> String {
+fn dict(word: &str) -> Result<String, String> {
+    fn http_get_as_string(url: &str) -> Result<String, String> {
         let client = reqwest::Client::new().unwrap();
-        let mut res = client.get(url).send().unwrap();
+        let mut res = client.get(url).send().map_err(|x| format!("{}", x))?;
 
         // Read the Response.
         let mut body = String::new();
-        res.read_to_string(&mut body).unwrap();
-        body
+
+        res.read_to_string(&mut body).map_err(|x| format!("{}", x))?;
+
+        Ok(body)
     }
 
     // content: owned move ?
@@ -97,35 +100,35 @@ fn dict(word: &str) -> Option<String> {
 
     let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
                       word);
-    let content = http_get_as_string(&url);
+    let content = http_get_as_string(&url)?;
 
-    extract_result(content)
+    extract_result(content).ok_or("无法解析获取翻译内容".to_string())
 }
 
 const MAX_TO_CHARS: usize = 100;
 
-fn post_to_cloud(tr: &TransResult) -> Option<String> {
+fn post_to_cloud(tr: &TransResult) -> Result<String, String> {
     if tr.to.len() > MAX_TO_CHARS {
-        println!("INFO: Too large content({} chars), ignore to post!",
-                 tr.to.len());
-        return None;
+        let msg = format!("Too large content({} chars), ignore to post!", tr.to.len());
+        println!("INFO: {}", msg);
+        return Err(msg);
     }
 
-    let http_post_as_string = |url: &str| -> String {
+    let http_post_as_string = |url: &str| -> Result<String, String> {
         let client = reqwest::Client::new().unwrap();
         let mut res = client.post(url)
             .form(&tr)
             .send()
-            .unwrap();
+            .map_err(|x| format!("{}", x))?;
 
         let mut body = String::new();
-        res.read_to_string(&mut body).unwrap();
-        body
+
+        res.read_to_string(&mut body).map_err(|x| format!("{}", x))?;
+
+        Ok(body)
     };
 
-    let ret = http_post_as_string("http://dict.godocking.com/api/dict/logs");
-
-    Some(ret)
+    http_post_as_string("http://dict.godocking.com/api/dict/logs")
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
