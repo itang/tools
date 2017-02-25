@@ -4,6 +4,7 @@ extern crate serde;
 
 extern crate ansi_term;
 
+use std::error::Error;
 use std::io;
 use std::env;
 
@@ -16,6 +17,7 @@ struct TransResult {
     to: String,
     from: String,
 }
+
 
 fn main() {
     fn word_from_args() -> Option<String> {
@@ -69,7 +71,7 @@ fn process_word(word: &str) {
     }
 }
 
-fn dict(word: &str) -> Result<String, String> {
+fn dict(word: &str) -> Result<String, Box<Error>> {
     // content: owned move ?
     fn extract_result(mut content: String) -> Option<String> {
         if let Some(p1) = content.find("trans-container") {
@@ -87,17 +89,17 @@ fn dict(word: &str) -> Result<String, String> {
                       word);
 
     util::http_get_as_string(&url).and_then(|content| {
-        extract_result(content).ok_or("无法解析获取翻译内容".to_string())
+        extract_result(content).ok_or(From::from("无法解析获取翻译内容"))
     })
 }
 
 const MAX_TO_CHARS: usize = 100;
 
-fn post_to_cloud(tr: &TransResult) -> Result<String, String> {
+fn post_to_cloud(tr: &TransResult) -> Result<String, Box<Error>> {
     if tr.to.len() > MAX_TO_CHARS {
         let msg = format!("Too large content({} chars), ignore to post!", tr.to.len());
         println!("INFO: {}", msg);
-        return Err(msg);
+        return Err(From::from(msg));
     }
 
     util::http_post_as_string("http://dict.godocking.com/api/dict/logs", tr)
@@ -106,5 +108,5 @@ fn post_to_cloud(tr: &TransResult) -> Result<String, String> {
 /// ////////////////////////////////////////////////////////////////////////////
 #[test]
 fn test_dict() {
-    assert_eq!(dict("hello"), Ok("int. 喂；哈罗".to_string()));
+    assert_eq!(dict("hello").unwrap(), "int. 喂；哈罗".to_string());
 }

@@ -1,24 +1,26 @@
 extern crate reqwest;
 
-
+use std::error::Error;
 use std::io::Read;
 use serde::ser::Serialize;
 
 
-pub fn http_get_as_string(url: &str) -> Result<String, String> {
-    let client = reqwest::Client::new().map_err(|x| format!("{}", x))?;
-    let mut res = client.get(url).send().map_err(|x| format!("{}", x))?;
+pub fn http_get_as_string(url: &str) -> Result<String, Box<Error>> {
+    let client = reqwest::Client::new()?;
+    let mut res = client.get(url).send()?;
 
     let mut body = String::new();
-    res.read_to_string(&mut body).map_err(|x| format!("{}", x)).map(|_| body)
+    res.read_to_string(&mut body)?;
+    Ok(body)
 }
 
-pub fn http_post_as_string<S>(url: &str, obj: S) -> Result<String, String>
+pub fn http_post_as_string<S>(url: &str, obj: S) -> Result<String, Box<Error>>
     where S: Serialize
 {
-    let client = reqwest::Client::new().map_err(|x| format!("{}", x))?;
-    let mut res = client.post(url).form(&obj).send().map_err(|x| format!("{}", x))?;
+    let client = reqwest::Client::new()?;
+    let mut res = client.post(url).form(&obj).send()?;
 
     let mut body = String::new();
-    res.read_to_string(&mut body).map_err(|x| format!("{}", x)).map(|_| body)
+    res.read_to_string(&mut body)?;
+    Ok(body)
 }
