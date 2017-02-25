@@ -85,9 +85,10 @@ fn dict(word: &str) -> Result<String, String> {
 
     let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
                       word);
-    let content = util::http_get_as_string(&url)?;
 
-    extract_result(content).ok_or("无法解析获取翻译内容".to_string())
+    util::http_get_as_string(&url).and_then(|content| {
+        extract_result(content).ok_or("无法解析获取翻译内容".to_string())
+    })
 }
 
 const MAX_TO_CHARS: usize = 100;
