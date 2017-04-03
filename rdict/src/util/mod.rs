@@ -18,7 +18,7 @@ pub fn http_post_as_string<S>(url: &str, obj: &S) -> Result<String, Box<Error>>
     where S: Serialize
 {
     let client = reqwest::Client::new()?;
-    let mut res = client.post(url).form(obj).send()?;
+    let mut res = client.post(url).json(obj).send()?;
 
     let mut body = String::new();
     res.read_to_string(&mut body)?;
