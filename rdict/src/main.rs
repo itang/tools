@@ -52,7 +52,7 @@ fn main() {
 }
 
 fn process_word(word: &str) {
-    println!("{}:", word);
+    println!("{}:", Colour::Green.paint(word));
 
     match dict(word) {
         Ok(trans) => {
