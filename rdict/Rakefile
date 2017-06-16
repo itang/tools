@@ -4,6 +4,10 @@ def nightly_cargo(cmd)
     sh "rustup run nightly cargo #{cmd}"
 end
 
+def musl_build(cmd)
+    sh 'docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder' + ' ' + cmd
+end
+
 task :build do
     nightly_cargo 'build --release'
 end
@@ -18,4 +22,9 @@ end
 
 task :test do
     nightly_cargo 'test --release'
+end
+
+task 'build-musl' do
+    #nightly_cargo 'build --release --target=x86_64-unknown-linux-musl'
+    musl_build('cargo build --release')
 end
