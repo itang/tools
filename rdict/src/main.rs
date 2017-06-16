@@ -85,8 +85,10 @@ fn dict(word: &str) -> Result<String, Box<Error>> {
         return None;
     }
 
-    let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index",
-                      word);
+    let url = format!(
+        "http://dict.youdao.com/search?q={}&keyfrom=dict.index",
+        word
+    );
 
     util::http_get_as_string(&url).and_then(|content| {
         extract_result(content).ok_or(From::from("无法解析获取翻译内容"))
