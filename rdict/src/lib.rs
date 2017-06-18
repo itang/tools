@@ -4,7 +4,10 @@ extern crate serde;
 
 use std::error::Error;
 
-pub mod util;
+mod util;
+
+//const DICT_SERVICE_URL: &'static str = "http://dict.youdao.com/search?q={}&keyfrom=dict.index";
+const DICT_LOG_URL: &'static str = "http://dict.godocking.com/api/dict/logs";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TransResult {
@@ -27,7 +30,7 @@ pub fn dict(word: &str) -> Result<String, Box<Error>> {
     }
 
     let url = format!(
-        "http://dict.youdao.com/search?q={}&keyfrom=dict.index",
+        "http://dict.youdao.com/search?q={}&keyfrom=dict.index", /*DICT_SERVICE_URL*/
         word
     );
 
@@ -45,7 +48,7 @@ pub fn post_to_cloud(tr: &TransResult) -> Result<String, Box<Error>> {
         return Err(From::from(msg));
     }
 
-    util::http_post_as_string("http://dict.godocking.com/api/dict/logs", tr)
+    util::http_post_as_string(DICT_LOG_URL, tr)
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
