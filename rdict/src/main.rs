@@ -11,14 +11,14 @@ use structopt::StructOpt;
 
 use rdict::TransResult;
 
-const VERSION: &'static str = "0.2.5";
+//const VERSION: &'static str = "0.2.5";
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "rdict", about = "rdict usage.")]
 struct Opt {
     /// A flag, true if used in the command line.
-    #[structopt(short = "v", long = "version", help = "show version")]
-    version: bool,
+    //#[structopt(short = "v", long = "version", help = "show version")]
+    //version: bool,
 
     #[structopt(help = "Input word")]
     word: Option<String>,
@@ -26,10 +26,6 @@ struct Opt {
 
 fn main() {
     let opt = Opt::from_args();
-    if opt.version {
-        println!("rdict-v{}", VERSION);
-        return;
-    }
 
     if let Some(ref word) = opt.word {
         process_word(word);
