@@ -1,15 +1,37 @@
 extern crate ansi_term;
 extern crate rdict;
+extern crate structopt;
+#[macro_use]
+extern crate structopt_derive;
 
-
-use std::env;
+//use std::env;
 use std::io;
 use ansi_term::Colour;
+use structopt::StructOpt;
 
 use rdict::TransResult;
 
+const VERSION: &'static str = "0.2.5";
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "rdict", about = "rdict usage.")]
+struct Opt {
+    /// A flag, true if used in the command line.
+    #[structopt(short = "v", long = "version", help = "show version")]
+    version: bool,
+
+    #[structopt(help = "Input word")]
+    word: Option<String>,
+}
+
 fn main() {
-    if let Some(ref word) = word_from_args() {
+    let opt = Opt::from_args();
+    if opt.version {
+        println!("rdict-v{}", VERSION);
+        return;
+    }
+
+    if let Some(ref word) = opt.word {
         process_word(word);
     } else {
         loop_process_from_input()
@@ -17,9 +39,9 @@ fn main() {
 }
 
 
-fn word_from_args() -> Option<String> {
-    env::args().nth(1)
-}
+//fn word_from_args() -> Option<String> {
+//    env::args().nth(1)
+//}
 
 fn process_word(word: &str) {
     println!("{}:", Colour::Green.paint(word));
