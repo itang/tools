@@ -19,7 +19,6 @@ struct Opt {
     /// A flag, true if used in the command line.
     //#[structopt(short = "v", long = "version", help = "show version")]
     //version: bool,
-
     #[structopt(help = "Input word")]
     word: Option<String>,
 }
@@ -30,7 +29,7 @@ fn main() {
     if let Some(ref word) = opt.word {
         process_word(word);
     } else {
-        loop_process_from_input()
+        process_from_input()
     }
 }
 
@@ -59,17 +58,11 @@ fn process_word(word: &str) {
     }
 }
 
-fn loop_process_from_input() {
-    let mut count = 0;
-    loop {
-        count += 1;
-        println!("[{}]Please input word:", count);
-        match word_from_input() {
-            Some(ref v) if *v == ":quit" || *v == ":q" => break,
-            Some(ref v) => process_word(v),
-            None => println!("Please input word."),
-        }
-        println!("-------------------------------------");
+fn process_from_input() {
+    match word_from_input() {
+        Some(ref v) if *v == ":quit" || *v == ":q" => println!("Bye."),
+        Some(ref v) => process_word(v),
+        None => println!("Please input word."),
     }
 }
 
