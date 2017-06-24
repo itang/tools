@@ -4,21 +4,16 @@ extern crate structopt;
 #[macro_use]
 extern crate structopt_derive;
 
-//use std::env;
 use std::io;
 use ansi_term::Colour;
 use structopt::StructOpt;
 
 use rdict::TransResult;
 
-//const VERSION: &'static str = "0.2.5";
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "rdict", about = "rdict usage.")]
 struct Opt {
-    /// A flag, true if used in the command line.
-    //#[structopt(short = "v", long = "version", help = "show version")]
-    //version: bool,
     #[structopt(help = "Input word")]
     word: Option<String>,
 }
@@ -32,11 +27,6 @@ fn main() {
         process_from_input()
     }
 }
-
-
-//fn word_from_args() -> Option<String> {
-//    env::args().nth(1)
-//}
 
 fn process_word(word: &str) {
     println!("{}:", Colour::Green.paint(word));
@@ -62,7 +52,7 @@ fn process_from_input() {
     match word_from_input() {
         Some(ref v) if *v == ":quit" || *v == ":q" => println!("Bye."),
         Some(ref v) => process_word(v),
-        None => println!("Please input word."),
+        None => println!("Error: {}", Colour::Red.paint("Please input word.")),
     }
 }
 
