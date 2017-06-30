@@ -7,7 +7,6 @@ use std::error::Error;
 mod util;
 
 //const DICT_SERVICE_URL: &'static str = "http://dict.youdao.com/search?q={}&keyfrom=dict.index";
-const DICT_LOG_URL: &'static str = "http://dict.godocking.com/api/dict/logs";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TransResult {
@@ -41,14 +40,14 @@ pub fn dict(word: &str) -> Result<String, Box<Error>> {
 
 const MAX_TO_CHARS: usize = 100;
 
-pub fn post_to_cloud(tr: &TransResult) -> Result<String, Box<Error>> {
+pub fn post_to_cloud(upstream_url: &str, tr: &TransResult) -> Result<String, Box<Error>> {
     if tr.to.len() > MAX_TO_CHARS {
         let msg = format!("Too large content({} chars), ignore to post!", tr.to.len());
         println!("INFO: {}", msg);
         return Err(From::from(msg));
     }
 
-    util::http_post_as_string(DICT_LOG_URL, tr)
+    util::http_post_as_string(upstream_url, tr)
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
