@@ -29,7 +29,7 @@ pub fn dict(word: &str) -> Result<String, Box<Error>> {
     }
 
     let url = format!(
-        "http://dict.youdao.com/search?q={}&keyfrom=dict.index", /*DICT_SERVICE_URL*/
+        "http://dict.youdao.com/search?q={}&keyfrom=dict.index" /*DICT_SERVICE_URL*/,
         word
     );
 

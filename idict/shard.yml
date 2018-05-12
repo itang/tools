@@ -11,4 +11,8 @@ dependencies:
 #    git: https://github.com/ysbaddaden/minitest.cr.git
 #    version: ~> 1.0.0
 
+development_dependencies:
+  ameba:
+    github: veelenga/ameba
+
 #license: MIT

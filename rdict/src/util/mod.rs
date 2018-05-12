@@ -1,9 +1,8 @@
 extern crate reqwest;
 
+use serde::ser::Serialize;
 use std::error::Error;
 use std::io::Read;
-use serde::ser::Serialize;
-
 
 pub fn http_get_as_string(url: &str) -> Result<String, Box<Error>> {
     let client = reqwest::Client::new()?;

@@ -3,13 +3,13 @@ extern crate rdict;
 extern crate structopt;
 #[macro_use]
 extern crate structopt_derive;
-extern crate toml;
 extern crate serde;
+extern crate toml;
 #[macro_use]
 extern crate serde_derive;
 
-use std::io;
 use std::fs::File;
+use std::io;
 use std::io::Read;
 use std::path::PathBuf;
 
@@ -18,12 +18,11 @@ use structopt::StructOpt;
 
 use rdict::TransResult;
 
-
 #[derive(StructOpt, Debug)]
 #[structopt(name = "rdict", about = "rdict usage.")]
 struct Opt {
-    #[structopt(help = "Input word")]
-    word: Option<String>,
+    #[structopt(help = "Input words")]
+    words: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -36,8 +35,10 @@ const DICT_LOG_URL: &'static str = "http://dict.godocking.com/api/dict/logs";
 fn main() {
     let opt = Opt::from_args();
 
-    if let Some(ref word) = opt.word {
-        process_word(word);
+    if opt.words.len() > 0 {
+        for word in opt.words.iter() {
+            process_word(word);
+        }
     } else {
         process_from_input()
     }
