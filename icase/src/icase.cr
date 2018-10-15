@@ -3,7 +3,7 @@ require "openssl/sha1"
 require "base64"
 require "colorize"
 require "json"
-require "secure_random"
+require "random/secure"
 require "./icase/*"
 
 module Icase
@@ -76,7 +76,7 @@ module Icase
     when Action::Base64_DE
       String.new(Base64.decode(str))
     when Action::SecureBase64
-      SecureRandom.urlsafe_base64
+      Random::Secure.urlsafe_base64
     when Action::PrettyJson
       JSON.parse(str).to_pretty_json
     when Action::EnvKey
