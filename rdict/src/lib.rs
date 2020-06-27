@@ -1,12 +1,8 @@
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
+use serde_derive::{Deserialize, Serialize};
 
 use std::error::Error;
 
 mod util;
-
-//const DICT_SERVICE_URL: &'static str = "http://dict.youdao.com/search?q={}&keyfrom=dict.index";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TransResult {
@@ -14,7 +10,7 @@ pub struct TransResult {
     pub from: String,
 }
 
-pub fn dict(word: &str) -> Result<String, Box<Error>> {
+pub fn dict(word: &str) -> Result<String, Box<dyn Error>> {
     // content: owned move ?
     fn extract_result(mut content: String) -> Option<String> {
         if let Some(p1) = content.find("trans-container") {
@@ -29,25 +25,24 @@ pub fn dict(word: &str) -> Result<String, Box<Error>> {
     }
 
     let url = format!(
-        "http://dict.youdao.com/search?q={}&keyfrom=dict.index" /*DICT_SERVICE_URL*/,
+        "http://dict.youdao.com/search?q={}&keyfrom=dict.index", /*DICT_SERVICE_URL*/
         word
     );
 
-    util::http_get_as_string(&url).and_then(|content| {
-        extract_result(content).ok_or(From::from("无法解析获取翻译内容"))
-    })
+    util::http_get_as_string(&url)
+        .and_then(|content| extract_result(content).ok_or(From::from("无法解析获取翻译内容")))
 }
 
 const MAX_TO_CHARS: usize = 100;
 
-pub fn post_to_cloud(upstream_url: &str, tr: &TransResult) -> Result<String, Box<Error>> {
+pub fn post_to_cloud(upstream_url: &str, tr: &TransResult) -> Result<String, Box<dyn Error>> {
     if tr.to.len() > MAX_TO_CHARS {
         let msg = format!("Too large content({} chars), ignore to post!", tr.to.len());
         println!("INFO: {}", msg);
-        return Err(From::from(msg));
+        Err(From::from(msg))
+    } else {
+        util::http_post_as_string(upstream_url, tr)
     }
-
-    util::http_post_as_string(upstream_url, tr)
 }
 
 /// ////////////////////////////////////////////////////////////////////////////

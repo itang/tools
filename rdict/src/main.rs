@@ -1,16 +1,7 @@
-extern crate ansi_term;
-extern crate rdict;
-extern crate structopt;
-#[macro_use]
-extern crate structopt_derive;
-extern crate serde;
-extern crate toml;
-#[macro_use]
-extern crate serde_derive;
+use serde_derive::Deserialize;
 
-use std::fs::File;
+use std::fs;
 use std::io;
-use std::io::Read;
 use std::path::PathBuf;
 
 use ansi_term::Colour;
@@ -40,7 +31,7 @@ fn main() {
             process_word(word);
         }
     } else {
-        process_from_input()
+        process_from_input();
     }
 }
 
@@ -103,9 +94,7 @@ fn get_upstream_url_from_config() -> Result<Option<String>, io::Error> {
     path.set_extension("toml");
 
     //println!("{:?}", path);
-    let mut file = File::open(path)?;
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
+    let content = fs::read_to_string(path)?;
 
     let config: Config = toml::from_str(&content).expect("toml parse error");
 
@@ -113,9 +102,5 @@ fn get_upstream_url_from_config() -> Result<Option<String>, io::Error> {
 }
 
 fn get_app_dir() -> PathBuf {
-    let dir: PathBuf = match std::env::home_dir() {
-        Some(path) => path,
-        None => PathBuf::from(""),
-    };
-    dir
+    dirs::home_dir().unwrap_or_else(|| PathBuf::from(""))
 }

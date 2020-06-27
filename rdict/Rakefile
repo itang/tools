@@ -1,30 +1,32 @@
+# frozen_string_literal: true
+
 task default: :build
 
 def nightly_cargo(cmd)
-    sh "rustup run nightly cargo #{cmd}"
+  sh "rustup run nightly cargo #{cmd}"
 end
 
 def musl_build(cmd)
-    sh 'docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder' + ' ' + cmd
+  sh 'docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder' + ' ' + cmd
 end
 
 task :build do
-    nightly_cargo 'build --release'
+  nightly_cargo 'build --release'
 end
 
 task :install do
-    nightly_cargo 'install --force'
+  nightly_cargo 'install --path=.'
 end
 
 task :run do
-    nightly_cargo 'run --release'
+  nightly_cargo 'run --release'
 end
 
 task :test do
-    nightly_cargo 'test --release'
+  nightly_cargo 'test --release'
 end
 
 task 'build-musl' do
-    #nightly_cargo 'build --release --target=x86_64-unknown-linux-musl'
-    musl_build('cargo build --release')
+  # nightly_cargo 'build --release --target=x86_64-unknown-linux-musl'
+  musl_build('cargo build --release')
 end
