@@ -1,5 +1,5 @@
 task :default => :build
 
 task :build do
-  sh 'crystal build src/icase.cr --release -o ~/dev-env/tools/icase'
+  sh 'crystal build src/icase.cr --release -o ~/.local/bin/icase'
 end
