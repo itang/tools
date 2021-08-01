@@ -29,8 +29,7 @@ def publish_win(c):
 @task(publish_win)
 def install_win(c):
     """install for windows"""
-    c.run('coreutils cp bin\\Release\\net6.0\\win-x64\\publish\\get_java_packages_fs.exe D:/dev-env/bin/')
-    c.run('coreutils mv D:/dev-env/bin/get_java_packages_fs.exe D:/dev-env/bin/jpackages.exe')
+    c.run('coreutils cp bin\\Release\\net6.0\\win-x64\\publish\\jpackages.exe D:/dev-env/bin/')
 
 
 @task
@@ -42,4 +41,4 @@ def publish_linux(c):
 @task(publish_linux)
 def install_linux(c):
     """install for linux"""
-    c.run('cp bin/Release/net6.0/linux-x64/publish/get_java_packages_fs /home/itang/.local/bin/jpackages')
+    c.run('cp bin/Release/net6.0/linux-x64/publish/jpackages /home/itang/.local/bin/jpackages')

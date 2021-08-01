@@ -56,6 +56,7 @@ let private toPackage (path: string) =
 
 let private getProjectRootFromArgv argv = Array.tryHead argv
 
+let private info0 value = printfn $"INFO: %s{value}"
 
 [<EntryPoint>]
 let main argv =
@@ -66,8 +67,9 @@ let main argv =
         |> getProjectRootFromArgv
         |> Option.defaultValue defaultProjectRoot
 
-    printfn $"INFO: projectRoot=%s{projectRoot}"
-    printfn "***"
+    do
+        info0 $"projectRoot: %s{projectRoot}"
+        printfn "*****"
 
     let javaFiles = walk "*.java" projectRoot |> Seq.toList
 
@@ -82,15 +84,17 @@ let main argv =
         |> List.distinct
         |> List.sort
 
-    packages |> List.iter (printfn "package %s")
+    do
+        for package in packages do
+            printfn $"package %s{package}"
 
-    printfn "***"
-    printfn $"java package count: %d{packages |> List.length}"
+        printfn "*****"
+        info0 $"java package count: %d{packages |> List.length}"
 
     let contents =
         String.Join(Environment.NewLine, packages)
 
-    File.WriteAllText("package.txt", contents)
+    do File.WriteAllText("package.txt", contents)
 
     //System.Console.ReadLine() |> ignore
 
