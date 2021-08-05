@@ -13,11 +13,16 @@ let openUrls urls =
             do openBrowser url)
         urls
 
+    0
+
+let onNonePath () =
+    printfn $"ERROR: path is invalid."
+
+    1
+
 [<EntryPoint>]
 let main argv =
     argv
     |> pathFromArgv [ @"D:\ProgramData\bin\jiayou.toml"
                       @"/home/itang/bin/jiayou.toml" ]
-    |> fold (urlsFromTomlPath >> openUrls) (fun () -> printfn $"ERROR: path is invalid.")
-
-    0 // return an integer exit code
+    |> fold (urlsFromTomlPath >> openUrls) onNonePath
