@@ -1,6 +1,7 @@
 ﻿module Util
 
 open System
+open System.Diagnostics
 open System.IO
 open Tomlyn
 open Tomlyn.Model
@@ -19,6 +20,9 @@ let pathFromArgv (defaultValue: string) argv = arrayHead defaultValue argv
 
 let parseToml path = path |> File.ReadAllText |> Toml.Parse
 
+let isWindows () =
+    Environment.OSVersion.Platform.ToString()
+    |> containsIgnoreCase "win"
 
 let urlsFromTomlPath path =
     let urlTomlArray =
@@ -30,12 +34,18 @@ let urlsFromTomlPath path =
 
 
 let getBrowserCmd () =
-    if Environment.OSVersion.Platform.ToString()
-       |> containsIgnoreCase "win" then
-        "explorer"
+    if isWindows () then
+        "start"
     else
         "x-www-browser"
 
 
-let openBrowser cmd url =
-    Diagnostics.Process.Start(cmd, [ url ]) |> ignore
+let openBrowser url =
+    if isWindows () then
+        let psi = ProcessStartInfo()
+        psi.UseShellExecute <- true
+        psi.FileName <- url
+        Process.Start(psi) |> ignore
+    else
+        let cmd = getBrowserCmd ()
+        Process.Start(cmd, [ url ]) |> ignore

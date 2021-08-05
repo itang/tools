@@ -7,7 +7,7 @@ let main argv =
     |> urlsFromTomlPath
     |> Seq.iteri
         (fun index url ->
-            printfn $"{index} open %s{url}"
-            openBrowser (getBrowserCmd ()) url)
+            printfn $"%d{index} open %s{url}"
+            openBrowser url)
 
     0 // return an integer exit code
