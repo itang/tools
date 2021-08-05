@@ -15,7 +15,12 @@ let private arrayHead defaultValue argv =
 let private containsIgnoreCase (it: string) (source: string) = source.ToLower().Contains(it.ToLower())
 
 
-let pathFromArgv (defaultValue: string) argv = arrayHead defaultValue argv
+let pathFromArgv (defaultValues: string list) argv =
+    match Array.tryHead argv with
+    | Some (path) -> Some(path)
+    | None ->
+        defaultValues
+        |> List.tryFind (fun it -> File.Exists(it))
 
 
 let parseToml path = path |> File.ReadAllText |> Toml.Parse
