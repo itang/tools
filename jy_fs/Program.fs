@@ -1,10 +1,5 @@
 ﻿open Util
-
-
-let fold onSome onNone opt =
-    match opt with
-    | Some it -> onSome it
-    | None -> onNone ()
+open Lang
 
 let openUrls urls =
     Seq.iteri

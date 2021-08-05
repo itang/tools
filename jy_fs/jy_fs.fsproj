@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="lib\Lang.fs" />
         <Compile Include="lib\Util.fs" />
         <Compile Include="Program.fs" />
         <Content Include=".gitignore" />
