@@ -48,7 +48,8 @@ let private toPackage (path: string) =
         try
             let ret = path.Substring(pos + javaDir.Length + 1)
             Some(ret.Replace(Path.DirectorySeparatorChar |> Char.ToString, "."))
-        with e ->
+        with
+        | e ->
             printfn $"process path:%s{path}, error: %A{e}"
             None
     else
@@ -60,8 +61,6 @@ let private info0 value = printfn $"INFO: %s{value}"
 
 [<EntryPoint>]
 let main argv =
-    //printfn "sp: %A  %A %A" IO.Path.PathSeparator IO.Path.VolumeSeparatorChar IO.Path.DirectorySeparatorChar
-
     let projectRoot =
         argv
         |> getProjectRootFromArgv
@@ -71,11 +70,8 @@ let main argv =
         info0 $"projectRoot: %s{projectRoot}"
         printfn "*****"
 
-    let javaFiles = walk "*.java" projectRoot |> Seq.toList
 
-    //javaFiles |> List.iter (printfn "%s")
-    //printfn "count: %d" javaFiles.Length
-    //printfn "%s" (String.replicate 100 "*")
+    let javaFiles = walk "*.java" projectRoot |> Seq.toList
 
     let packages =
         javaFiles
@@ -91,11 +87,10 @@ let main argv =
         printfn "*****"
         info0 $"java package count: %d{packages |> List.length}"
 
+
     let contents =
         String.Join(Environment.NewLine, packages)
 
     do File.WriteAllText("package.txt", contents)
-
-    //System.Console.ReadLine() |> ignore
 
     0 // return an integer exit code
