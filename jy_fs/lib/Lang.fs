@@ -1,7 +1,7 @@
 module Lang
 
-let fold onSome onNone opt =
-    match opt with
+let fold onSome onNone =
+    function
     | Some it -> onSome it
     | None -> onNone ()
 
