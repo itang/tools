@@ -7,11 +7,9 @@ open Tomlyn
 open Tomlyn.Model
 
 let pathFromArgv (defaultValues: string list) argv =
-    match Array.tryHead argv with
-    | Some (path) -> Some(path)
-    | None ->
-        defaultValues
-        |> List.tryFind (fun it -> File.Exists(it))
+    argv
+    |> Array.tryHead
+    |> Option.orElseWith (fun _ -> List.tryFind File.Exists defaultValues)
 
 
 let parseToml path = path |> File.ReadAllText |> Toml.Parse

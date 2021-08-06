@@ -1,9 +1,9 @@
 module Lang
 
-let fold onSome onNone =
+let fold onSomeFunc onNoneAction =
     function
-    | Some it -> onSome it
-    | None -> onNone ()
+    | Some value -> onSomeFunc value
+    | None -> onNoneAction ()
 
 let arrayHead defaultValue argv =
     argv
