@@ -9,10 +9,7 @@ struct Item {
 
 impl Item {
     fn new(url: String, title: String) -> Self {
-        Item {
-            url,
-            title,
-        }
+        Item { url, title }
     }
 }
 
@@ -26,10 +23,10 @@ fn main() {
             let local: DateTime<Local> = Local::now();
             let now = local.format("%Y-%m-%d %H:%M");
 
-            println!("\nrs << Read.new \"{}\",\n  title: \"{}\",\n  created_at: \"{}\"\n",
-                     url,
-                     title,
-                     now);
+            println!(
+                "\nrs << Read.new \"{}\",\n  title: \"{}\",\n  created_at: \"{}\"\n",
+                url, title, now
+            );
         }
         Err(e) => println!("\t{}", e),
     }
@@ -45,7 +42,8 @@ fn title(url: &str) -> Result<Item, String> {
     }
 
     fn extract_ret(mut content: String) -> Result<String, String> {
-        content.find("<title>")
+        content
+            .find("<title>")
             .and_then(|p1| {
                 content.drain(..p1);
                 content.find("</title")
@@ -68,6 +66,8 @@ fn title(url: &str) -> Result<Item, String> {
 /// ////////////////////////////////////////////////////////////////////////////
 #[test]
 fn test_title() {
-    assert_eq!(title("http://www.baidu.com").unwrap().title,
-               "百度一下，你就知道".to_string());
+    assert_eq!(
+        title("http://www.baidu.com").unwrap().title,
+        "百度一下，你就知道".to_string()
+    );
 }
