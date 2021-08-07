@@ -1,18 +1,6 @@
-#![feature(drain)]
-
-extern crate chrono;
-
-#[macro_use]
-extern crate hyper;
-
-use std::io::Read;
 use std::env;
 
 use chrono::*;
-
-use hyper::Client;
-use hyper::header::Connection;
-
 
 struct Item {
     url: String,
@@ -22,16 +10,19 @@ struct Item {
 impl Item {
     fn new(url: String, title: String) -> Self {
         Item {
-            url: url,
-            title: title,
+            url,
+            title,
         }
     }
 }
 
+static VERSION: &'static str = "0.3.0-20210807";
 
 fn main() {
-    match url_from_args().and_then(|ref url| title(url)) {
-        Ok(Item{url, title}) => {
+    println!("rtitle-v{}", VERSION);
+    let ret = url_from_args().and_then(|ref url| title(url));
+    match ret {
+        Ok(Item { url, title }) => {
             let local: DateTime<Local> = Local::now();
             let now = local.format("%Y-%m-%d %H:%M");
 
@@ -49,36 +40,27 @@ fn url_from_args() -> Result<String, String> {
 }
 
 fn title(url: &str) -> Result<Item, String> {
-    fn http_get_as_string(url: &str) -> Result<String, String> {
-        let client = Client::new();
-        let mut res = try!(client.get(url)
-                                 .header(Connection::close())
-                                 .send()
-                                 .map_err(|e| e.to_string()));
-
-        let mut body = String::new();
-        try!(res.read_to_string(&mut body).map_err(|e| e.to_string()));
-
-        Ok(body)
+    fn http_get_as_string(url: &str) -> reqwest::Result<String> {
+        reqwest::blocking::get(url)?.text()
     }
 
     fn extract_ret(mut content: String) -> Result<String, String> {
         content.find("<title>")
-               .and_then(|p1| {
-                   content.drain(..p1);
-                   content.find("</title")
-               })
-               .and_then(|p2| {
-                   let (start, end) = ("<title>".len(), p2);
-                   // @TODO: the type of this value must be known in this context
-                   let title: String = content.drain(start..end).collect();
-                   let title = title.trim().to_string();
-                   Some(title)
-               })
-               .ok_or("无法解析html".to_string())
+            .and_then(|p1| {
+                content.drain(..p1);
+                content.find("</title")
+            })
+            .and_then(|p2| {
+                let (start, end) = ("<title>".len(), p2);
+                let title: String = content.drain(start..end).collect();
+                let title = title.trim().to_string();
+                Some(title)
+            })
+            .ok_or("无法解析html".to_string())
     }
 
     http_get_as_string(url)
+        .map_err(|err| format!("error: {:?}", err))
         .and_then(extract_ret)
         .and_then(|title| Ok(Item::new(url.to_string(), title)))
 }

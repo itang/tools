@@ -1,8 +1,9 @@
 [package]
 authors = ["itang <live.tang@gmail.com>"]
 name = "rtitle"
-version = "0.2.0"
+version = "0.3.0"
+edition = "2018"
 
 [dependencies]
-chrono = "0.2.16"
-hyper = "0.6.15"
+chrono = "0.4.19"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
