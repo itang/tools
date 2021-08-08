@@ -15,8 +15,12 @@ let onNonePath () =
 
     1
 
+let VERSION = "0.1.0-20210808"
+
 [<EntryPoint>]
 let main argv =
+    printfn $"jy_fs-v%s{VERSION}"
+
     argv
     |> pathFromArgv [ @"D:\ProgramData\bin\jiayou.toml"
                       @"/home/itang/bin/jiayou.toml" ]
