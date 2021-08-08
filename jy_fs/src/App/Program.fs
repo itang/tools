@@ -1,6 +1,7 @@
 ﻿open JY
+open JY.Lang
 
-let VERSION = "0.1.1-20210808"
+let VERSION = "0.1.2-20210808"
 
 [<EntryPoint>]
 let main argv =
@@ -9,4 +10,4 @@ let main argv =
     argv
     |> Util.pathFromArgv [ @"D:\ProgramData\bin\jiayou.toml"
                            @"/home/itang/bin/jiayou.toml" ]
-    |> Lang.fold (Util.urlsFromTomlPath >> Biz.openUrls) Biz.onNonePath
+    |> OptionExt.fold (Util.urlsFromTomlPath >> Biz.openUrls) Biz.onNonePath

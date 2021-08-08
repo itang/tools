@@ -17,7 +17,7 @@ module Util =
 
     let isWindows () =
         Environment.OSVersion.Platform.ToString()
-        |> Lang.containsIgnoreCase "win"
+        |> Lang.StringExt.containsIgnoreCase "win"
 
     let urlsFromTomlPath path =
         let urlTomlArray =

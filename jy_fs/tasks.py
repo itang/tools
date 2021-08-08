@@ -28,7 +28,7 @@ def publish_win(c):
 @task(publish_win)
 def install_win(c):
     """install for windows"""
-    c.run('coreutils cp src\\bin\\Release\\net6.0\\win-x64\\publish\\App.exe D:/dev-env/bin/jy_fs.exe')
+    c.run('coreutils cp src\\App\\bin\\Release\\net6.0\\win-x64\\publish\\App.exe D:/dev-env/bin/jy_fs.exe')
 
 
 @task
