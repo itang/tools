@@ -22,25 +22,25 @@ def usage(c):
 @task
 def publish_win(c):
     """publish for windows"""
-    c.run('dotnet publish src/jy_fs.fsproj -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true')
+    c.run('dotnet publish src/App/App.fsproj -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true')
 
 
 @task(publish_win)
 def install_win(c):
     """install for windows"""
-    c.run('coreutils cp src\\bin\\Release\\net6.0\\win-x64\\publish\\jy_fs.exe D:/dev-env/bin/')
+    c.run('coreutils cp src\\bin\\Release\\net6.0\\win-x64\\publish\\App.exe D:/dev-env/bin/jy_fs.exe')
 
 
 @task
 def publish_linux(c):
     """publish for linux"""
-    c.run('dotnet publish src/jy_fs.fsproj -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true')
+    c.run('dotnet publish src/App/App.fsproj -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true')
 
 
 @task(publish_linux)
 def install_linux(c):
     """install for linux"""
-    c.run('cp src/bin/Release/net6.0/linux-x64/publish/jy_fs /home/itang/.local/bin/jy_fs')
+    c.run('cp src/App/bin/Release/net6.0/linux-x64/publish/App /home/itang/.local/bin/jy_fs')
 
 
 @task
@@ -58,4 +58,4 @@ def build(c):
 @task
 def run(c):
     """run"""
-    c.run('dotnet run --project src/jy_fs.fsproj')
+    c.run('dotnet run --project src/App/App.fsproj')
