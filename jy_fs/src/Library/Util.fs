@@ -7,17 +7,24 @@ module Util =
     open Tomlyn
     open Tomlyn.Model
 
+    let private parseToml path = path |> File.ReadAllText |> Toml.Parse
+
+    let private isWindows () =
+        Environment.OSVersion.Platform.ToString()
+        |> Lang.StringExt.containsIgnoreCase "win"
+
+
+    let private getBrowserCmd () =
+        if isWindows () then
+            "start"
+        else
+            "x-www-browser"
+
+
     let pathFromArgv (defaultValues: string list) argv =
         argv
         |> Array.tryHead
         |> Option.orElseWith (fun _ -> List.tryFind File.Exists defaultValues)
-
-
-    let parseToml path = path |> File.ReadAllText |> Toml.Parse
-
-    let isWindows () =
-        Environment.OSVersion.Platform.ToString()
-        |> Lang.StringExt.containsIgnoreCase "win"
 
     let urlsFromTomlPath path =
         let urlTomlArray =
@@ -26,14 +33,6 @@ module Util =
             |> (fun it -> it.ToModel().Item("urls") :?> TomlArray)
 
         seq { for it in urlTomlArray -> (it :?> string) }
-
-
-    let getBrowserCmd () =
-        if isWindows () then
-            "start"
-        else
-            "x-www-browser"
-
 
     let openBrowser url =
         if isWindows () then
