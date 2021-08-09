@@ -46,15 +46,15 @@ def install_linux(c):
 @task
 def clean(c):
     """clean"""
-    c.run('fake run .\\build.fsx --target Clean')
-    
-    
+    c.run('fake run build.fsx --target Clean')
+
+
 @task
 def build(c):
     """build"""
-    c.run('fake run .\\build.fsx --target Build')
-      
-        
+    c.run('fake run build.fsx --target Build')
+
+
 @task
 def run(c):
     """run"""
