@@ -8,13 +8,10 @@ let private START_TAG, END_TAG = "<title>", "</title>"
 let getBodyFromUrl url = http { GET url } |> Response.toText
 
 let extractTitle (body: string) =
-    let getIndex () =
-        let pos = body.IndexOf(START_TAG)
-        let endPos = body.IndexOf(END_TAG)
-        let start = pos + START_TAG.Length
-        let length = endPos - start
-        (start, length)
+    let startPos = body.IndexOf(START_TAG)
+    let endPos = body.IndexOf(END_TAG)
+    let startIndex = startPos + START_TAG.Length
+    let endIndex = endPos - 1
 
-    let start, length = getIndex ()
-    let title = body.Substring(start, length).Trim()
+    let title = body.[startIndex..endIndex].Trim()
     title
