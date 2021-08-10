@@ -11,6 +11,7 @@ let main argv =
                 url
                 |> getBodyFromUrl
                 |> extractTitle
+                |> unwrapTitle
 
             printfn $"title: %s{title}"
         | _ -> printfn "Please input the url."
