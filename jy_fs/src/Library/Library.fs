@@ -2,13 +2,18 @@
 
 module Biz =
     open JY.Util
+    open JY.Lang
 
     let openUrls urls =
-        Seq.iteri
+        urls
+        |> Seq.mapi
             (fun index url ->
-                printfn $"%d{index} open %s{url}"
-                do openBrowser url)
-            urls
+                async {
+                    printfn $"%d{index} open %s{url}"
+                    openBrowser url
+                })
+        |> AsyncExt.AwaitAll
+        |> ignore
 
         0
 

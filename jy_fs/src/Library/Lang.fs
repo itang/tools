@@ -14,3 +14,8 @@ module ArrayExt =
 
 module StringExt =
     let containsIgnoreCase (it: string) (source: string) = source.ToLower().Contains(it.ToLower())
+
+
+module AsyncExt =
+    let AwaitAll tasks =
+        tasks |> Async.Parallel |> Async.RunSynchronously
