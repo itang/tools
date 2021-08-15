@@ -10,7 +10,7 @@ let VERSION = "0.2.0-20210815"
 type Arguments =
     | [<AltCommandLine("-p")>] Parallel
     | [<AltCommandLine("-s")>] Sequence
-    | [<MainCommand>] ConfigPath of configPath: string list
+    | [<MainCommand; Unique>] ConfigPath of configPath: string list 
 
     interface IArgParserTemplate with
         member s.Usage =
@@ -41,7 +41,7 @@ let main argv =
         ArgumentParser.Create<Arguments>(programName = "jy_fs", errorHandler = errorHandler)
     //parser.PrintUsage() |> printfn "%s"
 
-    let results = parser.Parse argv
+    let results = parser.ParseCommandLine argv
     printfn $"DEBUG: %A{results}"
 
     let mode =
@@ -50,6 +50,6 @@ let main argv =
         else
             Biz.OpenMode.Parallel
 
-    let configUrls = results.GetResult ConfigPath |> Array.ofList
+    let configUrls = results.GetResult(ConfigPath, defaultValue = []) |> List.toArray 
 
     openUrls mode configUrls
