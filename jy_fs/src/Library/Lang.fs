@@ -19,3 +19,8 @@ module StringExt =
 module AsyncExt =
     let AwaitAll tasks =
         tasks |> Async.Parallel |> Async.RunSynchronously
+
+    let AwaitSeqAll tasks =
+        tasks
+        |> Async.Sequential
+        |> Async.RunSynchronously

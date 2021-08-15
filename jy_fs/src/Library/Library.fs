@@ -4,7 +4,23 @@ module Biz =
     open JY.Util
     open JY.Lang
 
-    let openUrls urls =
+    type OpenMode =
+        | Sequence
+        | Parallel
+        member this.FromString =
+            function
+            | "sequence"
+            | "s" -> Some(Sequence)
+            | "parallel"
+            | "p" -> Some(Parallel)
+            | _ -> None
+
+    let openUrls mode urls =
+        let doFunc =
+            match mode with
+            | Parallel -> AsyncExt.AwaitAll
+            | Sequence -> AsyncExt.AwaitSeqAll
+
         urls
         |> Seq.mapi
             (fun index url ->
@@ -12,7 +28,7 @@ module Biz =
                     printfn $"%d{index} open %s{url}"
                     openBrowser url
                 })
-        |> AsyncExt.AwaitAll
+        |> doFunc
         |> ignore
 
         0
