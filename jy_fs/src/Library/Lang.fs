@@ -17,10 +17,10 @@ module StringExt =
 
 
 module AsyncExt =
-    let AwaitAll tasks =
+    let AwaitParallelAll tasks =
         tasks |> Async.Parallel |> Async.RunSynchronously
 
-    let AwaitSeqAll tasks =
+    let AwaitSequentialAll tasks =
         tasks
         |> Async.Sequential
         |> Async.RunSynchronously

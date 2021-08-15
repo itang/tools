@@ -10,7 +10,7 @@ let VERSION = "0.2.0-20210815"
 type Arguments =
     | [<AltCommandLine("-p")>] Parallel
     | [<AltCommandLine("-s")>] Sequence
-    | [<MainCommand; Unique>] ConfigPath of configPath: string list 
+    | [<MainCommand; Unique>] ConfigPath of configPath: string list
 
     interface IArgParserTemplate with
         member s.Usage =
@@ -42,7 +42,7 @@ let main argv =
     //parser.PrintUsage() |> printfn "%s"
 
     let results = parser.ParseCommandLine argv
-    printfn $"DEBUG: %A{results}"
+    printfn $"DEBUG: arguments=%A{results}"
 
     let mode =
         if results.Contains Sequence then
@@ -50,6 +50,8 @@ let main argv =
         else
             Biz.OpenMode.Parallel
 
-    let configUrls = results.GetResult(ConfigPath, defaultValue = []) |> List.toArray 
+    let configUrls =
+        results.GetResult(ConfigPath, defaultValue = [])
+        |> List.toArray
 
     openUrls mode configUrls

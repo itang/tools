@@ -1,25 +1,18 @@
 ﻿namespace JY
 
-module Biz =
-    open JY.Util
-    open JY.Lang
+open JY.Lang
+open JY.Util
 
+module Biz =
     type OpenMode =
         | Sequence
         | Parallel
-        member this.FromString =
-            function
-            | "sequence"
-            | "s" -> Some(Sequence)
-            | "parallel"
-            | "p" -> Some(Parallel)
-            | _ -> None
 
     let openUrls mode urls =
         let doFunc =
             match mode with
-            | Parallel -> AsyncExt.AwaitAll
-            | Sequence -> AsyncExt.AwaitSeqAll
+            | Parallel -> AsyncExt.AwaitParallelAll
+            | Sequence -> AsyncExt.AwaitSequentialAll
 
         urls
         |> Seq.mapi
