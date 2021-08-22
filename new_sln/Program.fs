@@ -1,5 +1,4 @@
 ﻿open Library
-open Library
 
 let Version = "0.1-20210822"
 
