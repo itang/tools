@@ -1,5 +1,6 @@
 ﻿open Library
 
+[<Literal>]
 let Version = "0.1-20210822"
 
 [<EntryPoint>]
