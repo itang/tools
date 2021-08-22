@@ -13,7 +13,7 @@ let main argv =
 
     let dir = name
 
-    NewFSharpSln name dir
+    newFSharpSln name dir
 
     printfn $"cd %s{dir} ..."
 

@@ -13,9 +13,9 @@ module private Dotnet =
         p.WaitForExit()
         p.Close()
 
-    let new_sln target = dotnet [ "new"; "sln"; "-o"; target ]
+    let newSln target = dotnet [ "new"; "sln"; "-o"; target ]
 
-    let new_project template target =
+    let newProject template target =
         dotnet [ "new"
                  template
                  "-lang"
@@ -23,29 +23,29 @@ module private Dotnet =
                  "-o"
                  target ]
 
-    let add_ref target source =
+    let addRef target source =
         dotnet [ "add"
                  target
                  "reference"
                  source ]
 
-    let add_project target source = dotnet [ "sln"; target; "add"; source ]
+    let addProject target source = dotnet [ "sln"; target; "add"; source ]
 
-    let add_package project package =
+    let addPackage project package =
         dotnet [ "add"
                  project
                  "package"
                  package ]
 
-let NewFSharpSln name dir =
+let newFSharpSln name dir =
     let libProject = dir / "src" / "Library"
     let appProject = dir / "src" / "App"
     let sln = dir / $"{name}.sln"
 
-    Dotnet.new_sln name
-    Dotnet.new_project "classlib" libProject
-    Dotnet.add_package libProject "Newtonsoft.Json"
-    Dotnet.add_project sln libProject
-    Dotnet.new_project "console" appProject
-    Dotnet.add_ref appProject libProject
-    Dotnet.add_project sln appProject
+    Dotnet.newSln name
+    Dotnet.newProject "classlib" libProject
+    Dotnet.addPackage libProject "Newtonsoft.Json"
+    Dotnet.addProject sln libProject
+    Dotnet.newProject "console" appProject
+    Dotnet.addRef appProject libProject
+    Dotnet.addProject sln appProject
