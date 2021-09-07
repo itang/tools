@@ -34,7 +34,7 @@ def install_win(c):
 @task
 def publish_linux(c):
     """publish for linux"""
-    c.run('dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=true')
+    c.run('dotnet publish -r linux-x64 -c Release --self-contained -p:PublishSingleFile=true')
 
 
 @task(publish_linux)
