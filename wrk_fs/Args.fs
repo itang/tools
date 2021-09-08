@@ -5,9 +5,9 @@ module Args =
     open Argu
 
     type Arguments =
-    | [<AltCommandLine("-c")>] Connections of connections: int
-    | [<AltCommandLine("-d")>] Duration of duration: int
-    | [<AltCommandLine("-t")>] Threads of threads: int
+    | [<AltCommandLine("-c");EqualsAssignmentOrSpaced>] Connections of connections: int
+    | [<AltCommandLine("-d");EqualsAssignmentOrSpaced>] Duration of duration: int
+    | [<AltCommandLine("-t");EqualsAssignmentOrSpaced>] Threads of threads: int
     | [<Mandatory;MainCommand;ExactlyOnce;Last>] Url of url: string
         interface IArgParserTemplate with
             member s.Usage =

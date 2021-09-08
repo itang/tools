@@ -13,9 +13,15 @@ module Wrk =
              Duration = 10
              Url ="http://localhost:8080"}
 
+    let private pretty (options: Options) =
+        let indentAllLines (s: string) =
+            s.Split("\n") |> Array.map ((+) (String.replicate 4 " ")) |> String.concat "\n"
+
+        options |> sprintf "%A" |> indentAllLines
+           
     //TODO: 参考wrk 实现
     let run (options: Options) =
-        printfn $"options: %A{options}"
+        printfn $"options: \n{options |> pretty}"
         let ts =
             seq {
                  for i = 0 to options.Connections do
