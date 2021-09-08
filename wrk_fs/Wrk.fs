@@ -11,17 +11,21 @@ module Wrk =
             {Connections = 10
              Threads =  2
              Duration = 10
-             Url ="http://localhost:8080"}
+             Url = "http://localhost:8080"}
+        
+        member this.ToPrettyString (?indent: int) =
+            let result = $"%A{this}"
+            let indent = defaultArg indent 4
 
-    let private pretty (options: Options) =
-        let indentAllLines (s: string) =
-            s.Split("\n") |> Array.map ((+) (String.replicate 4 " ")) |> String.concat "\n"
+            if indent > 0 then
+                let indentAllLines (s: string) indent =
+                    s.Split("\n") |> Array.map ((+) (String.replicate indent " ")) |> String.concat "\n"
+                indentAllLines result indent
+            else result
 
-        options |> sprintf "%A" |> indentAllLines
-           
     //TODO: 参考wrk 实现
     let run (options: Options) =
-        printfn $"options: \n{options |> pretty}"
+        printfn $"options: \n{options.ToPrettyString()}"
         let ts =
             seq {
                  for i = 0 to options.Connections do
