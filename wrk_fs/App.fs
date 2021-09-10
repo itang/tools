@@ -16,23 +16,27 @@ module App =
 
     //see https://stackoverflow.com/questions/1531580/extension-methods-for-specific-generic-types
     [<Extension>]
-    type Extenions () =
+    type Extenions() =
         [<Extension>]
         static member inline toOptions(result: ParseResults<Arguments>) =
-            {Connections = result.GetResult(Arguments.Connections, Options.Default.Connections)
-             Threads = result.GetResult(Arguments.Threads, Options.Default.Threads)
-             Duration = result.GetResult(Arguments.Duration, Options.Default.Duration)
-             Url = result.GetResult(Arguments.Url, Options.Default.Url)}
+            { Connections = result.GetResult(Arguments.Connections, Options.Default.Connections)
+              Threads = result.GetResult(Arguments.Threads, Options.Default.Threads)
+              Duration = result.GetResult(Arguments.Duration, Options.Default.Duration)
+              Url = result.GetResult(Arguments.Url, Options.Default.Url) }
 
-    let run (argv: string[]) =
+    let run (argv: string []) =
         try
-            let parser = ArgumentParser.Create<Arguments>(programName = AppName)
-            let results = parser.ParseCommandLine(inputs = argv, raiseOnUsage = true)
+            let parser =
+                ArgumentParser.Create<Arguments>(programName = AppName)
 
-            results.toOptions() |> Wrk.run
+            let results =
+                parser.ParseCommandLine(inputs = argv, raiseOnUsage = true)
+
+            results.toOptions () |> Wrk.run
 
             0
-        with e ->
+        with
+        | e ->
             printfn "%s" e.Message
 
             1
