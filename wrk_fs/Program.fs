@@ -1,6 +1,4 @@
-﻿open wrkfs
-
-[<EntryPoint>]
+﻿[<EntryPoint>]
 let main argv =
     printfn $"wrk_fs V{App.AppVersion}"
 

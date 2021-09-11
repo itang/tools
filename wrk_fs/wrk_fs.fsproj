@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Wrk.fs" />
+    <Compile Include="wrk\Wrk.fs" />
     <Compile Include="Args.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Program.fs" />
