@@ -43,7 +43,10 @@ let fixedKeys =
       "func"
       "fn"
       "let"
-      "auto" ]
+      "auto"
+      "plus"
+      "360"
+      "byte" ]
 
 let private p = Seq.ofList fixedKeys
 
