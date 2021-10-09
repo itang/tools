@@ -46,7 +46,10 @@ let fixedKeys =
       "auto"
       "plus"
       "360"
-      "byte" ]
+      "micro"
+      "zen"
+      "byte"
+      "stream" ]
 
 let private p = Seq.ofList fixedKeys
 

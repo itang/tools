@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="whois.fs" />
     <Compile Include="names.fs" />
+    <Compile Include="Db.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
