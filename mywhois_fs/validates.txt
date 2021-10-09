@@ -1,3 +1,11 @@
+0defn.com
+0func.com
+0grip.com
+0spell.com
+0talking.com
+1defn.com
+1func.com
+1talking.com
 360def.com
 360defn.com
 360fold.com
@@ -26,6 +34,8 @@ deffun.com
 defjia.com
 deflet.com
 defmicro.com
+defn0.com
+defn1.com
 defn360.com
 defn51.com
 defnai.com
@@ -86,6 +96,7 @@ foldgrip.com
 foldlet.com
 foldspell.com
 foldtalking.com
+func0.com
 func51.com
 funcauto.com
 funcbyte.com
@@ -109,6 +120,7 @@ funczen.com
 fundefn.com
 gooddef.com
 gooddefn.com
+grip0.com
 grip51.com
 gripdef.com
 gripdefn.com
@@ -153,6 +165,8 @@ plusfold.com
 plusfunc.com
 plusspell.com
 plustalking.com
+spell0.com
+spell1.com
 spell51.com
 spelldef.com
 spelldefn.com
@@ -169,6 +183,7 @@ streamdefn.com
 streamfn.com
 streamjia.com
 streammicro.com
+talking0.com
 talking51.com
 talkingdef.com
 talkingdefn.com
