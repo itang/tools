@@ -3,3 +3,6 @@ bin
 .vscode
 
 obj
+
+.fake
+.ionide
