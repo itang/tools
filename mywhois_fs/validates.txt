@@ -87,6 +87,7 @@ defnnode.com
 defnping.com
 defnplugin.com
 defnplus.com
+defnserver.com
 defnsky.com
 defnsmart.com
 defnspell.com
@@ -297,6 +298,10 @@ plusnative.com
 plusplugin.com
 plusspell.com
 plustalking.com
+serverdef.com
+serverdefn.com
+serverfn.com
+serverfunc.com
 skydefn.com
 skyfunc.com
 smartdefn.com
@@ -349,6 +354,7 @@ talkingmy.com
 talkingos.com
 talkingping.com
 talkingplugin.com
+talkingserver.com
 talkingspell.com
 talkingstream.com
 testdefn.com
