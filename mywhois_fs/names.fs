@@ -3,6 +3,8 @@ module Names
 
 let private ds = [ "com" (* "net"; "io"; "cn"*)  ]
 
+let private keyToNames key = [ for it in ds -> $"{key}.{it}" ]
+
 let fixedKeys =
     [ "home"
       "engine"
@@ -13,7 +15,6 @@ let fixedKeys =
       "grip"
       "link"
       "cloud"
-      "51"
       "def"
       "defn"
       "fun"
@@ -22,26 +23,24 @@ let fixedKeys =
       "let"
       "auto"
       "plus"
-      "360"
       "micro"
       "zen"
       "byte"
-      "0"
-      "1"
-      "stream" ]
-
-
-let private keyToNames key = seq { for it in ds -> $"{key}.{it}" }
-
+      "stream"
+      "hub"
+      "labs"
+      "fast"
+      "stack" ]
+    @ [ "0"; "1"; "51"; "360" ]
 
 let genNames (key) =
-    let pp = fixedKeys |> Seq.filter ((<>) key)
+    let uniqueFixedKeys = fixedKeys |> Seq.filter ((<>) key)
 
     let fixedAll =
         seq {
             yield key //本身
-            yield! (Seq.map ((+) key) pp) //后缀
-            yield! (Seq.map (fun it -> $"{it}{key}") pp) //前缀
+            yield! (Seq.map ((+) key) uniqueFixedKeys) //后缀
+            yield! (Seq.map (fun it -> $"{it}{key}") uniqueFixedKeys) //前缀
         }
 
     fixedAll |> Seq.distinct |> Seq.collect keyToNames
