@@ -51,10 +51,12 @@ defnfn.com
 defnfold.com
 defnfun.com
 defnfunc.com
+defngo.com
 defngood.com
 defngrip.com
 defnhello.com
 defnhome.com
+defnio.com
 defnjia.com
 defnlet.com
 defnlink.com
@@ -64,6 +66,7 @@ defnplus.com
 defnspell.com
 defnstream.com
 defntalking.com
+defntest.com
 defnzen.com
 defspell.com
 deftalking.com
@@ -121,8 +124,10 @@ funcplus.com
 funcspell.com
 funcstream.com
 functalking.com
+functest.com
 funczen.com
 fundefn.com
+godefn.com
 gooddef.com
 gooddefn.com
 grip0.com
@@ -143,6 +148,9 @@ gripzen.com
 hellodefn.com
 hellofunc.com
 homedefn.com
+iodefn.com
+iogrip.com
+iospell.com
 jiaauto.com
 jiabyte.com
 jiadefn.com
@@ -208,6 +216,9 @@ talkinglet.com
 talkingmicro.com
 talkingspell.com
 talkingstream.com
+testdefn.com
+testfn.com
+testfunc.com
 zendefn.com
 zenfn.com
 zenfunc.com

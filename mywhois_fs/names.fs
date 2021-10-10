@@ -44,7 +44,4 @@ let genNames (key) =
             yield! (Seq.map (fun it -> $"{it}{key}") pp) //前缀
         }
 
-    fixedAll
-    |> Seq.distinct
-    |> Seq.map keyToNames
-    |> Seq.concat
+    fixedAll |> Seq.distinct |> Seq.collect keyToNames

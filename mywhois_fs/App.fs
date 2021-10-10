@@ -6,16 +6,13 @@ open Names
 open WhoisData
 
 
-type private WhoisResult = { name: string; valid: bool }
+type private WhoisResult = { Name: string; Valid: bool }
 
 
 /// 关键词到域名
 let private keysToNames keys =
     let names =
-        keys
-        |> Seq.map genNames
-        |> Seq.concat
-        |> Seq.distinct
+        keys |> Seq.collect genNames |> Seq.distinct
 
     let allOldSet = Db.allOldSet ()
 
@@ -26,29 +23,29 @@ let private keysToNames keys =
 
 let private doWhoisResults whoisResults : Unit =
     do
-        Seq.iteri (fun i it -> printfn $"{i} {it.name}: {it.valid}") whoisResults
+        Seq.iteri (fun i it -> printfn $"{i} {it.Name}: {it.Valid}") whoisResults
         printfn "*****************************************"
 
     // 记录新的失效记录
     let newInvalidateNames =
         whoisResults
-        |> Seq.filter (fun it -> not it.valid)
-        |> Seq.map (fun it -> it.name)
+        |> Seq.filter (fun it -> not it.Valid)
+        |> Seq.map (fun it -> it.Name)
 
     do Db.doAppendNewInvalidates (newInvalidateNames)
 
 
     let validates =
-        Seq.filter (fun it -> it.valid) whoisResults
+        Seq.filter (fun it -> it.Valid) whoisResults
 
     do
         validates
-        |> Seq.sortBy (fun it -> it.name.Length)
-        |> Seq.iteri (fun i it -> printfn $"{i} {it.name}: {it.valid}")
+        |> Seq.sortBy (fun it -> it.Name.Length)
+        |> Seq.iteri (fun i it -> printfn $"{i} {it.Name}: {it.Valid}")
 
     let newValidateNames =
         validates
-        |> Seq.map (fun it -> it.name)
+        |> Seq.map (fun it -> it.Name)
         |> Set.ofSeq
 
     do
@@ -71,7 +68,7 @@ let doMain args =
     let tasks =
         seq {
             for name in names do
-                yield async { return { name = name; valid = whoisYes name } }
+                yield async { return { Name = name; Valid = whoisYes name } }
         }
 
     let newWhoisResults =
