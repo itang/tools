@@ -1,7 +1,7 @@
 ﻿[<EntryPoint>]
 let main args =
     if args |> Array.isEmpty then
-        printfn "INPUT keys"
+        printfn "please input keys."
     else
         App.doMain args
 

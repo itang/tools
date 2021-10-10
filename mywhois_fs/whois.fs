@@ -2,20 +2,24 @@ module Whois
 
 open System.Diagnostics
 
+[<Literal>]
+let private NoMatch = "No match for domain"
+
 let private whois name =
-    let p = new Process()
-    p.StartInfo.FileName <- "whois"
-    p.StartInfo.UseShellExecute <- false
-    p.StartInfo.RedirectStandardOutput <- true
-    p.StartInfo.Arguments <- name
+    let pi =
+        ProcessStartInfo(fileName = "whois", UseShellExecute = false, RedirectStandardOutput = true, Arguments = name)
+
+    let p = new Process(StartInfo = pi)
     p.Start() |> ignore
 
     let out = p.StandardOutput.ReadToEnd()
-    printfn "out: %s" out
-    p.WaitForExit()
+
+    do
+        printfn "out: %s" out
+        p.WaitForExit()
 
     out
 
 let whoisYes name =
     let out = whois name
-    out.Contains("No match for domain")
+    out.Contains(NoMatch)

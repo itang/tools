@@ -31,6 +31,7 @@ defengine.com
 deffn.com
 deffold.com
 deffun.com
+defhello.com
 defjia.com
 deflet.com
 defmicro.com
@@ -52,6 +53,7 @@ defnfun.com
 defnfunc.com
 defngood.com
 defngrip.com
+defnhello.com
 defnhome.com
 defnjia.com
 defnlet.com
@@ -70,6 +72,7 @@ enginedefn.com
 enginefn.com
 enginefold.com
 enginefunc.com
+enginehello.com
 enginejia.com
 enginelet.com
 enginemicro.com
@@ -81,6 +84,7 @@ fndefn.com
 fnengine.com
 fnfunc.com
 fngrip.com
+fnhello.com
 fnlet.com
 fnspell.com
 fnstream.com
@@ -108,6 +112,7 @@ funcfold.com
 funcfun.com
 funcgood.com
 funcgrip.com
+funchello.com
 funchome.com
 funcjia.com
 funclink.com
@@ -129,11 +134,14 @@ gripfn.com
 gripfold.com
 gripfun.com
 gripfunc.com
+griphello.com
 gripjia.com
 gripmicro.com
 gripspell.com
 griptalking.com
 gripzen.com
+hellodefn.com
+hellofunc.com
 homedefn.com
 jiaauto.com
 jiabyte.com
@@ -163,6 +171,7 @@ plusdef.com
 plusdefn.com
 plusfold.com
 plusfunc.com
+plushello.com
 plusspell.com
 plustalking.com
 spell0.com
@@ -174,6 +183,7 @@ spellfn.com
 spellfold.com
 spellfunc.com
 spellgrip.com
+spellhello.com
 spelljia.com
 spelllet.com
 spellmicro.com
@@ -192,6 +202,7 @@ talkingfn.com
 talkingfold.com
 talkingfunc.com
 talkinggrip.com
+talkinghello.com
 talkingjia.com
 talkinglet.com
 talkingmicro.com

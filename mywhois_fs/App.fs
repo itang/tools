@@ -6,45 +6,11 @@ open Names
 open WhoisData
 
 
-let private doNew names =
-    Seq.iteri (fun i (name, b) -> printfn $"{i} {name}: {b}") names
-
-    printfn "*****************************************"
-
-    // 记录新的失效记录
-    let newInvalidateNames =
-        names
-        |> Seq.filter (fun (_, b) -> not b)
-        |> Seq.map (fun (name, _) -> name)
-
-    Db.appendNewInvalidates (newInvalidateNames)
+type private WhoisResult = { name: string; valid: bool }
 
 
-    let validates = Seq.filter (fun (_, b) -> b) names
-
-    validates
-    |> Seq.sortBy (fun (name, _) -> name.Length)
-    |> Seq.iteri (fun i (name, b) -> printfn $"{i} {name}: {b}")
-
-    let newValidateNames =
-        validates
-        |> Seq.map (fun (name, _) -> name)
-        |> Set.ofSeq
-
-    Db.putAllValidates (
-        (Set.union newValidateNames (Db.oldValidates ()))
-        |> Set.toArray
-    )
-
-let doMain keys =
-    printfn $"keys %A{keys}"
-
-    let keys =
-        Set.ofSeq (Seq.append fixedKeys (keys |> Seq.ofArray))
-
-    printfn $"all keys %A{keys}"
-
-
+/// 关键词到域名
+let private keysToNames keys =
     let names =
         keys
         |> Seq.map genNames
@@ -53,24 +19,65 @@ let doMain keys =
 
     let allOldSet = Db.allOldSet ()
 
-    let names =
-        names
-        |> Seq.filter (allOldSet.Contains >> not)
-        |> List.ofSeq
+    names
+    |> Seq.filter (allOldSet.Contains >> not) // 排除已处理过的
+    |> List.ofSeq
 
-    printfn $"names length: {names.Length}"
+
+let private doWhoisResults whoisResults : Unit =
+    do
+        Seq.iteri (fun i it -> printfn $"{i} {it.name}: {it.valid}") whoisResults
+        printfn "*****************************************"
+
+    // 记录新的失效记录
+    let newInvalidateNames =
+        whoisResults
+        |> Seq.filter (fun it -> not it.valid)
+        |> Seq.map (fun it -> it.name)
+
+    do Db.doAppendNewInvalidates (newInvalidateNames)
+
+
+    let validates =
+        Seq.filter (fun it -> it.valid) whoisResults
+
+    do
+        validates
+        |> Seq.sortBy (fun it -> it.name.Length)
+        |> Seq.iteri (fun i it -> printfn $"{i} {it.name}: {it.valid}")
+
+    let newValidateNames =
+        validates
+        |> Seq.map (fun it -> it.name)
+        |> Set.ofSeq
+
+    do
+        Db.doPutAllValidates (
+            (Set.union newValidateNames (Db.oldValidates ()))
+            |> Set.toArray
+        )
+
+
+let doMain args =
+    do printfn $"args keys %A{args}"
+
+    let keys = fixedKeys @ (Array.toList args)
+
+    do printfn $"all keys %A{keys}"
+
+    let names = keysToNames keys
+    do printfn $"names length: {names.Length}"
 
     let tasks =
         seq {
-            //不在已扫描过的名单里
             for name in names do
-                yield async { return name, whoisYes name }
+                yield async { return { name = name; valid = whoisYes name } }
         }
 
-    let ret =
+    let newWhoisResults =
         tasks |> Async.Parallel |> Async.RunSynchronously
 
-    if Array.isEmpty ret then
-        printfn "未处理新的记录"
-    else
-        doNew ret
+    do
+        match newWhoisResults with
+        | [||] -> printfn "未处理新的记录"
+        | results -> doWhoisResults results

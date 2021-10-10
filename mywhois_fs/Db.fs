@@ -11,34 +11,26 @@ module Db =
     [<Literal>]
     let private validatesFile = "validates.txt"
 
+    let private lineSets file =
+        if File.Exists(file) then
+            File.ReadAllLines(file)
+            |> Array.map (fun it -> it.Trim())
+            |> Set.ofArray
+        else
+            Set.empty
 
     //失效名单
-    let oldInValidates () =
-        if not (File.Exists(invalidatesFile)) then
-            Set.empty
-        else
-            File.ReadAllLines(invalidatesFile)
-            |> Array.map (fun it -> it.Trim())
-            |> Set.ofArray
-
+    let oldInValidates () = lineSets invalidatesFile
 
     //有效名单
-    let oldValidates () =
-        if File.Exists(validatesFile) then
-            File.ReadAllLines(validatesFile)
-            |> Array.map (fun it -> it.Trim())
-            |> Set.ofArray
-        else
-            Set.empty
-
+    let oldValidates () = lineSets validatesFile
 
     let allOldSet () =
         Set.union (oldInValidates ()) (oldValidates ())
 
-
-    let appendNewInvalidates newInvalidates =
+    let doAppendNewInvalidates newInvalidates =
         File.AppendAllLines(invalidatesFile, newInvalidates)
 
 
-    let putAllValidates validates =
+    let doPutAllValidates validates =
         File.WriteAllLines(validatesFile, validates)
