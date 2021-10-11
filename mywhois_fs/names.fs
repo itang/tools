@@ -74,7 +74,8 @@ let common =
       "china"
       "mesh"
       "core"
-      "center" ]
+      "center"
+      "code" ]
 
 let genNames (key) =
     let fixedAll =
