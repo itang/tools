@@ -1,8 +1,10 @@
-﻿[<EntryPoint>]
+﻿open app
+
+[<EntryPoint>]
 let main args =
-    if args |> Array.isEmpty then
+    if Array.isEmpty args then
         printfn "please input keys."
     else
-        App.doMain args
+        args |> Array.toList |> MyWhoisApp.main
 
     0

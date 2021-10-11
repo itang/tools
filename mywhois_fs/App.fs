@@ -1,80 +1,82 @@
-﻿module App
+﻿namespace app
 
 
-open Whois
-open Names
-open WhoisData
+module MyWhoisApp =
+
+    open Whois
+    open Names
+    open WhoisData
 
 
-type private WhoisResult = { Name: string; Valid: bool }
+    type private WhoisResult = { Name: string; Valid: bool }
 
 
-/// 关键词到域名
-let private keysToNames keys =
-    let names =
-        keys |> Seq.collect genNames |> Seq.distinct
+    /// 关键词到域名
+    let private keysToNames keys =
+        let names =
+            keys |> Seq.collect genNames |> Seq.distinct
 
-    let allOldSet = Db.allOldSet ()
+        let allOldSet = Db.allOldSet ()
 
-    names
-    |> Seq.filter (allOldSet.Contains >> not) // 排除已处理过的
-    |> List.ofSeq
-
-
-let private doWhoisResults whoisResults : Unit =
-    do
-        Seq.iteri (fun i it -> printfn $"{i} {it.Name}: {it.Valid}") whoisResults
-        printfn "*****************************************"
-
-    // 记录新的失效记录
-    let newInvalidateNames =
-        whoisResults
-        |> Seq.filter (fun it -> not it.Valid)
-        |> Seq.map (fun it -> it.Name)
-
-    do Db.doAppendNewInvalidates (newInvalidateNames)
+        names
+        |> Seq.filter (allOldSet.Contains >> not) // 排除已处理过的
+        |> List.ofSeq
 
 
-    let validates =
-        Seq.filter (fun it -> it.Valid) whoisResults
+    let private doWhoisResults whoisResults : Unit =
+        do
+            Seq.iteri (fun i it -> printfn $"{i} {it.Name}: {it.Valid}") whoisResults
+            printfn "*****************************************"
 
-    do
-        validates
-        |> Seq.sortBy (fun it -> it.Name.Length)
-        |> Seq.iteri (fun i it -> printfn $"{i} {it.Name}: {it.Valid}")
+        // 记录新的失效记录
+        let newInvalidateNames =
+            whoisResults
+            |> Seq.filter (fun it -> not it.Valid)
+            |> Seq.map (fun it -> it.Name)
 
-    let newValidateNames =
-        validates
-        |> Seq.map (fun it -> it.Name)
-        |> Set.ofSeq
-
-    do
-        Db.doPutAllValidates (
-            (Set.union newValidateNames (Db.oldValidates ()))
-            |> Set.toArray
-        )
+        do Db.doAppendNewInvalidates (newInvalidateNames)
 
 
-let doMain args =
-    do printfn $"args keys %A{args}"
+        let validates =
+            Seq.filter (fun it -> it.Valid) whoisResults
 
-    let keys = fixedKeys @ (Array.toList args)
+        do
+            validates
+            |> Seq.sortBy (fun it -> it.Name.Length)
+            |> Seq.iteri (fun i it -> printfn $"{i} {it.Name}: {it.Valid}")
 
-    do printfn $"all keys %A{keys}"
+        let newValidateNames =
+            validates
+            |> Seq.map (fun it -> it.Name)
+            |> Set.ofSeq
 
-    let names = keysToNames keys
-    do printfn $"names length: {names.Length}"
+        do
+            Db.doPutAllValidates (
+                (Set.union newValidateNames (Db.oldValidates ()))
+                |> Set.toArray
+            )
 
-    let tasks =
-        seq {
-            for name in names do
-                yield async { return { Name = name; Valid = whoisYes name } }
-        }
 
-    let newWhoisResults =
-        tasks |> Async.Parallel |> Async.RunSynchronously
+    let main (args: string list) =
+        do printfn $"args keys %A{args}"
 
-    do
-        match newWhoisResults with
-        | [||] -> printfn "未处理新的记录"
-        | results -> doWhoisResults results
+        let keys = fixedKeys @ args
+
+        do printfn $"all keys %A{keys}"
+
+        let names = keysToNames keys
+        do printfn $"names length: {names.Length}"
+
+        let tasks =
+            seq {
+                for name in names do
+                    yield async { return { Name = name; Valid = whoisYes name } }
+            }
+
+        let newWhoisResults =
+            tasks |> Async.Parallel |> Async.RunSynchronously
+
+        do
+            match newWhoisResults with
+            | [||] -> printfn "未处理新的记录"
+            | results -> doWhoisResults results
