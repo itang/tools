@@ -58,9 +58,7 @@ module MyWhoisApp =
 
 
     let main (args: string list) =
-        do printfn $"args keys %A{args}"
-
-        let keys = fixedKeys @ args
+        let keys = args
 
         do printfn $"all keys %A{keys}"
 

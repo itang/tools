@@ -6,10 +6,10 @@ module Db =
 
 
     [<Literal>]
-    let private invalidatesFile = "invalidates.txt"
+    let private InvalidatesFile = "invalidates.txt"
 
     [<Literal>]
-    let private validatesFile = "validates.txt"
+    let private ValidatesFile = "validates.txt"
 
     let private lineSets file =
         if File.Exists(file) then
@@ -20,17 +20,17 @@ module Db =
             Set.empty
 
     //失效名单
-    let oldInValidates () = lineSets invalidatesFile
+    let oldInValidates () = lineSets InvalidatesFile
 
     //有效名单
-    let oldValidates () = lineSets validatesFile
+    let oldValidates () = lineSets ValidatesFile
 
     let allOldSet () =
         Set.union (oldInValidates ()) (oldValidates ())
 
     let doAppendNewInvalidates newInvalidates =
-        File.AppendAllLines(invalidatesFile, newInvalidates)
+        File.AppendAllLines(InvalidatesFile, newInvalidates)
 
 
     let doPutAllValidates validates =
-        File.WriteAllLines(validatesFile, validates)
+        File.WriteAllLines(ValidatesFile, validates)
