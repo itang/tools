@@ -41,7 +41,8 @@ let prefixSingleLetter = [ 'a' .. 'z' ] |> List.map string
 let prefixSingleNumber = [ 0 .. 9 ] |> List.map string
 
 let common =
-    [ "home"
+    [ "api"
+      "home"
       "engine"
       "data"
       "spell"
