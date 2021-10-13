@@ -81,7 +81,9 @@ let common =
       "model"
       "start" ]
 
-let genNames (key) =
+let genNames keys key =
+    let common = keys @ common
+
     let fixedAll =
         seq {
             yield key //本身

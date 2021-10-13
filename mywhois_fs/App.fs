@@ -14,7 +14,9 @@ module MyWhoisApp =
     /// 关键词到域名
     let private keysToNames keys =
         let names =
-            keys |> Seq.collect genNames |> Seq.distinct
+            keys
+            |> Seq.collect (genNames keys)
+            |> Seq.distinct
 
         let allOldSet = Db.allOldSet ()
 
