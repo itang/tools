@@ -76,7 +76,9 @@ let common =
       "mesh"
       "core"
       "center"
-      "code" ]
+      "code"
+      "native"
+      "model" ]
 
 let genNames (key) =
     let fixedAll =
