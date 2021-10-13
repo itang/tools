@@ -78,7 +78,8 @@ let common =
       "center"
       "code"
       "native"
-      "model" ]
+      "model"
+      "start" ]
 
 let genNames (key) =
     let fixedAll =
