@@ -40,6 +40,14 @@ let prefixSingleLetter = [ 'a' .. 'z' ] |> List.map string
 
 let prefixSingleNumber = [ 0 .. 9 ] |> List.map string
 
+let prefixDoubleLetter =
+    [ for i in 'a' .. 'z' do
+          for j in 'a' .. 'z' -> $"{i}{j}" ]
+
+let prefixDoubleNumber =
+    [ for i in 0 .. 9 do
+          for j in 0 .. 9 -> $"{i}{j}" ]
+
 let common =
     [ "api"
       "home"
@@ -84,17 +92,19 @@ let common =
 let genNames keys key =
     let common = keys @ common
 
+    let prefixs =
+        common
+        @ prefixEn
+          @ prefixZh
+            @ prefixSingleLetter
+              @ prefixDoubleLetter
+                @ prefixSingleNumber @ prefixDoubleNumber
+
     let fixedAll =
         seq {
             yield key //本身
             yield! (Seq.map ((+) key) common) //后缀
-
-            yield!
-                (Seq.map
-                    (fun it -> $"{it}{key}")
-                    (common
-                     @ prefixEn
-                       @ prefixZh @ prefixSingleLetter @ prefixSingleNumber)) //前缀
+            yield! (Seq.map (fun it -> $"{it}{key}") prefixs) //前缀
         }
 
     fixedAll |> Seq.distinct |> Seq.collect keyToNames
