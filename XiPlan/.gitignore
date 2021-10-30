@@ -1,0 +1,7 @@
+﻿.idea
+*.iml
+
+bin
+obj
+
+.vscode
