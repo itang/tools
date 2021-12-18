@@ -1,0 +1,12 @@
+.bsp
+.metals
+.scala
+.vscode
+null
+dist
+
+.idea
+*.iml
+
+*.build*.txt
+deps_it.exe
