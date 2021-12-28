@@ -4,7 +4,6 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 
 object Util:
-  val columns = List("#", "月份", "星期", "日期", "任务完成情况", "自评得分", "审核得分", "备注")
   val zn =
     Array("零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二")
   extension (i: Int)

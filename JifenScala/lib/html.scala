@@ -5,27 +5,8 @@ import java.time.format.DateTimeFormatter
 
 import lib.util.Util.*
 
-class HtmlGen(startDate: LocalDate, endDate: LocalDate):
-
-  private def htmlRows(date: LocalDate, index: Int): String =
-    s"""<tr height='42px' valign='middle'>
-      <td width='30px' align='center'>${index + 1}</td>
-      ${if date.firstDayOfMonth(startDate) then
-      s"<td width='60px' align='center' rowspan='${date.daysToEndMonth}'>${date.getMonth.f}</td>"
-    else ""}
-      <td width='60px' align='center'>${date.getDayOfWeek.f}</td>
-      <td width='100px' align='center'>${date.f}</td>
-      <td></td>
-      <td width='40px'></td>
-      <td width='40px'></td>
-      <td width='80px'></td>
-      </tr>
-      ${if date.lastDayOfMongth then """<tr height='28px'><td colspan='5'></td>
-      <td align="right">月结:</td>
-      <td></td>
-      <td></td>
-      </tr>"""
-    else ""}"""
+class JifenHtmlGen(startDate: LocalDate, endDate: LocalDate):
+  val columns = List("#", "月份", "星期", "日期", "任务完成情况", "自评得分", "审核得分", "备注")
 
   def html(): String =
     def _dates: LazyList[LocalDate] =
@@ -68,3 +49,23 @@ class HtmlGen(startDate: LocalDate, endDate: LocalDate):
 </body>
 </html>
 """
+
+  private def htmlRows(date: LocalDate, index: Int): String =
+    s"""<tr height='42px' valign='middle'>
+      <td width='30px' align='center'>${index + 1}</td>
+      ${if date.firstDayOfMonth(startDate) then
+      s"<td width='60px' align='center' rowspan='${date.daysToEndMonth}'>${date.getMonth.f}</td>"
+    else ""}
+      <td width='60px' align='center'>${date.getDayOfWeek.f}</td>
+      <td width='100px' align='center'>${date.f}</td>
+      <td></td>
+      <td width='40px'></td>
+      <td width='40px'></td>
+      <td width='80px'></td>
+      </tr>
+      ${if date.lastDayOfMongth then """<tr height='28px'><td colspan='5'></td>
+      <td align="right">月结:</td>
+      <td></td>
+      <td></td>
+      </tr>"""
+    else ""}"""
