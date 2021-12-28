@@ -1,8 +1,7 @@
 // using scala 3.1.0
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 val startDate = LocalDate.of(2021, 12, 27)
 val endDate = LocalDate.of(2022, 12, 31)
@@ -50,7 +49,10 @@ def html(startDate: LocalDate, endDate: LocalDate): String =
       start #:: loop(start.plusDays(1))
     loop(startDate)
   val theDates = _dates.takeWhile(it => !it.isAfter(endDate))
-  s"""<!doctype html>
+  s"""<!-- create time: ${LocalDateTime.now.format(
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+  )} -->
+<!doctype html>
  <html lang="en">
  <head>
     <meta charset="utf-8">
@@ -79,7 +81,8 @@ def html(startDate: LocalDate, endDate: LocalDate): String =
  </tbody></table>
 </div>
 </body>
-</html>"""
+</html>
+"""
 
 @main def main(): Unit =
   val content = html(startDate, endDate)

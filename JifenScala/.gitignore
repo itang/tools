@@ -10,3 +10,6 @@ null
 main.bat
 main.jar
 main.exe
+
+main.build*.txt
+plan.html
