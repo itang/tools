@@ -1,0 +1,12 @@
+.bsp
+.idea
+.ionide
+.metals
+.scala
+.vscode
+null
+*.iml
+
+main.bat
+main.jar
+main.exe
