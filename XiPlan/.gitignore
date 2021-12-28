@@ -5,3 +5,7 @@ bin
 obj
 
 .vscode
+
+.ionide
+
+xiplan.html
