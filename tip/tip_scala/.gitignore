@@ -1,0 +1,9 @@
+.bsp
+.metals
+.scala
+.vscode
+dist
+null
+
+*.build_artifacts.txt
+*.exe

@@ -1,0 +1,8 @@
+bin
+obj
+
+.fake
+.ionide
+
+.idea
+*.iml
