@@ -6,3 +6,7 @@ obj
 
 .fake
 .ionide
+.metals
+
+.idea
+*.iml
