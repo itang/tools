@@ -12,7 +12,11 @@ def main(name: String): Unit =
   val f = d / s"$name.md"
 
   if File(f).exists then
-    f |>! println |> (Paths.get(_)) |> Files.readString |> println
+    f |>! println
+      |> (Paths.get(_))
+      |> Files.readAllBytes
+      |> (String(_, "UTF-8"))
+      |> println
   else displayFiles(d)
 
 def dataDir(): String = "TIP_DATA_ROOT".E or ("HOME".E / "data" / "tip")
