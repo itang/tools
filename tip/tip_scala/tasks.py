@@ -36,10 +36,19 @@ def dev(c):
     c.run('scala-cli run -S 3.1.0 -w main.scala')
 
 
+def _mkdir(c, dir):
+    c = f"mkdir -p {dir}"
+    if _is_windows():
+        c.run('coreutils ' + c)
+    else:
+        c.run(c)
+
+
 @task
 def dist(c):
     '''dist'''
-    c.run('mkdir -p dist')
+
+    _mkdir(c, 'dist')
     c.run('scala-cli package --assembly -S 3.1.0 -f -o dist/tip_scala.jar .')
 
 
