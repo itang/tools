@@ -6,7 +6,7 @@ import lib.util.*
 
 @main
 def main(name: String): Unit =
-  println("tip_scala-V0.1-20220103_01\n")
+  println("tip_scala-V0.1-20220104_01\n")
 
   val d = dataDir()
   val f = d / s"$name.md"
@@ -19,7 +19,7 @@ def main(name: String): Unit =
       |> println
   else displayFiles(d)
 
-def dataDir(): String = "TIP_DATA_ROOT".E or ("HOME".E / "data" / "tip")
+def dataDir(): String = "TIP_DATA_ROOT".E or ("HOME".E / "bin" / "data" / "tip")
 
 def displayFiles(d: String): Unit =
   println("$ tip --help")

@@ -39,6 +39,7 @@ def dev(c):
 @task
 def dist(c):
     '''dist'''
+    c.run('mkdir -p dist')
     c.run('scala-cli package --assembly -S 3.1.0 -f -o dist/tip_scala.jar .')
 
 
