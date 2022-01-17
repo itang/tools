@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::io;
 use std::path::Path;
 
 use anyhow::Result;
@@ -21,7 +22,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn get_content(name: String) -> Result<String> {
+fn get_content(name: String) -> io::Result<String> {
     let path = Path::new(DATA_HOME).join(format!("{name}.md"));
-    Ok(fs::read_to_string(path)?)
+    fs::read_to_string(path)
 }
