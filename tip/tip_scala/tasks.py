@@ -37,11 +37,11 @@ def dev(c):
 
 
 def _mkdir(c, dir):
-    c = f"mkdir -p {dir}"
+    cmd = f"mkdir -p {dir}"
     if _is_windows():
-        c.run('coreutils ' + c)
+        c.run('coreutils ' + cmd)
     else:
-        c.run(c)
+        c.run(cmd)
 
 
 @task
