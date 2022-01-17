@@ -14,10 +14,14 @@ fn main() -> Result<()> {
     println!("{names:?}");
 
     for name in names {
-        let path = Path::new(DATA_HOME).join(format!("{name}.md"));
-        let content = fs::read_to_string(path)?;
+        let content = get_content(name)?;
         println!("{content}");
     }
 
     Ok(())
+}
+
+fn get_content(name: String) -> Result<String> {
+    let path = Path::new(DATA_HOME).join(format!("{name}.md"));
+    Ok(fs::read_to_string(path)?)
 }
