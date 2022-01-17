@@ -5,8 +5,8 @@ use std::path::Path;
 
 use anyhow::Result;
 
-const DATA_HOME: &'static str = r#"D:\ProgramData\bin\data\tip"#;
-const VERSION: &'static str = "0.1-20220117";
+const DATA_HOME: &'static str = r#"D:\ProgramData\bin\data\tip"#; //TODO: from config
+const VERSION: &'static str = "0.1.1-20220117";
 
 fn main() -> Result<()> {
     println!("tip_rs-V{VERSION}");
