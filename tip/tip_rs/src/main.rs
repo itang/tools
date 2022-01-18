@@ -8,7 +8,7 @@ use clap::Parser;
 
 const DATA_ROOT_ENV_NAME: &str = "TIP_DATA_ROOT";
 const HOME_ENV_NAME: &str = "HOME";
-
+const LINE_NUMBER: u32 = 6;
 //ref: https://github.com/clap-rs/clap/tree/v3.0.9/examples/tutorial_derive
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -69,7 +69,7 @@ fn handle(command: Command) -> Result<()> {
                     .into_string()
                     .unwrap();
                 print!("{name:16}");
-                if i % 6 == 0 {
+                if i % LINE_NUMBER == 0 {
                     println!("");
                 }
             })?;
