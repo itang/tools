@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 use clap::Parser;
+use colour::*;
 
 const DATA_ROOT_ENV_NAME: &str = "TIP_DATA_ROOT";
 const HOME_ENV_NAME: &str = "HOME";
@@ -31,7 +32,7 @@ fn main() -> Result<()> {
             handle(Command::Display { name })
         }
         None => {
-            println!("Please input tip name!");
+            red_ln!("Please input tip name:");
             handle(Command::List)
         }
     }
@@ -41,7 +42,7 @@ fn handle(command: Command) -> Result<()> {
     match command {
         Command::Display { name } => {
             let content = get_markdown_path(name)?.read_to_string()?;
-            println!("{content}");
+            blue_ln!("{}", content);
         }
         Command::List => {
             let root_dir = get_tip_data_root_dir()?;
@@ -68,7 +69,7 @@ fn handle(command: Command) -> Result<()> {
                     .into_os_string()
                     .into_string()
                     .unwrap();
-                print!("{name:16}");
+                green!("{:16}", name);
                 if i % LINE_NUMBER == 0 {
                     println!("");
                 }
