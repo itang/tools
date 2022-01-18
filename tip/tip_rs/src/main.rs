@@ -1,12 +1,13 @@
 use std::env;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 
-const VERSION: &'static str = "0.1.1-20220117";
+const VERSION: &str = "0.1.1-20220117";
 
-const DATA_ROOT_ENV_NAME: &'static str = "TIP_DATA_ROOT";
+const DATA_ROOT_ENV_NAME: &str = "TIP_DATA_ROOT";
 const HOME_ENV_NAME: &str = "HOME";
 
 fn main() -> Result<()> {
@@ -17,16 +18,11 @@ fn main() -> Result<()> {
     println!("{}", "-".repeat(80));
 
     for name in names {
-        let content = get_content(name)?;
+        let content = get_markdown_path(name)?.read_to_string()?;
         println!("{content}");
     }
 
     Ok(())
-}
-
-fn get_content(name: String) -> Result<String> {
-    let path = get_markdown_path(name)?;
-    Ok(fs::read_to_string(path)?)
 }
 
 fn get_markdown_path(name: String) -> Result<PathBuf> {
@@ -37,4 +33,14 @@ fn get_markdown_path(name: String) -> Result<PathBuf> {
         });
 
     Ok(root.map(|x| x.join(format!("{name}.md")))?)
+}
+
+trait IReadString {
+    fn read_to_string(&self) -> io::Result<String>;
+}
+
+impl IReadString for PathBuf {
+    fn read_to_string(&self) -> io::Result<String> {
+        fs::read_to_string(self)
+    }
 }
