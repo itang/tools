@@ -4,23 +4,28 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use anyhow::Result;
-
-const VERSION: &str = "0.1.1-20220117";
+use clap::Parser;
 
 const DATA_ROOT_ENV_NAME: &str = "TIP_DATA_ROOT";
 const HOME_ENV_NAME: &str = "HOME";
 
-fn main() -> Result<()> {
-    println!("tip_rs-V{VERSION}");
+//ref: https://github.com/clap-rs/clap/tree/v3.0.9/examples/tutorial_derive
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// Name of the person to greet
+    name: String,
+}
 
-    let names: Vec<String> = env::args().skip(1).collect();
-    println!("tips for {names:?}");
+fn main() -> Result<()> {
+    let args = Args::parse();
+
+    let name = args.name;
+    println!("tips for {name}");
     println!("{}", "-".repeat(80));
 
-    for name in names {
-        let content = get_markdown_path(name)?.read_to_string()?;
-        println!("{content}");
-    }
+    let content = get_markdown_path(name)?.read_to_string()?;
+    println!("{content}");
 
     Ok(())
 }
