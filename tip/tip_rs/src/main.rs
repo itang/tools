@@ -1,5 +1,5 @@
 use std::env;
-use std::fs;
+use std::fs::{self, DirEntry};
 use std::io;
 use std::path::{Path, PathBuf};
 
@@ -14,28 +14,82 @@ const HOME_ENV_NAME: &str = "HOME";
 #[clap(author, version, about, long_about = None)]
 struct Args {
     /// Name of the person to greet
-    name: String,
+    name: Option<String>,
 }
 
+enum Command {
+    Display { name: String },
+    List,
+}
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let name = args.name;
-    println!("tips for {name}");
-    println!("{}", "-".repeat(80));
+    match args.name {
+        Some(name) => {
+            println!("Tips for {name}");
+            println!("{}", "-".repeat(80));
+            handle(Command::Display { name })
+        }
+        None => {
+            println!("Please input tip name!");
+            handle(Command::List)
+        }
+    }
+}
 
-    let content = get_markdown_path(name)?.read_to_string()?;
-    println!("{content}");
+fn handle(command: Command) -> Result<()> {
+    match command {
+        Command::Display { name } => {
+            let content = get_markdown_path(name)?.read_to_string()?;
+            println!("{content}");
+        }
+        Command::List => {
+            let root_dir = get_tip_data_root_dir()?;
+            fn visit_dirs(i: u32, dir: &Path, cb: &dyn Fn(u32, &DirEntry)) -> io::Result<()> {
+                if dir.is_dir() {
+                    let mut v = i;
+                    for entry in fs::read_dir(dir)? {
+                        let entry = entry?;
+                        let path = entry.path();
+                        if path.is_dir() {
+                            visit_dirs(i, &path, cb)?;
+                        } else {
+                            cb(v, &entry);
+                            v = v + 1;
+                        }
+                    }
+                }
+                Ok(())
+            }
+
+            visit_dirs(1, root_dir.as_path(), &|i, x| {
+                let name = Path::new(&x.file_name())
+                    .with_extension("")
+                    .into_os_string()
+                    .into_string()
+                    .unwrap();
+                print!("{name:16}");
+                if i % 6 == 0 {
+                    println!("");
+                }
+            })?;
+        }
+    }
 
     Ok(())
 }
 
-fn get_markdown_path(name: String) -> Result<PathBuf> {
-    let root = env::var(DATA_ROOT_ENV_NAME)
+fn get_tip_data_root_dir() -> Result<PathBuf> {
+    let path = env::var(DATA_ROOT_ENV_NAME)
         .map(|x| Path::new(&x).to_path_buf())
         .or_else(|_| {
             env::var(HOME_ENV_NAME).map(|x| Path::new(&x).join("bin").join("data").join("tip"))
-        });
+        })?;
+    Ok(path)
+}
+
+fn get_markdown_path(name: String) -> Result<PathBuf> {
+    let root = get_tip_data_root_dir();
 
     Ok(root.map(|x| x.join(format!("{name}.md")))?)
 }
