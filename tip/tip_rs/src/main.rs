@@ -56,7 +56,7 @@ fn handle(command: Command) -> Result<()> {
                             visit_dirs(i, &path, cb)?;
                         } else {
                             cb(v, &entry);
-                            v = v + 1;
+                            v += 1;
                         }
                     }
                 }
@@ -71,7 +71,7 @@ fn handle(command: Command) -> Result<()> {
                     .unwrap();
                 green!("{:16}", name);
                 if i % LINE_NUMBER == 0 {
-                    println!("");
+                    println!();
                 }
             })?;
         }
@@ -92,7 +92,7 @@ fn get_tip_data_root_dir() -> Result<PathBuf> {
 fn get_markdown_path(name: String) -> Result<PathBuf> {
     let root = get_tip_data_root_dir();
 
-    Ok(root.map(|x| x.join(format!("{name}.md")))?)
+    root.map(|x| x.join(format!("{name}.md")))
 }
 
 trait IReadString {
