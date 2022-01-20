@@ -25,19 +25,22 @@ def build(c):
     c.run('dotnet build -c Release')
 
 
-@task
-def publish_win(c):
-    """publish for windows"""
-    c.run('dotnet publish -r win-x64 -c Release --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true')
-
-
-@task(publish_win)
-def install_win(c):
-    """install for windows"""
-    c.run('coreutils cp bin\\Release\\net6.0\\win-x64\\publish\\tip.exe D:/dev-env/bin/')
+def _is_windows():
+    import sys
+    return sys.platform.startswith('win')
 
 
 @task
-def publish_linux(c):
-    """publish for linux"""
-    c.run('dotnet publish -r linux-x64 -c Release --self-contained -p:PublishSingleFile=true -p:PublishTrimmed=true')
+def publish(c):
+    if _is_windows():
+        c.run('dotnet publish -r win-x64 -c Release --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true')
+    else:
+        c.run('dotnet publish -r linux-x64 -c Release --self-contained -p:PublishSingleFile=true -p:PublishTrimmed=true')
+
+
+@task(publish)
+def install(c):
+    if _is_windows():
+        c.run('coreutils cp bin\\Release\\net6.0\\win-x64\\publish\\tip.exe D:/dev-env/bin/tip_fs.exe')
+    else:
+        c.run('cp bin/Release/net6.0/linux/publish/tip ~/home/.local/bin/tip_fs')
