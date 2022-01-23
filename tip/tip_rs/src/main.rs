@@ -7,9 +7,6 @@ use anyhow::Result;
 use clap::Parser;
 use colour::*;
 
-const DATA_ROOT_ENV_NAME: &str = "TIP_DATA_ROOT";
-const HOME_ENV_NAME: &str = "HOME";
-const LINE_NUMBER: u32 = 6;
 //ref: https://github.com/clap-rs/clap/tree/v3.0.9/examples/tutorial_derive
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -22,6 +19,11 @@ enum Command {
     Display { name: String },
     List,
 }
+
+const DATA_ROOT_ENV_NAME: &str = "TIP_DATA_ROOT";
+const HOME_ENV_NAME: &str = "HOME";
+const LINE_NUMBER: u32 = 6;
+
 fn main() -> Result<()> {
     let args = Args::parse();
 
