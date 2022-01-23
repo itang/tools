@@ -1,0 +1,2 @@
+{:deps {com.moandjiezana.toml/toml4j {:mvn/version "0.7.2"}
+        com.alibaba/fastjson {:mvn/version "1.2.76"}}}

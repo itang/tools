@@ -1,0 +1,8 @@
+build
+target
+.vscode
+
+jy_flix.jar
+
+.fake
+.ionide
