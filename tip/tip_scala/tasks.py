@@ -62,6 +62,6 @@ def native_image(c):
 def install(c):
     '''install'''
     if _is_windows():
-        c.run('coreutils cp tip_scala.exe D:\\dev-env\\bin\\tip.exe')
+        c.run('coreutils cp tip_scala.exe D:\\dev-env\\bin\\tip_scala.exe')
     else:
         c.run('bash -c "echo TODO: install for linux" ...')
