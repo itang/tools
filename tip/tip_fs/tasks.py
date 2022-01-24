@@ -43,4 +43,4 @@ def install(c):
     if _is_windows():
         c.run('coreutils cp bin\\Release\\net6.0\\win-x64\\publish\\tip.exe D:/dev-env/bin/tip_fs.exe')
     else:
-        c.run('cp bin/Release/net6.0/linux/publish/tip ~/home/.local/bin/tip_fs')
+        c.run('cp bin/Release/net6.0/linux-x64/publish/tip ~/.local/bin/tip_fs')
