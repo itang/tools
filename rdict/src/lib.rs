@@ -21,7 +21,8 @@ pub fn dict(word: &str) -> Result<String, Box<dyn Error>> {
                 return Some(content.drain(start..end).collect());
             }
         }
-        return None;
+
+        None
     }
 
     let url = format!(
@@ -29,8 +30,9 @@ pub fn dict(word: &str) -> Result<String, Box<dyn Error>> {
         word
     );
 
-    util::http_get_as_string(&url)
-        .and_then(|content| extract_result(content).ok_or(From::from("无法解析获取翻译内容")))
+    util::http_get_as_string(&url).and_then(|content| {
+        extract_result(content).ok_or_else(|| From::from("无法解析获取翻译内容"))
+    })
 }
 
 const MAX_TO_CHARS: usize = 100;

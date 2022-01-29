@@ -1,7 +1,7 @@
 use serde_derive::Deserialize;
 
 use std::fs;
-use std::io;
+use std::io::{self, Write};
 use std::path::PathBuf;
 
 use ansi_term::Colour;
@@ -21,17 +21,19 @@ struct Config {
     upstream_url: Option<String>,
 }
 
-const DICT_LOG_URL: &'static str = "http://dict.godocking.com/api/dict/logs";
+const DICT_LOG_URL: &str = "http://dict.godocking.com/api/dict/logs";
 
 fn main() {
     let opt = Opt::from_args();
 
-    if opt.words.len() > 0 {
+    if opt.words.is_empty() {
+        print!("{}", Colour::Red.paint("Please input the word: "));
+        io::stdout().flush().unwrap();
+        process_from_input();
+    } else {
         for word in opt.words.iter() {
             process_word(word);
         }
-    } else {
-        process_from_input();
     }
 }
 
@@ -58,10 +60,11 @@ fn process_from_input() {
 fn word_from_input() -> Option<String> {
     let mut word = String::new();
     let ret = io::stdin().read_line(&mut word);
-    if ret.is_ok() && word.trim().len() > 0 {
+    if ret.is_ok() && !word.trim().is_empty() {
         return Some(word.trim().to_string());
     }
-    return None;
+
+    None
 }
 
 fn post_to_cloud(from: &str, to: &str) {
@@ -93,7 +96,6 @@ fn get_upstream_url_from_config() -> Result<Option<String>, io::Error> {
     path.push(".rdict/config");
     path.set_extension("toml");
 
-    //println!("{:?}", path);
     let content = fs::read_to_string(path)?;
 
     let config: Config = toml::from_str(&content).expect("toml parse error");
