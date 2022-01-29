@@ -21,7 +21,7 @@ pub struct Opt {
     pub dry_run: bool,
 }
 
-pub static DEFAULT_FILE_NAME: &'static str = "jiayou.toml";
+pub static DEFAULT_FILE_NAME: &str = "jiayou.toml";
 
 impl IConfigPath for Opt {
     fn get_config_path(&self) -> Result<PathBuf> {
