@@ -2,7 +2,6 @@ use std::fs;
 //use std::process::{Command, Stdio};
 
 use anyhow::Result;
-use pipeline::*;
 use structopt::StructOpt;
 use toml::{self, Value};
 
