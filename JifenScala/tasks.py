@@ -36,22 +36,28 @@ def install(c):
 @task
 def run(c):
     '''run'''
-    c.run('scala-cli run -S 3.1.0 .')
+    c.run('scala-cli run .')
 
 
 @task
 def dev(c):
     '''dev'''
-    c.run('scala-cli run -S 3.1.0 -w .')
+    c.run('scala-cli run -w .')
 
 
 @task
 def dist(c):
     '''dist'''
-    c.run('scala-cli package -S 3.1.0 --assembly -f -o main.jar .')
+    c.run('scala-cli package --assembly -f -o main.jar .')
 
 
 @task(dist)
 def native_image(c):
     '''dist'''
     c.run('native-image -H:-CheckToolchain -jar main.jar')
+
+
+@task
+def scalanative(c):
+    '''scala native'''
+    c.run('scala-cli package --native -f .')

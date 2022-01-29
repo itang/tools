@@ -13,3 +13,5 @@ main.exe
 
 main.build*.txt
 plan.html
+
+.scala-build
