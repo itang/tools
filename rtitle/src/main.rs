@@ -13,10 +13,10 @@ impl Item {
     }
 }
 
-static VERSION: &'static str = "0.3.0-20210807";
+const VERSION: &str = "0.3.1-20220129";
 
 fn main() {
-    println!("rtitle-v{}", VERSION);
+    println!("rtitle-v{VERSION}");
     let ret = url_from_args().and_then(|ref url| title(url));
     match ret {
         Ok(Item { url, title }) => {
@@ -24,8 +24,7 @@ fn main() {
             let now = local.format("%Y-%m-%d %H:%M");
 
             println!(
-                "\nrs << Read.new \"{}\",\n  title: \"{}\",\n  created_at: \"{}\"\n",
-                url, title, now
+                "\nrs << Read.new \"{url}\",\n  title: \"{title}\",\n  created_at: \"{now}\"\n"
             );
         }
         Err(e) => println!("\t{}", e),
@@ -33,7 +32,9 @@ fn main() {
 }
 
 fn url_from_args() -> Result<String, String> {
-    env::args().nth(1).ok_or("Please input the url.".to_owned())
+    env::args()
+        .nth(1)
+        .ok_or_else(|| "Please input the url.".to_string())
 }
 
 fn title(url: &str) -> Result<Item, String> {
@@ -48,19 +49,19 @@ fn title(url: &str) -> Result<Item, String> {
                 content.drain(..p1);
                 content.find("</title")
             })
-            .and_then(|p2| {
+            .map(|p2| {
                 let (start, end) = ("<title>".len(), p2);
                 let title: String = content.drain(start..end).collect();
                 let title = title.trim().to_string();
-                Some(title)
+                title
             })
-            .ok_or("无法解析html".to_string())
+            .ok_or_else(|| "无法解析html".to_string())
     }
 
     http_get_as_string(url)
         .map_err(|err| format!("error: {:?}", err))
         .and_then(extract_ret)
-        .and_then(|title| Ok(Item::new(url.to_string(), title)))
+        .map(|title| Item::new(url.to_string(), title))
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
