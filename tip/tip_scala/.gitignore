@@ -9,3 +9,7 @@ null
 *.exe
 
 tip_scala
+
+.scala-build
+
+a.txt

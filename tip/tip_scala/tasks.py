@@ -27,13 +27,13 @@ def _is_windows():
 @task
 def run(c):
     '''run'''
-    c.run('scala-cli run -S 3.1.0 main.scala')
+    c.run('scala-cli run main.scala')
 
 
 @task
 def dev(c):
     '''dev'''
-    c.run('scala-cli run -S 3.1.0 -w main.scala')
+    c.run('scala-cli run -w main.scala')
 
 
 def _mkdir(c, dir):
@@ -49,13 +49,13 @@ def dist(c):
     '''dist'''
 
     _mkdir(c, 'dist')
-    c.run('scala-cli package --assembly -S 3.1.0 -f -o dist/tip_scala.jar .')
+    c.run('scala-cli package --assembly -f -o dist/tip_scala.jar .')
 
 
 @task(dist)
 def native_image(c):
     '''native image'''
-    c.run('native-image -H:-CheckToolchain -jar dist/tip_scala.jar')
+    c.run('native-image -H:-CheckToolchain -J-Dfile.encoding=UTF-8 -jar dist/tip_scala.jar')
 
 
 @task(native_image)
@@ -65,3 +65,9 @@ def install(c):
         c.run('coreutils cp tip_scala.exe D:\\dev-env\\bin\\tip_scala.exe')
     else:
         c.run('bash -c "echo TODO: install for linux" ...')
+
+
+@task
+def scalanative(c):
+    '''scala native'''
+    c.run("scala-cli package --native -S 3.1.1 --native-version 0.4.3 .")
