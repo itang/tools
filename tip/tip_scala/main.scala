@@ -13,7 +13,7 @@ object Main:
     println("tip_scala-V0.1-20220130\n")
 
     args.headOption match
-      case None =>
+      case None | Some("--help") | Some("-h") =>
         println("Please input name!")
         println("-" * 80)
         displayFiles(dataDir())
