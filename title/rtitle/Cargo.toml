@@ -1,8 +1,8 @@
 [package]
 authors = ["itang <live.tang@gmail.com>"]
 name = "rtitle"
-version = "0.3.1-20220129"
-edition = "2018"
+version = "0.3.1-20220203"
+edition = "2021"
 
 [dependencies]
 chrono = "0.4.19"

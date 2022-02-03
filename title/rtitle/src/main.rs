@@ -1,6 +1,5 @@
-use std::env;
-
 use chrono::*;
+use std::env;
 
 struct Item {
     url: String,
@@ -13,11 +12,31 @@ impl Item {
     }
 }
 
-const VERSION: &str = "0.3.1-20220129";
+const VERSION: &str = "0.3.1-20220203";
 
 fn main() {
+    let args: Vec<String> = env::args().skip(1).collect();
+    match &args[..] {
+        [] => {
+            println!("Please input the url.");
+            print_help();
+        }
+        [head, ..] if head == "-h" || head == "--help" => print_help(),
+        [head, ..] if head == "-v" || head == "--version" => print_version(),
+        [url, ..] => rtitle(url),
+    }
+}
+
+fn print_version() {
     println!("rtitle-v{VERSION}");
-    let ret = url_from_args().and_then(|ref url| title(url));
+}
+
+fn print_help() {
+    println!("e.g.\n  rtitle <url>")
+}
+
+fn rtitle(url: &str) {
+    let ret = title(url);
     match ret {
         Ok(Item { url, title }) => {
             let local: DateTime<Local> = Local::now();
@@ -31,11 +50,12 @@ fn main() {
     }
 }
 
+/*
 fn url_from_args() -> Result<String, String> {
     env::args()
         .nth(1)
         .ok_or_else(|| "Please input the url.".to_string())
-}
+}*/
 
 fn title(url: &str) -> Result<Item, String> {
     fn http_get_as_string(url: &str) -> reqwest::Result<String> {
