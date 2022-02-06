@@ -25,11 +25,14 @@ pub static DEFAULT_FILE_NAME: &str = "jiayou.toml";
 
 impl IConfigPath for Opt {
     fn get_config_path(&self) -> Result<PathBuf> {
-        Ok(match &self.config {
-            Some(p) => p.clone(),
-            None => Path::new(&env::var("HOME")?)
-                .join("bin")
-                .join(DEFAULT_FILE_NAME),
-        })
+        match &self.config {
+            Some(p) => Ok(p.clone()),
+            None => env::var("JY_CONFIG")
+                .map(|c| Path::new(&c).to_path_buf())
+                .or_else(|_| {
+                    Ok(env::var("HOME")
+                        .map(|x| Path::new(&x).join("bin").join(DEFAULT_FILE_NAME))?)
+                }),
+        }
     }
 }
