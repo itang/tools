@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 //use std::process::{Command, Stdio};
 
 use anyhow::Result;
@@ -14,17 +14,23 @@ fn main() -> Result<()> {
     println!("{opt:?}");
 
     if opt.dry_run {
+        let content = get_content(opt.get_config_path()?)?;
+        println!("{content}");
         println!("dry run. exit!");
+
         Ok(())
     } else {
-        let config_path = opt.get_config_path()?;
-        println!("Read config from {config_path:?}");
-
-        let content = fs::read_to_string(config_path)?;
+        let content = get_content(opt.get_config_path()?)?;
         let config = content.parse::<Value>()?;
 
         browser_batch(config)
     }
+}
+
+fn get_content(config_path: PathBuf) -> Result<String> {
+    println!("Read config from {config_path:?}");
+
+    Ok(fs::read_to_string(config_path)?)
 }
 
 fn browser_batch(config: Value) -> Result<()> {
