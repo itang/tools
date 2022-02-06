@@ -13,19 +13,21 @@ fn main() -> Result<()> {
     let opt = Opt::from_args();
     println!("{opt:?}");
 
-    if opt.dry_run {
-        let content = get_content(opt.get_config_path()?)?;
-        println!("{content}");
+    match opt {
+        Opt { dry_run: true, .. } => {
+            let content = get_content(opt.get_config_path()?)?;
+            println!("{content}");
 
-        println!("{}", "-".repeat(80));
-        println!("dry run. exit!");
+            println!("{}", "-".repeat(80));
+            println!("dry run. exit!");
+            Ok(())
+        }
+        _ => {
+            let content = get_content(opt.get_config_path()?)?;
+            let config = content.parse::<Value>()?;
 
-        Ok(())
-    } else {
-        let content = get_content(opt.get_config_path()?)?;
-        let config = content.parse::<Value>()?;
-
-        browser_batch(config)
+            browser_batch(config)
+        }
     }
 }
 
