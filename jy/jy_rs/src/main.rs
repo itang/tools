@@ -16,6 +16,8 @@ fn main() -> Result<()> {
     if opt.dry_run {
         let content = get_content(opt.get_config_path()?)?;
         println!("{content}");
+
+        println!("{}", "-".repeat(80));
         println!("dry run. exit!");
 
         Ok(())
