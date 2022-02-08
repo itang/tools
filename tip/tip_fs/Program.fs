@@ -47,9 +47,9 @@ let main argv =
         let isListFlag = parseResults.Contains(CliArguments.List)
 
         if isListFlag then
-            Handle <| ListTips dataDir
+            handleCommand <| ListTipsCommand dataDir
         else
             let argv =
                 parseResults.GetResult(CliArguments.NameCommand, [])
 
-            Handle <| DisplayTip(dataDir, argv)
+            handleCommand <| DisplayTipCommand(dataDir, argv)

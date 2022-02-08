@@ -51,10 +51,10 @@ let GetDataDir () =
 
 
 type BizCommand =
-    | ListTips of dataDir: string
-    | DisplayTip of dataDir: string * argv: string list
+    | ListTipsCommand of dataDir: string
+    | DisplayTipCommand of dataDir: string * argv: string list
 
-let Handle =
+let handleCommand =
     function
-    | ListTips dataDir -> handleListTips dataDir
-    | DisplayTip (dataDir, argv) -> handleDisplayTip dataDir argv
+    | ListTipsCommand dataDir -> handleListTips dataDir
+    | DisplayTipCommand (dataDir, argv) -> handleDisplayTip dataDir argv
