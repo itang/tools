@@ -1,16 +1,54 @@
 ﻿// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
 
+open Argu
+
 open Biz
+
+type CliArguments =
+    | [<AltCommandLine("-v")>] Version
+    | [<AltCommandLine("-l")>] List
+    | [<MainCommand; Last>] NameCommand of names: string list
+
+    interface IArgParserTemplate with
+        member s.Usage =
+            match s with
+            | Version -> " Version"
+            | List -> "List tips"
+            | NameCommand _ -> "The name for tip"
+
+let private parseArgs args =
+    let parser =
+        ArgumentParser.Create<CliArguments>(programName = "fff.exe")
+
+    try
+        parser.ParseCommandLine(inputs = args, ignoreMissing = true, raiseOnUsage = true, ignoreUnrecognized = true)
+    with
+    | e ->
+        printfn "%s" e.Message
+        exit 0
+
+[<Literal>]
+let version = "0.1-20220208"
 
 [<EntryPoint>]
 let main argv =
-    let dataDir = GetDataDir()
+    let parseResults = parseArgs argv
 
-    printfn $"INFO: tip data dir: %s{dataDir}"
+    if parseResults.Contains Version then
+        Util.ok $"V%s{version}"
 
-    let isListFlag = (Set.ofList [ "--list"; "-l" ]).Contains
-
-    if Array.exists isListFlag argv then
-        ListTips dataDir |> Handle
+        0
     else
-        DisplayTip(dataDir, argv) |> Handle
+        let dataDir = GetDataDir()
+
+        Util.ok $"INFO: tip data dir: %s{dataDir}"
+
+        let isListFlag = parseResults.Contains(CliArguments.List)
+
+        if isListFlag then
+            ListTips dataDir |> Handle
+        else
+            let argv =
+                parseResults.GetResult(CliArguments.NameCommand, [])
+
+            DisplayTip(dataDir, argv) |> Handle

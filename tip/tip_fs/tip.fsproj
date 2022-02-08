@@ -6,9 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="lib/Util.fs"/>
-    <Compile Include="lib/Biz.fs"/>
-    <Compile Include="Program.fs"/>
+    <Compile Include="lib/Util.fs" />
+    <Compile Include="lib/Biz.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Argu" Version="6.1.1" />
   </ItemGroup>
 
 </Project>
