@@ -3,6 +3,7 @@
 open Argu
 
 open Biz
+open Util
 
 type CliArguments =
     | [<AltCommandLine("-v")>] Version
@@ -35,13 +36,13 @@ let main argv =
     let parseResults = parseArgs argv
 
     if parseResults.Contains Version then
-        Util.ok $"V%s{version}"
+        Console.info $"V%s{version}"
 
         0
     else
         let dataDir = GetDataDir()
 
-        Util.ok $"INFO: tip data dir: %s{dataDir}"
+        Console.info $"INFO: tip data dir: %s{dataDir}"
 
         let isListFlag = parseResults.Contains(CliArguments.List)
 

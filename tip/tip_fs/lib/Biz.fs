@@ -10,15 +10,11 @@ let private handleListTips dir =
         |> Directory.GetFiles
         |> Array.map Path.GetFileNameWithoutExtension
 
-    Console.ForegroundColor <- ConsoleColor.Blue
-
     for chunks in (names |> Array.chunkBySize 6) do
         for chunk in chunks do
-            printf $"%-16s{chunk} "
+            Console.ok ($"%-16s{chunk} ", newline = false)
 
         printfn ""
-
-    Console.ResetColor()
 
     0
 
@@ -26,14 +22,18 @@ let private handleDisplayTip dataDir argv =
     try
         match argv with
         | name :: _ ->
-            name |> nameToPath dataDir |> readText |> info
+            name
+            |> nameToPath dataDir
+            |> readText
+            |> Console.ok
+
             0
         | _ ->
-            warn "Please input the tip name:"
+            Console.warn "Please input the tip name:"
             handleListTips dataDir
     with
     | :? FileNotFoundException as ex ->
-        error $"ERROR: %s{ex.Message}"
+        Console.error $"ERROR: %s{ex.Message}"
 
         handleListTips dataDir
 
