@@ -6,7 +6,9 @@ module Tip =
     open System.IO
     open Util
 
-    let private handleListTips dir =
+    let private nameToPath rootDir name = Path.Combine(rootDir, $"%s{name}.md")
+
+    let handleListTips dir =
         let names =
             dir
             |> Directory.GetFiles
@@ -14,24 +16,19 @@ module Tip =
 
         for chunks in (names |> Array.chunkBySize 6) do
             for chunk in chunks do
-                Console.Ok($"%-16s{chunk} ", newline = false)
+                Logger.Ok($"%-16s{chunk} ", newline = false)
 
             printfn ""
 
-        0
-
-    let private handleDisplayTip dataDir name =
+    let handleDisplayTip dataDir name =
         try
             name
             |> nameToPath dataDir
-            |> readText
-            |> Console.Ok
-
-            0
+            |> File.ReadAllText
+            |> Logger.Ok
         with
         | :? FileNotFoundException as ex ->
-            Console.Error $"ERROR: %s{ex.Message}"
-
+            Logger.Error $"ERROR: %s{ex.Message}"
             handleListTips dataDir
 
     let getDataDir () =
@@ -45,13 +42,3 @@ module Tip =
             Path.Combine(homeDir, "bin", "data", "tip")
         else
             dataDir
-
-
-    type BizCommand =
-        | ListTipsCommand of dataDir: string
-        | DisplayTipCommand of dataDir: string * name: string
-
-    let handleCommand =
-        function
-        | ListTipsCommand dataDir -> handleListTips dataDir
-        | DisplayTipCommand (dataDir, name) -> handleDisplayTip dataDir name
