@@ -15,9 +15,7 @@ let main argv =
         let dataDir = Tip.getDataDir ()
         Logger.Info $"INFO: tip data dir: %s{dataDir}"
 
-        let isListFlag = parseResults.Contains(CliArguments.List)
-
-        if isListFlag then
+        if parseResults.Contains(ListTips) then
             Tip.handleListTips dataDir
         else
             let name =

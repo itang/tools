@@ -4,14 +4,14 @@ open Argu
 
 type CliArguments =
     | [<AltCommandLine("-v")>] Version
-    | [<AltCommandLine("-l")>] List
+    | [<AltCommandLine("-l")>] ListTips
     | [<MainCommand; Last>] NameCommand of name: string list
 
     interface IArgParserTemplate with
         member s.Usage =
             match s with
-            | Version -> " Version"
-            | List -> "List tips"
+            | Version -> "Show Version"
+            | ListTips -> "List tips"
             | NameCommand _ -> "The name for tip"
 
     static member ParseArgs(args) =
