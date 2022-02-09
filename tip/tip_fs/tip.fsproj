@@ -7,7 +7,7 @@
 
 	<ItemGroup>
 		<Compile Include="lib/Util.fs" />
-		<Compile Include="lib\Tip.fs" />
+		<Compile Include="lib/Service/Tip.fs" />
 		<Compile Include="Args.fs" />
 		<Compile Include="Program.fs" />
 	</ItemGroup>
