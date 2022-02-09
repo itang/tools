@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="lib/Util.fs" />
-    <Compile Include="lib/Biz.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="lib/Util.fs" />
+		<Compile Include="lib\Tip.fs" />
+		<Compile Include="Args.fs" />
+		<Compile Include="Program.fs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Argu" Version="6.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Argu" Version="6.1.1" />
+	</ItemGroup>
 
 </Project>

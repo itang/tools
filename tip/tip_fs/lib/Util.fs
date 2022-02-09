@@ -17,24 +17,26 @@ let tipNameFromArgv defaultTip argv =
 type Console() =
     static let lockObj = obj ()
 
-    static member log(color, s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        lock lockObj (fun _ ->
-            Console.ForegroundColor <- color
-            let fn = if newline then printfn else printf
-            fn "%s" s
-            Console.ResetColor())
+    static member Log(color, s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
+        lock
+            lockObj
+            (fun _ ->
+                Console.ForegroundColor <- color
+                let fn = if newline then printfn else printf
+                fn "%s" s
+                Console.ResetColor())
 
-    static member complete(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        Console.log (ConsoleColor.Magenta, s, newline)
+    static member Complete(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
+        Console.Log(ConsoleColor.Magenta, s, newline)
 
-    static member ok(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        Console.log (ConsoleColor.Green, s, newline)
+    static member Ok(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
+        Console.Log(ConsoleColor.Green, s, newline)
 
-    static member info(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        Console.log (ConsoleColor.Cyan, s, newline)
+    static member Info(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
+        Console.Log(ConsoleColor.Cyan, s, newline)
 
-    static member warn(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        Console.log (ConsoleColor.Yellow, s, newline)
+    static member Warn(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
+        Console.Log(ConsoleColor.Yellow, s, newline)
 
-    static member error(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        Console.log (ConsoleColor.Red, s, newline)
+    static member Error(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
+        Console.Log(ConsoleColor.Red, s, newline)

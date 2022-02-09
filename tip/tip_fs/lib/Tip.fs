@@ -1,4 +1,4 @@
-module Biz
+module Tip
 
 open System
 open System.IO
@@ -12,32 +12,27 @@ let private handleListTips dir =
 
     for chunks in (names |> Array.chunkBySize 6) do
         for chunk in chunks do
-            Console.ok ($"%-16s{chunk} ", newline = false)
+            Console.Ok($"%-16s{chunk} ", newline = false)
 
         printfn ""
 
     0
 
-let private handleDisplayTip dataDir argv =
+let private handleDisplayTip dataDir name =
     try
-        match argv with
-        | name :: _ ->
-            name
-            |> nameToPath dataDir
-            |> readText
-            |> Console.ok
+        name
+        |> nameToPath dataDir
+        |> readText
+        |> Console.Ok
 
-            0
-        | _ ->
-            Console.warn "Please input the tip name:"
-            handleListTips dataDir
+        0
     with
     | :? FileNotFoundException as ex ->
-        Console.error $"ERROR: %s{ex.Message}"
+        Console.Error $"ERROR: %s{ex.Message}"
 
         handleListTips dataDir
 
-let GetDataDir () =
+let getDataDir () =
     let dataDir =
         Environment.GetEnvironmentVariable "TIP_DATA_ROOT"
 
@@ -52,9 +47,9 @@ let GetDataDir () =
 
 type BizCommand =
     | ListTipsCommand of dataDir: string
-    | DisplayTipCommand of dataDir: string * argv: string list
+    | DisplayTipCommand of dataDir: string * name: string
 
 let handleCommand =
     function
     | ListTipsCommand dataDir -> handleListTips dataDir
-    | DisplayTipCommand (dataDir, argv) -> handleDisplayTip dataDir argv
+    | DisplayTipCommand (dataDir, name) -> handleDisplayTip dataDir name
