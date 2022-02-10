@@ -2,25 +2,25 @@ module Tip
 
 open System
 open System.IO
+open System.Runtime.InteropServices
 open Util
 
-
-type Tiper(dataDir) =
+type Tiper(dataDir: string) =
     let nameToPath rootDir name = Path.Combine(rootDir, $"%s{name}.md")
 
-    member _.ListTips() =
+    member _.ListTips([<Optional; DefaultParameterValue(6)>] lineTipsNum: int) : unit =
         let names =
             dataDir
             |> Directory.GetFiles
             |> Array.map Path.GetFileNameWithoutExtension
 
-        for chunks in (names |> Array.chunkBySize 6) do
+        for chunks in (names |> Array.chunkBySize lineTipsNum) do
             for chunk in chunks do
                 Logger.Ok($"%-16s{chunk} ", newline = false)
 
         printfn ""
 
-    member self.DisplayTip(name) =
+    member self.DisplayTip(name) : unit =
         try
             name
             |> nameToPath dataDir
@@ -31,8 +31,7 @@ type Tiper(dataDir) =
             Logger.Error $"ERROR: %s{ex.Message}"
             self.ListTips()
 
-
-    static member GetDataDir() =
+    static member GetDataDir() : string =
         let dataDir =
             Environment.GetEnvironmentVariable "TIP_DATA_ROOT"
 
@@ -44,10 +43,9 @@ type Tiper(dataDir) =
         else
             dataDir
 
-
 [<AutoOpen>]
 module Factory =
-    let newTiper () =
+    let newTiper () : Tiper =
         let dataDir = Tiper.GetDataDir()
         Logger.Info $"INFO: tip data dir: %s{dataDir}"
 

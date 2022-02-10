@@ -15,7 +15,7 @@ type CliArguments =
             | ListTips -> "List tips"
             | NameCommand _ -> "The name for tip"
 
-    static member ParseArgs(args) =
+    static member ParseArgs(args) : ParseResults<CliArguments> =
         let parser =
             ArgumentParser.Create<CliArguments>(programName = "tip_fs.exe")
 
@@ -29,7 +29,7 @@ type CliArguments =
 [<Extension>]
 type ParseResultsForCliArgumentsExtensions =
     [<Extension>]
-    static member inline Name(it: ParseResults<CliArguments>) =
+    static member inline Name(it: ParseResults<CliArguments>) : string option =
         it.GetResult(CliArguments.NameCommand, [])
         |> List.tryHead
 
