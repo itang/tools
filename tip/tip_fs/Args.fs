@@ -24,3 +24,12 @@ type CliArguments =
         | e ->
             printfn "%s" e.Message
             exit 0
+
+
+let inline (|FVersion|FListTips|Success|) (args: ParseResults<CliArguments>) =
+    if args.Contains Version then
+        FVersion
+    else if args.Contains ListTips then
+        FListTips
+    else
+        Success args

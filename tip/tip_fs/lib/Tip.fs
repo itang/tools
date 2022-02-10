@@ -1,16 +1,16 @@
-namespace Service
+module Tip
 
-module Tip =
+open System
+open System.IO
+open Util
 
-    open System
-    open System.IO
-    open Util
 
-    let private nameToPath rootDir name = Path.Combine(rootDir, $"%s{name}.md")
+type Tiper(dataDir) =
+    let nameToPath rootDir name = Path.Combine(rootDir, $"%s{name}.md")
 
-    let listTips dir =
+    member _.ListTips() =
         let names =
-            dir
+            dataDir
             |> Directory.GetFiles
             |> Array.map Path.GetFileNameWithoutExtension
 
@@ -18,9 +18,9 @@ module Tip =
             for chunk in chunks do
                 Logger.Ok($"%-16s{chunk} ", newline = false)
 
-            printfn ""
+        printfn ""
 
-    let displayTip dataDir name =
+    member self.DisplayTip name =
         try
             name
             |> nameToPath dataDir
@@ -29,9 +29,10 @@ module Tip =
         with
         | :? FileNotFoundException as ex ->
             Logger.Error $"ERROR: %s{ex.Message}"
-            listTips dataDir
+            self.ListTips()
 
-    let getDataDir () =
+
+    static member getDataDir() =
         let dataDir =
             Environment.GetEnvironmentVariable "TIP_DATA_ROOT"
 
@@ -42,3 +43,12 @@ module Tip =
             Path.Combine(homeDir, "bin", "data", "tip")
         else
             dataDir
+
+
+[<AutoOpen>]
+module Factory =
+    let newTiper () =
+        let dataDir = Tiper.getDataDir ()
+        Logger.Info $"INFO: tip data dir: %s{dataDir}"
+
+        Tiper(dataDir)
