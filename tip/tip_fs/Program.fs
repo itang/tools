@@ -5,15 +5,12 @@ open Tip
 [<Literal>]
 let version = "0.1-20220209"
 
-
 [<EntryPoint>]
 let main argv =
-    let args = CliArguments.ParseArgs(argv)
-
-    match args with
+    match CliArguments.ParseArgs(argv) with
     | FVersion -> Logger.Info $"V%s{version}"
     | FListTips -> newTiper().ListTips()
-    | Success _ ->
+    | Success args ->
         let name =
             args.GetResult(CliArguments.NameCommand, [])
             |> List.tryHead
@@ -23,6 +20,5 @@ let main argv =
         | None ->
             Logger.Warn "Please input the tip name:"
             newTiper().ListTips()
-
 
     0

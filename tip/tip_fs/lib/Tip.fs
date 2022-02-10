@@ -20,7 +20,7 @@ type Tiper(dataDir) =
 
         printfn ""
 
-    member self.DisplayTip name =
+    member self.DisplayTip(name) =
         try
             name
             |> nameToPath dataDir
@@ -51,4 +51,4 @@ module Factory =
         let dataDir = Tiper.getDataDir ()
         Logger.Info $"INFO: tip data dir: %s{dataDir}"
 
-        Tiper(dataDir)
+        new Tiper(dataDir)
