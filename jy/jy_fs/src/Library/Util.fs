@@ -6,12 +6,16 @@ module Util =
     open System.IO
     open Tomlyn
     open Tomlyn.Model
+    open JY.Lang.StringExt
 
     let private parseToml path = path |> File.ReadAllText |> Toml.Parse
 
     let private isWindows () =
-        Environment.OSVersion.Platform.ToString()
-        |> Lang.StringExt.containsIgnoreCase "win"
+        Environment
+            .OSVersion
+            .Platform
+            .ToString()
+            .ContainsIgnoreCase "win"
 
 
     let private getBrowserCmd () =

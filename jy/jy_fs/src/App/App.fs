@@ -7,7 +7,7 @@ open JY.Lang
 open Args
 
 [<Literal>]
-let Version = "0.2.0-20210815"
+let Version = "0.2.0-20220210"
 
 [<Literal>]
 let Name = "jy_fs"

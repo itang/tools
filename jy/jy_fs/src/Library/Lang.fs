@@ -13,7 +13,9 @@ module ArrayExt =
         |> Option.defaultValue defaultValue
 
 module StringExt =
-    let containsIgnoreCase (it: string) (source: string) = source.ToLower().Contains(it.ToLower())
+    type System.String with
+        member self.ContainsIgnoreCase(it: string) : bool = self.ToLower().Contains(it.ToLower())
+//let containsIgnoreCase (it: string) (source: string) = source.ToLower().Contains(it.ToLower())
 
 
 module AsyncExt =
