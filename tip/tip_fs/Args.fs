@@ -1,5 +1,6 @@
 ﻿module Args
 
+open System.Runtime.CompilerServices
 open Argu
 
 type CliArguments =
@@ -25,6 +26,12 @@ type CliArguments =
             printfn "%s" e.Message
             exit 0
 
+[<Extension>]
+type ParseResultsForCliArgumentsExtensions =
+    [<Extension>]
+    static member inline Name(it: ParseResults<CliArguments>) =
+        it.GetResult(CliArguments.NameCommand, [])
+        |> List.tryHead
 
 let inline (|FVersion|FListTips|Success|) (args: ParseResults<CliArguments>) =
     if args.Contains Version then

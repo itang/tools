@@ -11,11 +11,7 @@ let main argv =
     | FVersion -> Logger.Info $"V%s{version}"
     | FListTips -> newTiper().ListTips()
     | Success args ->
-        let name =
-            args.GetResult(CliArguments.NameCommand, [])
-            |> List.tryHead
-
-        match name with
+        match args.Name() with
         | Some name -> newTiper().DisplayTip(name)
         | None ->
             Logger.Warn "Please input the tip name:"

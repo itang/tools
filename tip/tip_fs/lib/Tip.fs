@@ -32,7 +32,7 @@ type Tiper(dataDir) =
             self.ListTips()
 
 
-    static member getDataDir() =
+    static member GetDataDir() =
         let dataDir =
             Environment.GetEnvironmentVariable "TIP_DATA_ROOT"
 
@@ -48,7 +48,7 @@ type Tiper(dataDir) =
 [<AutoOpen>]
 module Factory =
     let newTiper () =
-        let dataDir = Tiper.getDataDir ()
+        let dataDir = Tiper.GetDataDir()
         Logger.Info $"INFO: tip data dir: %s{dataDir}"
 
         new Tiper(dataDir)
