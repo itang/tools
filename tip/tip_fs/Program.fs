@@ -1,31 +1,32 @@
 ﻿open Args
 open Util
-open Service
+open Service.Tip
+
 
 [<Literal>]
 let version = "0.1-20220209"
 
 [<EntryPoint>]
 let main argv =
-    let parseResults = CliArguments.ParseArgs(argv)
+    let args = CliArguments.ParseArgs(argv)
 
-    if parseResults.Contains Version then
+    if args.Contains Version then
         Logger.Info $"V%s{version}"
     else
-        let dataDir = Tip.getDataDir ()
+        let dataDir = getDataDir ()
         Logger.Info $"INFO: tip data dir: %s{dataDir}"
 
-        if parseResults.Contains(ListTips) then
-            Tip.handleListTips dataDir
+        if args.Contains(ListTips) then
+            listTips dataDir
         else
             let name =
-                parseResults.GetResult(CliArguments.NameCommand, [])
+                args.GetResult(CliArguments.NameCommand, [])
                 |> List.tryHead
 
             match name with
-            | Some name -> Tip.handleDisplayTip dataDir name
+            | Some name -> displayTip dataDir name
             | None ->
                 Logger.Warn "Please input the tip name:"
-                Tip.handleListTips dataDir
+                listTips dataDir
 
     0

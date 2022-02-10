@@ -8,7 +8,7 @@ module Tip =
 
     let private nameToPath rootDir name = Path.Combine(rootDir, $"%s{name}.md")
 
-    let handleListTips dir =
+    let listTips dir =
         let names =
             dir
             |> Directory.GetFiles
@@ -20,7 +20,7 @@ module Tip =
 
             printfn ""
 
-    let handleDisplayTip dataDir name =
+    let displayTip dataDir name =
         try
             name
             |> nameToPath dataDir
@@ -29,7 +29,7 @@ module Tip =
         with
         | :? FileNotFoundException as ex ->
             Logger.Error $"ERROR: %s{ex.Message}"
-            handleListTips dataDir
+            listTips dataDir
 
     let getDataDir () =
         let dataDir =
