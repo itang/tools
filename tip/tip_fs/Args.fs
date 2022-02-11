@@ -5,14 +5,14 @@ open Argu
 
 type CliArguments =
     | [<AltCommandLine("-v")>] Version
-    | [<AltCommandLine("-l")>] ListTips
+    | [<AltCommandLine("-l")>] List
     | [<MainCommand; Last>] NameCommand of name: string list
 
     interface IArgParserTemplate with
         member s.Usage =
             match s with
             | Version -> "Show Version"
-            | ListTips -> "List tips"
+            | List -> "List tips"
             | NameCommand _ -> "The name for tip"
 
     static member ParseArgs(args) : ParseResults<CliArguments> =
@@ -36,7 +36,7 @@ type ParseResultsForCliArgumentsExtensions =
 let inline (|FVersion|FListTips|Success|) (args: ParseResults<CliArguments>) =
     if args.Contains Version then
         FVersion
-    else if args.Contains ListTips then
+    else if args.Contains List then
         FListTips
     else
         Success args

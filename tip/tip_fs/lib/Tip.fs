@@ -20,7 +20,7 @@ type Tiper(dataDir: string) =
 
             printfn ""
 
-    member self.DisplayTip(name) : unit =
+    member self.DisplayTip(name: string) : unit =
         try
             name
             |> nameToPath dataDir

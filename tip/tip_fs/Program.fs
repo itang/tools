@@ -3,7 +3,7 @@ open Util
 open Tip
 
 [<Literal>]
-let version = "0.2-20220210"
+let version = "0.2-20220211"
 
 [<EntryPoint>]
 let main argv =
