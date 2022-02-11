@@ -18,7 +18,7 @@ type Tiper(dataDir: string) =
             for chunk in chunks do
                 Logger.Ok($"%-16s{chunk} ", newline = false)
 
-        printfn ""
+            printfn ""
 
     member self.DisplayTip(name) : unit =
         try
