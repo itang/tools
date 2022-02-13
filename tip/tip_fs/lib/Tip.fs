@@ -20,7 +20,7 @@ type Tiper(dataDir: string) =
 
             printfn ""
 
-    member self.DisplayTip(name: string) : unit =
+    member this.DisplayTip(name: string) : unit =
         try
             name
             |> nameToPath dataDir
@@ -29,7 +29,7 @@ type Tiper(dataDir: string) =
         with
         | :? FileNotFoundException as ex ->
             Logger.Error $"ERROR: %s{ex.Message}"
-            self.ListTips()
+            this.ListTips()
 
     static member GetDataDir() : string =
         let dataDir =
