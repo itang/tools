@@ -44,7 +44,7 @@ module Seq =
                 else
                     Some((s, s.AddDays 1)))
 
-    let zipWithIndex (s: 't seq) = Seq.zip s (Seq.initInfinite id)
+//let zipWithIndex (s: 't seq) = Seq.zip s (Seq.initInfinite id)
 
 type Dates(?start: string) =
     member this.GetSlice(lowBound: int option, upperBound: int option) =

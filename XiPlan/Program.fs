@@ -40,7 +40,7 @@ let html =
  </tr>
  </thead>
  <tbody>
- {[ for date, index in Seq.zipWithIndex dates do
+ {[ for index, date in Seq.indexed dates do
         yield!
             [ "<tr>".I1
               $"<td width='30px'>{index + 1}</td>".I2
@@ -66,15 +66,15 @@ System.IO.File.WriteAllText("xiplan.html", html)
 
 let dates2 = (new Dates("2021-10-27")).[-2..20]
 
-for d, index in Seq.zipWithIndex dates2 do
+for index, d in Seq.indexed dates2 do
     printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
 
 let dates3 = Dates().[10..20]
 
-for d, index in Seq.zipWithIndex dates3 do
+for index, d in Seq.indexed dates3 do
     printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
 
 let dates4 = Dates().[*]
 
-for d, index in Seq.zipWithIndex (dates4 |> Seq.take 2) do
+for index, d in Seq.indexed (dates4 |> Seq.take 2) do
     printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
