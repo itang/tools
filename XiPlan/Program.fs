@@ -1,4 +1,5 @@
 ﻿open System
+open System.IO
 
 open Ext
 
@@ -62,7 +63,7 @@ let html =
 """
 
 printfn "%s" html
-System.IO.File.WriteAllText("xiplan.html", html)
+File.WriteAllText("xiplan.html", html)
 
 let dates2 = (new Dates("2021-10-27")).[-2..20]
 
