@@ -43,18 +43,18 @@ let html =
  <tbody>
  {[ for index, date in Seq.indexed dates do
         yield!
-            [ "<tr>".I1
-              $"<td width='30px'>{index + 1}</td>".I2
+            [ "<tr>".IndentLevel1
+              $"<td width='30px'>{index + 1}</td>".IndentLevel2
               $"<td width='48px' align='center'>%s{date.DayOfWeek.Formated}</td>"
-                  .I2
+                  .IndentLevel2
               $"<td width='76px' align='center'>%s{date.Formated}</td>"
-                  .I2 ]
+                  .IndentLevel2 ]
 
-        for _ in tasks -> $"<td></td>".I2
-        yield "</tr>".I1
+        for _ in tasks -> $"<td></td>".IndentLevel2
+        yield "</tr>".IndentLevel1
 
         if date.DayOfWeek = DayOfWeek.Sunday then
-            yield "<tr><td colspan='11'></td></tr>".I2 ]
+            yield "<tr><td colspan='11'></td></tr>".IndentLevel2 ]
   |> String.concat "\n"}
  </tbody></table>
 </div>

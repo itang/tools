@@ -28,8 +28,8 @@ type String with
     member this.Indent(?num: int) =
         (String.replicate (defaultArg num 2) " ") + this
 
-    member this.I1 = this.Indent(2)
-    member this.I2 = this.Indent(4)
+    member this.IndentLevel1 = this.Indent(2)
+    member this.IndentLevel2 = this.Indent(4)
 
 module Seq =
     let dates (starts: string) (ends: string) =
@@ -37,12 +37,11 @@ module Seq =
             DateTime.Parse starts, DateTime.Parse ends
 
         s
-        |> Seq.unfold
-            (fun s ->
-                if (s >= e) then
-                    None
-                else
-                    Some((s, s.AddDays 1)))
+        |> Seq.unfold (fun s ->
+            if (s >= e) then
+                None
+            else
+                Some((s, s.AddDays 1)))
 
 //let zipWithIndex (s: 't seq) = Seq.zip s (Seq.initInfinite id)
 
