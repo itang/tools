@@ -5,12 +5,15 @@ const FILE_PATH_SEPARATOR: &str = if cfg!(windows) { ";" } else { ":" };
 fn main() {
     match env::var("PATH") {
         Ok(s) => {
-            let list = s.split(FILE_PATH_SEPARATOR);
+            let split = s.split(FILE_PATH_SEPARATOR);
 
-            let mut v: Vec<&str> = list.collect();
-            v.sort_unstable();
+            let mut vec: Vec<&str> = split.collect();
+            vec.sort_unstable();
 
-            v.iter().for_each(|x| println!("{x}"))
+            vec.into_iter()
+                .filter(|&x| x.trim() != "")
+                .enumerate()
+                .for_each(|(i, x)| println!("{:3}: {x}", i + 1));
         }
         Err(e) => println!("error: {:?}", e),
     }
