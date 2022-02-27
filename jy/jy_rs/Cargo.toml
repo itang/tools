@@ -11,3 +11,6 @@ anyhow = "1.0.31"
 toml = "0.5.6"
 structopt = "0.3.15"
 webbrowser = "0.5.5"
+
+[profile.release]
+strip = "debuginfo"

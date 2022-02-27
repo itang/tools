@@ -9,3 +9,6 @@ edition = "2021"
 anyhow = "1.0.52"
 clap = { version = "3.0.9", features = ["derive"] }
 colour = "0.6.0"
+
+[profile.release]
+strip = "debuginfo"

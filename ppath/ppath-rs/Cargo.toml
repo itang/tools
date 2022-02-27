@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.54"
 tap = "1.0.1"
+
+[profile.release]
+strip = "debuginfo"

@@ -25,15 +25,6 @@ def _is_windows():
 
 
 @task
-def install_local(c):
+def install(c):
     '''dist'''
     c.run('cargo install --path .')
-
-
-@task
-def install(c):
-    '''install'''
-    if _is_windows():
-        c.run('cmd /C "echo TODO: install for windows" ...')
-    else:
-        c.run('bash -c "echo TODO: install for linux" ...')
