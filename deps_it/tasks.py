@@ -1,6 +1,7 @@
 from invoke import task
 import os
 
+
 @task
 def version(c, cmd=None):
     """println version"""
@@ -51,16 +52,16 @@ def native_image(c):
             --report-unsupported-elements-at-runtime --no-fallback --verbose \
             -H:Name=deps_it \
             -jar dist/main.jar \
-            dist/deps_it')
+            dist/deps')
 
 
 @task(native_image)
 def install(c):
     '''install'''
     if _is_windows():
-        c.run('coreutils cp dist\\deps_it.exe D:\\dev-env\\bin')
+        c.run('coreutils cp dist\\deps.exe D:\\dev-env\\bin')
     else:
-        c.run('cp dist/deps_it.exe ~/.local/bin/')
+        c.run('cp dist/deps.exe ~/.local/bin/')
 
 
 @task

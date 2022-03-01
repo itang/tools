@@ -1,50 +1,48 @@
-// using scala 3.1.0
+//> using scala "3.1.1"
 
 import scala.util.Try
 
 case class Deps(
-  groupId: String,
-  artifactId: String,
-  version: String
+    groupId: String,
+    artifactId: String,
+    version: String
 )
-
-trait Parser:
-  def unapply(s: String): Option[Deps]
 
 object Deps:
   def from(s: String)(using parsers: List[Parser]): Option[Deps] =
     def _from(parsers: List[Parser]): Option[Deps] =
       parsers match
         case Nil => None
-        case parser :: tail => parser.unapply(s) match
-          case Some(d) => Some(d)
-          case None => _from(tail)
+        case parser :: tail =>
+          parser.unapply(s) match
+            case Some(d) => Some(d)
+            case None    => _from(tail)
 
     Try(_from(parsers)).toOption.flatten
+trait Parser:
+  def unapply(s: String): Option[Deps]
 
 object SbtParser extends Parser:
   def unapply(s: String): Option[Deps] =
     if s.contains("%") then
-      val Array(a, b, c) = s.trim.replaceAll("%","").split("\\s+").map(it =>
-        val itt = it.trim
-        if itt.startsWith("\"") || itt.startsWith("'") then 
-          itt.substring(1, it.length - 1)
-        else
-          itt
-      )
+      val Array(a, b, c) = s.trim
+        .replaceAll("%", "")
+        .split("\\s+")
+        .map(it =>
+          val itt = it.trim
+          if itt.startsWith("\"") || itt.startsWith("'") then
+            itt.substring(1, it.length - 1)
+          else itt
+        )
       Some(Deps(a, b, c))
-    else
-      None
+    else None
 
 object IvyParser extends Parser:
   def unapply(s: String): Option[Deps] =
     if s.contains(":") then
-      val Array(a, b, c) = s.trim.replaceAll(":"," ").split("\\s+").map(_.trim)
+      val Array(a, b, c) = s.trim.replaceAll(":", " ").split("\\s+").map(_.trim)
       Some(Deps(a, b, c))
-    else
-      None
-
-given listParser: List[Parser] = List(SbtParser, IvyParser)
+    else None
 
 extension (t: Deps)
   def toIvy(): String =
@@ -60,20 +58,28 @@ extension (t: Deps)
         |  <version>${t.version}</version>
         |</dependency>""".stripMargin
 
-
 object Main:
   def main(args: Array[String]): Unit =
-    val s = if args.isEmpty then """ "org.scala-sbt" % "sbt" % "1.6.0-RC1" """ else args.mkString(" ")
-    println(s"input: $s")
+    val input =
+      if args.isEmpty then """ "org.scala-sbt" % "sbt" % "1.6.2" """
+      else args.mkString(" ")
+    println(s"input: $input")
+    println()
 
-    Deps.from(s) match
-      case Some(d) =>
-        println(s"ivy:\n ${d.toIvy()}\n")
-        println(s"sbt:\n ${d.toSbt()}\n")
-        println(s"maven:\n ${d.toMaven()}\n")
+    given listParser: List[Parser] = List(SbtParser, IvyParser)
+
+    Deps.from(input) match
+      case Some(deps) =>
+        println(s"ivy:\n ${deps.toIvy()}\n")
+        println("scala-cli repl:\n")
+        println(s"scala-cli repl -S 3.1.1 --dep ${deps.toIvy}")
+        println(s"sbt:\n ${deps.toSbt()}\n")
+        println(s"maven:\n ${deps.toMaven()}\n")
       case None => println("unknown")
 
-    s match
+    println()
+
+    input match
       case SbtParser(deps) => println("sbt=>" + deps)
       case IvyParser(deps) => println("ivy=>" + deps)
-      case _ => println("unknown")
+      case _               => println("unknown")
