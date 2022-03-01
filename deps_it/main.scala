@@ -71,8 +71,9 @@ object Main:
     Deps.from(input) match
       case Some(deps) =>
         println(s"ivy:\n ${deps.toIvy()}\n")
-        println("scala-cli repl:\n")
-        println(s"scala-cli repl -S 3.1.1 --dep ${deps.toIvy}")
+        println(
+          s"scala-cli repl:\n scala-cli repl -S 3.1.1 --dep ${deps.toIvy()}\n"
+        )
         println(s"sbt:\n ${deps.toSbt()}\n")
         println(s"maven:\n ${deps.toMaven()}\n")
       case None => println("unknown")
@@ -83,3 +84,5 @@ object Main:
       case SbtParser(deps) => println("sbt=>" + deps)
       case IvyParser(deps) => println("ivy=>" + deps)
       case _               => println("unknown")
+
+    println()
