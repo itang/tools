@@ -61,7 +61,7 @@ def install(c):
     if _is_windows():
         c.run('coreutils cp dist\\deps.exe D:\\dev-env\\bin')
     else:
-        c.run('cp dist/deps.exe ~/.local/bin/')
+        c.run('cp dist/deps ~/.local/bin/')
 
 
 @task
