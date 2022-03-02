@@ -43,7 +43,7 @@ fn process_word(word: &str) {
     match rdict::dict(word) {
         Ok(ref trans) => {
             println!("\t->: {}", Colour::Blue.paint(trans.to_string()));
-            post_to_cloud(word, trans)
+            //post_to_cloud(word, trans)
         }
         Err(err) => println!("\terror: {}", err),
     }
