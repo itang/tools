@@ -27,7 +27,7 @@ def _is_windows():
 @task
 def run(c):
     '''run'''
-    c.run('scala-cli run main.scala')
+    c.run('scala-cli run .')
 
 
 @task

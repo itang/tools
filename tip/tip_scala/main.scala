@@ -6,6 +6,8 @@ import java.nio.file.{Paths, Files}
 import java.nio.charset.StandardCharsets
 import java.io.File
 
+import scala.io.AnsiColor.*
+
 import lib.util.*
 
 object Main:
@@ -14,7 +16,7 @@ object Main:
 
     args.headOption match
       case None | Some("--help") | Some("-h") =>
-        println("Please input name!")
+        println(s"${RED}Please input name!${RESET}")
         println("-" * 80)
         displayFiles(dataDir())
       case Some(n) =>
@@ -30,7 +32,7 @@ object Main:
         |> Files.readAllBytes
         |> (String(_, "UTF-8"))
         //|>! (Files.writeString(Paths.get("a.txt"), _, StandardCharsets.UTF_8))
-        |> println
+        |> (it => println(s"${BLUE}${it}${RESET}"))
     else displayFiles(d)
 
   private def dataDir(): String =
@@ -45,5 +47,5 @@ object Main:
       .foreach(fs =>
         fs.map(file => f"${file.getName.noFileExtension}%-16s")
           .mkString(" ")
-          |> println
+          |> (it => println(s"${GREEN}${it}${RESET}"))
       )
