@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "hello": "echo 'hello from deno'",
+    "run": "flix run",
+    "brun": "flix build-jar && java -cp 'lib/*:jy_flix.jar' Main /home/itang/bin/jiayou.toml"
+  }
+}
