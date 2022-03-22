@@ -24,14 +24,14 @@ namespace TomlF {
      let toml = newToml();
      path |> newFile |> read(toml)
 
-  pub def getList(toml: Toml, key: String): List[a] =
-    import com.moandjiezana.toml.Toml.getList(String): JList & Pure;
+  pub def getList(toml: Toml, key: String): List[a] & Impure =
+    import com.moandjiezana.toml.Toml.getList(String): JList & Impure;
 
     (toml `getList` key) |> asFlix
 
 
   def rec(it: JIterator, ret: List[a]): List[a] & Impure =
-    import java.util.Iterator.hasNext(): Bool & Pure;
+    import java.util.Iterator.hasNext(): Bool & Impure;
     import java.util.Iterator.next(): a & Impure;
 
     if(hasNext(it))
@@ -39,8 +39,8 @@ namespace TomlF {
     else
       ret
 
-  def asFlix(list: JList): List[a] =
+  def asFlix(list: JList): List[a] & Impure =
     import java.util.List.iterator(): JIterator & Impure;
 
-    (rec(list |> iterator, Nil) |> List.reverse) as & Pure
+    (rec(list |> iterator, Nil) |> List.reverse)
 }
