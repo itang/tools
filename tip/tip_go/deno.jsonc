@@ -1,6 +1,5 @@
 {
   "tasks": {
-    "hello": "echo 'hello from deno'",
-    "build-win": "go build -o tip_go.exe main.go"
+    "build": "go build -o tip_go$(deno eval 'if(Deno.build.os == `windows`) console.log(`.exe`)') main.go"
   }
 }
