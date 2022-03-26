@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "hello": "echo 'hello from deno'",
+    "build-win": "go build -o tip_go.exe main.go"
+  }
+}
