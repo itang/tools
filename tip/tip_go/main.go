@@ -15,11 +15,12 @@ type Config struct {
 }
 
 func main() {
-	var config Config
 	bytes, err := os.ReadFile("D:\\ProgramData\\bin\\jiayou.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var config Config
 	_, err = toml.Decode(string(bytes), &config)
 	if err != nil {
 		log.Fatal(err)
@@ -27,11 +28,11 @@ func main() {
 
 	for index, url := range config.Urls {
 		fmt.Printf("%3d: %v\n", index+1, url)
-		openbrowser(url)
+		openBrowser(url)
 	}
 }
 
-func openbrowser(url string) {
+func openBrowser(url string) {
 	var err error
 
 	switch runtime.GOOS {
@@ -44,6 +45,7 @@ func openbrowser(url string) {
 	default:
 		err = fmt.Errorf("unsupported platform")
 	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
