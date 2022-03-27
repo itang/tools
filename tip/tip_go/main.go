@@ -15,13 +15,7 @@ type Config struct {
 }
 
 func main() {
-	bytes, err := os.ReadFile("D:\\ProgramData\\bin\\jiayou.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var config Config
-	_, err = toml.Decode(string(bytes), &config)
+	config, err := getConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,6 +24,21 @@ func main() {
 		fmt.Printf("%3d: %v\n", index+1, url)
 		openBrowser(url)
 	}
+}
+
+func getConfig() (conf *Config, err error) {
+	bytes, err := os.ReadFile("D:\\ProgramData\\bin\\jiayou.toml")
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	_, err = toml.Decode(string(bytes), &config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
 
 func openBrowser(url string) {
