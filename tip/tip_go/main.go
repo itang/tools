@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"runtime"
 
 	"github.com/BurntSushi/toml"
@@ -27,7 +28,14 @@ func main() {
 }
 
 func getConfig() (conf *Config, err error) {
-	bytes, err := os.ReadFile("D:\\ProgramData\\bin\\jiayou.toml")
+	dataDir := os.Getenv("TIP_DATA_ROOT")
+	if dataDir == "" {
+		dataDir = path.Join(os.Getenv("HOME"), "bin")
+	}
+
+	jiayouFile := path.Join(dataDir, "jiayou.toml")
+
+	bytes, err := os.ReadFile(jiayouFile)
 	if err != nil {
 		return nil, err
 	}
