@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "build": "go build -o jy_go$(deno eval 'if(Deno.build.os == `windows`) console.log(`.exe`)') main.go"
+  }
+}

@@ -1,4 +1,4 @@
-module github.com/itang/tip_go
+module github.com/itang/jy_go
 
 go 1.18
 

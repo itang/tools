@@ -28,14 +28,12 @@ func main() {
 }
 
 func getConfig() (conf *Config, err error) {
-	dataDir := os.Getenv("TIP_DATA_ROOT")
-	if dataDir == "" {
-		dataDir = path.Join(os.Getenv("HOME"), "bin")
+	configFile := os.Getenv("JY_CONFIG")
+	if configFile == "" {
+		configFile = path.Join(os.Getenv("HOME"), "bin", "jiyou.toml")
 	}
 
-	jiayouFile := path.Join(dataDir, "jiayou.toml")
-
-	bytes, err := os.ReadFile(jiayouFile)
+	bytes, err := os.ReadFile(configFile)
 	if err != nil {
 		return nil, err
 	}

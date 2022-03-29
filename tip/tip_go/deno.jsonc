@@ -1,5 +1,0 @@
-{
-  "tasks": {
-    "build": "go build -o tip_go$(deno eval 'if(Deno.build.os == `windows`) console.log(`.exe`)') main.go"
-  }
-}
