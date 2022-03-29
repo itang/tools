@@ -1,0 +1,4 @@
+*.exe
+tip_go
+
+!.vscode
