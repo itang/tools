@@ -14,9 +14,10 @@ import (
 	"github.com/fatih/color"
 )
 
+const LINE_WORDS = 6
+
 func main() {
 	listCmd := flag.Bool("list", false, "list tips")
-	args := flag.Args()
 	flag.Parse()
 
 	tipDir := os.Getenv("TIP_DATA_ROOT")
@@ -25,8 +26,9 @@ func main() {
 	}
 
 	fmt.Println("TIP_GO-v0.1-20220329.1")
-	fmt.Printf("tipDir: %v, listCmd: %v\n", tipDir, *listCmd)
+	fmt.Printf("tipDir: %v\n", tipDir)
 
+	args := flag.Args()
 	if *listCmd || len(args) == 0 {
 		doListTips(tipDir)
 	} else {
@@ -41,7 +43,7 @@ func doListTips(tipDir string) {
 	filepath.Walk(tipDir, func(path string, _info fs.FileInfo, err error) error {
 		fmt.Printf("%-17s", filenameWithoutExtension(filepath.Base(path)))
 		i += 1
-		if i%10 == 0 {
+		if i%LINE_WORDS == 0 {
 			fmt.Println()
 		}
 		return err
