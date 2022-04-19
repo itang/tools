@@ -1,5 +1,6 @@
 {
   "tasks": {
-    "build": "go build -o tip_go$(deno eval 'if(Deno.build.os == \"windows\"){ console.log(\".exe\");}') main.go"
+    "build": "go build -o tip_go$(deno eval 'if(Deno.build.os == \"windows\"){ console.log(\".exe\");}') main.go",
+    "install-linux": "deno task build && cp tip_go $(deno eval 'console.log(Deno.env.get(\"HOME\"))')/.local/bin/"
   }
 }
