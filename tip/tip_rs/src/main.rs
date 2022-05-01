@@ -29,7 +29,8 @@ fn main() -> Result<()> {
 
     match args.name {
         Some(name) => {
-            println!("Tips for {name}");
+            let msg = format!("Tips for {name}");
+            println!("{:*^20}", msg);
             println!("{}", "-".repeat(80));
             handle(Command::Display { name })
         }
@@ -71,7 +72,7 @@ fn handle(command: Command) -> Result<()> {
                     .into_os_string()
                     .into_string()
                     .unwrap();
-                green!("{:16}", name);
+                green!("{:17}", name);
                 if i % LINE_NUMBER == 0 {
                     println!();
                 }
