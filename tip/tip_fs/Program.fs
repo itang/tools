@@ -1,20 +1,24 @@
-﻿open Args
+﻿open FSharp.SystemCommandLine
 open Util
 open Tip
 
-[<Literal>]
-let version = "0.2-20220616"
+
+let mainHandle (list, name) =
+    match (list, name) with
+    | (true, _) -> newTiper().ListTips()
+    | (false, Some name) -> newTiper().DisplayTip(name)
+    | (false, None) ->
+        Logger.Warn "Please input the tip name:"
+        newTiper().ListTips()
+
 
 [<EntryPoint>]
 let main argv =
-    match CliArguments.ParseArgs(argv) with
-    | FVersion -> Logger.Info $"V%s{version}"
-    | FListTips -> newTiper().ListTips()
-    | Success args ->
-        match args.Name() with
-        | Some name -> newTiper().DisplayTip(name)
-        | None ->
-            Logger.Warn "Please input the tip name:"
-            newTiper().ListTips()
+    let list = Input.Option<bool>([ "--list"; "-l" ], "List tips")
+    let name = Input.ArgumentMaybe<string>("The name for tip")
 
-    0
+    rootCommand argv {
+        description "tip something"
+        inputs (list, name) // must be set before setHandler
+        setHandler mainHandle
+    }
