@@ -1,8 +1,9 @@
 // The main entry point.
-def main(args: Array[String]): Int32 & Impure =
+def main(): Int32 & Impure =
+  let args = Environment.getArgs();
   use TomlF.getList;
   println("args: ${args}");
-  let file = args |> Array.head |> Option.getWithDefault("D:\\ProgramData\\jy_rs\\jiayou.toml");
+  let file = args |> List.head |> Option.getWithDefault("D:\\ProgramData\\jy_rs\\jiayou.toml");
   let toml = TomlF.fromFile(file);
   let list: List[String] = TomlF.getList(toml, "urls");
   list |> List.foreach(println);

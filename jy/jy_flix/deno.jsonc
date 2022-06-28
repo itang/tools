@@ -1,7 +1,8 @@
 {
   "tasks": {
-    "hello": "echo 'hello from deno'",
     "run": "flix run",
-    "brun": "flix build-jar && java -cp 'lib/*:jy_flix.jar' Main /home/itang/bin/jiayou.toml"
+    "brun": "flix build-jar && java -cp 'lib/*:jy_flix.jar' Main /home/itang/bin/jiayou.toml",
+    "brun-win": "flix build-jar && java -cp 'lib/*;jy_flix.jar' Main D:\\ProgramData\\bin\\jiayou.toml",
+    "native-win": "flix build-jar && native-image -cp 'lib/*;jy_flix.jar' Main --no-fallback --verbose -H:-CheckToolchain -H:Name=jy_flix"
   }
 }

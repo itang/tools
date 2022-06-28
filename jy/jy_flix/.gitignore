@@ -6,3 +6,6 @@ jy_flix.jar
 
 .fake
 .ionide
+
+jy_flix.build*
+jy_flix.exe
