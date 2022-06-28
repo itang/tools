@@ -6,7 +6,9 @@ def main(): Int32 & Impure =
   let file = args |> List.head |> Option.getWithDefault("D:\\ProgramData\\jy_rs\\jiayou.toml");
   let toml = TomlF.fromFile(file);
   let list: List[String] = TomlF.getList(toml, "urls");
+
   list |> List.foreach(println);
+  list |> List.foreach(Browser.open);
 
   0 // exit code
 
@@ -44,4 +46,16 @@ namespace TomlF {
     import java.util.List.iterator(): JIterator & Impure;
 
     (rec(list |> iterator, Nil) |> List.reverse)
+}
+
+namespace Browser {
+  type alias JDesktop = ##java.awt.Desktop
+  type alias JURI = ##java.net.URI
+
+  pub def open(url: String): Unit & Impure =
+    import static java.awt.Desktop.getDesktop(): JDesktop & Impure ;
+    import java.awt.Desktop.browse(JURI): Unit & Impure;
+    import new java.net.URI(String): JURI & Impure as newURI;
+
+    browse(getDesktop(), newURI(url))
 }
