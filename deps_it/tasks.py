@@ -44,12 +44,19 @@ def dist(c):
     c.run('scala-cli package -f --assembly -o dist/main.jar main.scala')
 
 
+@task
+def dist_sn(c):
+    '''dist'''
+    os.makedirs("dist", exist_ok=True)
+    c.run('scala-cli package -f --native-image -o dist/deps main.scala -- -H:-CheckToolchain')
+
+
 @task(dist)
 def native_image(c):
     '''native image'''
     c.run('native-image -H:-CheckToolchain \
-            -H:+ReportExceptionStackTraces --initialize-at-build-time \
-            --report-unsupported-elements-at-runtime --no-fallback --verbose \
+            --no-fallback --verbose \
+            --allow-incomplete-classpath \
             -H:Name=deps_it \
             -jar dist/main.jar \
             dist/deps')
@@ -59,9 +66,9 @@ def native_image(c):
 def install(c):
     '''install'''
     if _is_windows():
-        c.run('coreutils cp dist\\deps.exe D:\\dev-env\\bin')
+        c.run('coreutils cp dist\\deps_it.exe D:\\dev-env\\bin\\deps.exe')
     else:
-        c.run('cp dist/deps ~/.local/bin/')
+        c.run('cp dist/deps/deps_it ~/.local/bin/deps')
 
 
 @task

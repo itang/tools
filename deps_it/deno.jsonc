@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "run": "scala-cli run main.scala",
+    "dist:scala-native": "scala-cli package -f -o deps --native-image main.scala -- -H:-CheckToolchain",
+    "install:win": "deno task dist:scala-native; mv deps.exe D:/dev-env/bin/",
+    "install:linux": "deno task dist:scala-native && mv deps ~/.local/bin/"
+  }
+}
