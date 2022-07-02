@@ -50,7 +50,7 @@ extension (t: Deps)
     s"${t.groupId}::${t.artifactId}:${t.version}"
 
   def toSbt: String =
-    s""""${t.groupId} %% "${t.artifactId}" % "${t.version}""""
+    s""""${t.groupId}" %% "${t.artifactId}" % "${t.version}""""
 
   def toMaven: String =
     s"""|<dependency>
