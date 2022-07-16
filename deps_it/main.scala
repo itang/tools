@@ -78,7 +78,10 @@ object Main:
         println(
           s"scala-cli repl:\n\tscala-cli repl -S 3.1.3 --dep ${deps.toIvy}\n"
         )
+        println(s"""override def ivyDeps = Agg(ivy"${deps.toIvy}")""")
+
         println(s"sbt:\n\t${deps.toSbt}\n")
+
         println(
           s"maven:\n${deps.toMaven.linesIterator.map(it => s"\t${it}").mkString("\n")}\n"
         )
