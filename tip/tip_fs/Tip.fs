@@ -32,12 +32,10 @@ type Tiper(dataDir: string) =
             this.ListTips()
 
     static member GetDataDir() : string =
-        let dataDir =
-            Environment.GetEnvironmentVariable "TIP_DATA_ROOT"
+        let dataDir = Environment.GetEnvironmentVariable "TIP_DATA_ROOT"
 
         if String.IsNullOrEmpty(dataDir) then
-            let homeDir =
-                Environment.GetEnvironmentVariable "HOME"
+            let homeDir = Environment.GetEnvironmentVariable "HOME"
 
             Path.Combine(homeDir, "bin", "data", "tip")
         else

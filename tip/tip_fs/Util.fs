@@ -7,13 +7,11 @@ type Logger() =
     static let lockObj = obj ()
 
     static member Log(color, s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
-        lock
-            lockObj
-            (fun _ ->
-                Console.ForegroundColor <- color
-                let fn = if newline then printfn else printf
-                fn "%s" s
-                Console.ResetColor())
+        lock lockObj (fun _ ->
+            Console.ForegroundColor <- color
+            let fn = if newline then printfn else printf
+            fn "%s" s
+            Console.ResetColor())
 
     static member Complete(s, [<Optional; DefaultParameterValue(true)>] newline: bool) =
         Logger.Log(ConsoleColor.Magenta, s, newline)
