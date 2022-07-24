@@ -4,6 +4,14 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<Version>0.2-20220616-3</Version>
 
+		<!-- Publish Native AOT -->
+		<PublishAot>true</PublishAot>
+		<StripSymbols>true</StripSymbols>
+
+		<!-- https://docs.microsoft.com/zh-cn/dotnet/core/deploying/trimming/prepare-libraries-for-trimming -->
+		<IsTrimmable>true</IsTrimmable>
+		<PublishTrimmed>true</PublishTrimmed>
+
         <!-- https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md -->
 		<TrimmerDefaultAction>link</TrimmerDefaultAction>
 		<InvariantGlobalization>true</InvariantGlobalization>
@@ -21,7 +29,7 @@
 		<!-- <PackageReference Include="Argu" Version="6.1.1" /> -->
 		<!-- <PackageReference Include="FSharp.Core" Version="6.0.5" /> -->
 		<PackageReference Include="FSharp.SystemCommandLine" Version="0.13.0-beta4" />
-	    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-*" />
+	    <!-- <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-*" /> -->
 
 	</ItemGroup>
 
