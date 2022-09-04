@@ -13,7 +13,8 @@
 		<PublishTrimmed>true</PublishTrimmed>
 
         <!-- https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md -->
-		<TrimmerDefaultAction>link</TrimmerDefaultAction>
+		<!-- <TrimMode>link</TrimMode> -->
+		<TrimMode>full</TrimMode>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
