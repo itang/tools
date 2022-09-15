@@ -2,7 +2,7 @@
 use Ext/Browser.open;
 use Ext/TomlF.{fromFile, getList};
 
-def main(): Int32 & Impure =
+def main(): Int32 \ IO =
   let args = Environment.getArgs();
   println("args: ${args}");
 

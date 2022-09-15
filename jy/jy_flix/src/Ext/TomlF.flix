@@ -4,30 +4,30 @@ namespace Ext/TomlF {
   type alias JIterator = ##java.util.Iterator
   type alias JList = ##java.util.List
 
-  pub def fromFile(path: String): Toml & Impure =
-     import new com.moandjiezana.toml.Toml(): Toml & Impure as newToml;
-     import new java.io.File(String): File & Impure as newFile;
-     import com.moandjiezana.toml.Toml.read(File): Toml & Impure;
+  pub def fromFile(path: String): Toml \ IO =
+     import new com.moandjiezana.toml.Toml(): Toml \ IO as newToml;
+     import new java.io.File(String): File \ IO as newFile;
+     import com.moandjiezana.toml.Toml.read(File): Toml \ IO;
 
      let toml = newToml();
      path |> newFile |> read(toml)
 
-  pub def getList(key: String, toml: Toml): List[a] & Impure =
-    import com.moandjiezana.toml.Toml.getList(String): JList & Impure;
+  pub def getList(key: String, toml: Toml): List[a] \ IO =
+    import com.moandjiezana.toml.Toml.getList(String): JList \ IO;
 
     (toml `getList` key) |> asFlix
 
 
-  def rec(it: JIterator, ret: List[a]): List[a] & Impure =
-    import java.util.Iterator.hasNext(): Bool & Impure;
-    import java.util.Iterator.next(): a & Impure;
+  def rec(it: JIterator, ret: List[a]): List[a] \ IO =
+    import java.util.Iterator.hasNext(): Bool \ IO;
+    import java.util.Iterator.next(): a \ IO;
 
     if(hasNext(it))
       rec(it, (next(it) as a) :: ret)
     else
       ret
 
-  def asFlix(list: JList): List[a] & Impure =
+  def asFlix(list: JList): List[a] \ IO =
     import java.util.List.iterator(): JIterator & Impure;
 
     (rec(list |> iterator, Nil) |> List.reverse)
