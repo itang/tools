@@ -1,0 +1,13 @@
+.bloop
+.metals
+.bsp
+
+target
+null
+
+*.impl
+.idea
+
+dist
+
+project/project
