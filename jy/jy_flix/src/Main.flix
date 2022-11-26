@@ -9,7 +9,7 @@ def main(): Int32 \ IO =
   let toml = args |> List.head |> Option.getWithDefault("D:\\ProgramData\\jy_rs\\jiayou.toml") |> fromFile;
   let list: List[String] = toml |> getList("urls");
 
-  list |> List.foreach(println);
-  list |> List.foreach(open);
+  list |> List.forEach(println);
+  list |> List.forEach(open);
 
   0 // exit code
