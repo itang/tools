@@ -1,4 +1,4 @@
-//> using scala "3.1.3"
+//> using scala "3.2.1"
 ////> using lib "org.scalameta:svm-subs_2.13:20.2.0"
 
 import scala.util.Try
