@@ -1,6 +1,6 @@
 package domain
 
-import org.scalajs.dom.fetch
+import org.scalajs.dom
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
@@ -9,9 +9,10 @@ case class HeadNews(title: String, href: String)
 
 trait HeadNewsProvider:
   def name: String
+
   def fetchHeadNews(using ctx: ExecutionContext): Future[Option[HeadNews]]
 
-object SinaNews extends HeadNewsProvider {
+object SinaNews extends HeadNewsProvider:
 
   private val url = "https://news.sina.com.cn/"
 
@@ -19,14 +20,12 @@ object SinaNews extends HeadNewsProvider {
 
   private val R = """.+href="(.+)"\sclass.+>(.+)""".r
 
-  override val name = "新浪新闻"
+  override val name: String = "新浪新闻"
 
-  override def fetchHeadNews(using
-      ctx: ExecutionContext
-  ): Future[Option[HeadNews]] = {
+  override def fetchHeadNews(using ctx: ExecutionContext): Future[Option[HeadNews]] =
     import js.Thenable.Implicits.*
     for
-      resp <- fetch(url)
+      resp <- dom.fetch(url)
       text <- resp.text()
     yield
       val start = text.indexOf(startTag) + startTag.length()
@@ -35,10 +34,9 @@ object SinaNews extends HeadNewsProvider {
 
       line match
         case R(href, title) => Some(HeadNews(title, href))
-        case _              => None
-  }
-  /*
-  val s =
-    """<h1 data-client="headline"><a target="_blank" href="https://news.sina.com.cn/c/xl/2022-11-16/doc-imqmmthc4760493.shtml" class="linkNewsTopBold">G2峰会第一天 习主席重点谈了什么？</a></h1>"""
-   */
-}
+        case _ => None
+
+/*
+val s =
+  """<h1 data-client="headline"><a target="_blank" href="https://news.sina.com.cn/c/xl/2022-11-16/doc-imqmmthc4760493.shtml" class="linkNewsTopBold">G2峰会第一天 习主席重点谈了什么？</a></h1>"""
+ */

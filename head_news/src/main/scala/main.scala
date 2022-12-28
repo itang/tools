@@ -1,12 +1,12 @@
-import scala.scalajs.js
-
 import domain.*
+
+import scala.scalajs.js
 
 @main def main(): Unit =
   val providers = List(SinaNews)
 
-  import scala.concurrent.ExecutionContext.Implicits.global
   import js.Thenable.Implicits.*
+  import scala.concurrent.ExecutionContext.Implicits.global
   for
     provider <- providers
     headNewsOpt <- provider.fetchHeadNews
