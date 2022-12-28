@@ -1,9 +1,9 @@
 package domain
 
+import org.scalajs.dom.fetch
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
-
-import org.scalajs.dom.fetch
 
 case class HeadNews(title: String, href: String)
 
