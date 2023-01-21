@@ -7,7 +7,7 @@ lazy val root =
     .enablePlugins(ScalaJSPlugin)
     .settings(
       name := "head_news",
-      scalaVersion := "3.2.1",
+      scalaVersion := "3.2.2",
 
       // This is an application with a main method
       scalaJSUseMainModuleInitializer := true,

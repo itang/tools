@@ -1,11 +1,11 @@
 {
   "tasks": {
-    "build:dev": "sbtn fastLinkJS",
+    "build:dev": "sbt fastLinkJS",
     "build:prod": "sbt fullLinkJS",
-    "run": "deno run -A --unstable target/scala-3.2.1/head_news-fastopt/main.js",
+    "run": "deno run -A --unstable target/scala-3.2.2/head_news-fastopt/main.js",
     "all": "deno task build:dev && deno task run",
-    "dev": "sbt '~fastLinkJS' & sleep 8; deno run -A --unstable --watch target/scala-3.2.1/head_news-fastopt/main.js",
-    "compile": "deno compile -A --unstable target/scala-3.2.1/head_news-fastopt/main.js",
-    "install": "sbt fullLinkJS && deno compile -A --unstable -o dist/head_news target/scala-3.2.1/head_news-opt/main.js && cp dist/head_news.exe D:/dev-env/bin/"
+    "dev": "sbt '~fastLinkJS' & sleep 8; deno run -A --unstable --watch target/scala-3.2.2/head_news-fastopt/main.js",
+    "compile": "deno compile -A --unstable target/scala-3.2.2/head_news-fastopt/main.js",
+    "install": "sbt fullLinkJS && deno compile -A --unstable -o dist/head_news target/scala-3.2.2/head_news-opt/main.js && cp dist/head_news.exe D:/dev-env/bin/"
   }
 }

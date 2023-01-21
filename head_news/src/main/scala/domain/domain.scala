@@ -28,9 +28,10 @@ object SinaNews extends HeadNewsProvider:
       resp <- dom.fetch(url)
       text <- resp.text()
     yield
+      //println(text)
       val start = text.indexOf(startTag) + startTag.length()
       val end   = text.indexOf("</a>", start)
-      val line  = text.substring(start, end).trim()
+      val line  = text.substring(start, end).trim().replaceAll("\n", "").replaceAll("\r", "")
 
       line match
         case R(href, title) => Some(HeadNews(title, href))
