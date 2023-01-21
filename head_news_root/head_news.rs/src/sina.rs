@@ -17,11 +17,13 @@ pub async fn get_news() -> Result<Vec<News>, Box<dyn std::error::Error>> {
 
     let selector = Selector::parse(r#"h1[data-client="headline"] a"#)?;
 
-    Ok(document
+    let news_list = document
         .select(&selector)
         .map(|element| News {
             title: element.text().collect::<String>(),
             href: element.value().attr("href").unwrap().to_string(),
         })
-        .collect())
+        .collect();
+
+    Ok(news_list)
 }
