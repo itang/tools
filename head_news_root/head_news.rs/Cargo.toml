@@ -1,0 +1,23 @@
+[package]
+name = "head_news_rs"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "head_news"
+path = "src/main.rs"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = "0.11.14"
+scraper = "0.14.0"
+tokio = { version = "1.24.2", features = ["full"] }
+
+
+[profile.release]
+# https://doc.rust-lang.org/cargo/reference/profiles.html
+strip = "debuginfo"
+incremental = true
+lto = true          # Link Time Optimization (LTO)
+opt-level = 'z'     # Optimize for size
+codegen-units = 1   # Parallel Code Generation Units
