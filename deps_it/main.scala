@@ -13,20 +13,24 @@ object Main {
 
     Dependency.from(input) match
       case Some(dependency) =>
-        println(s"ivy:\n\t${dependency.toIvy}")
-        println(s"\timport $$ivy.`${dependency.toIvy}`\n")
-        println(
-          s"scala-cli repl:\n\tscala-cli repl -S 3.2.2 --dep ${dependency.toIvy}\n"
-        )
-        println(
-          s"""mill:\n\toverride def ivyDeps = Agg(ivy"${dependency.toIvy}")\n"""
-        )
+        val s = s"""ivy:
+                  |  ${dependency.toIvy}
+                  |  import $$ivy.`${dependency.toIvy}`
+                  |
+                  |scala-cli repl:
+                  |  scala-cli repl -S 3.2.2 --dep ${dependency.toIvy}
+                  |
+                  |mill:
+                  |  override def ivyDeps = Agg(ivy"${dependency.toIvy}")
+                  |
+                  |sbt:
+                  |  ${dependency.toSbt}
+                  |
+                  |maven:
+                  |${dependency.toMaven.linesIterator.map(it => s"  ${it}").mkString("\n")}
+                  """.stripMargin
+        println(s)
 
-        println(s"sbt:\n\t${dependency.toSbt}\n")
-
-        println(
-          s"maven:\n${dependency.toMaven.linesIterator.map(it => s"\t${it}").mkString("\n")}\n"
-        )
       case None => println("unknown")
 
     println()
