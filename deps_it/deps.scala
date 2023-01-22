@@ -1,14 +1,16 @@
+import scala.annotation.tailrec
 import scala.util.Try
 
-case class Deps(
+case class Dependency(
     groupId: String,
     artifactId: String,
     version: String
 )
 
-object Deps:
-  def from(s: String)(using parsers: List[Parser]): Option[Deps] =
-    def _from(parsers: List[Parser]): Option[Deps] =
+object Dependency:
+  def from(s: String)(using parsers: List[Parser]): Option[Dependency] =
+    @tailrec
+    def _from(parsers: List[Parser]): Option[Dependency] =
       parsers match
         case Nil => None
         case parser :: tail =>
@@ -19,10 +21,10 @@ object Deps:
     Try(_from(parsers)).toOption.flatten
 
 trait Parser:
-  def unapply(s: String): Option[Deps]
+  def unapply(s: String): Option[Dependency]
 
 object SbtParser extends Parser:
-  def unapply(s: String): Option[Deps] =
+  def unapply(s: String): Option[Dependency] =
     if s.contains("%") then
       val Array(a, b, c) = s.trim
         .replaceAll("%", "")
@@ -32,17 +34,17 @@ object SbtParser extends Parser:
           if itt.startsWith("\"") || itt.startsWith("'") then itt.substring(1, it.length - 1)
           else itt
         )
-      Some(Deps(a, b, c))
+      Some(Dependency(a, b, c))
     else None
 
 object IvyParser extends Parser:
-  def unapply(s: String): Option[Deps] =
+  def unapply(s: String): Option[Dependency] =
     if s.contains(":") then
       val Array(a, b, c) = s.trim.replaceAll(":", " ").split("\\s+").map(_.trim)
-      Some(Deps(a, b, c))
+      Some(Dependency(a, b, c))
     else None
 
-extension (t: Deps)
+extension (t: Dependency)
   def toIvy: String =
     s"${t.groupId}::${t.artifactId}:${t.version}"
 

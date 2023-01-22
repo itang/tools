@@ -1,4 +1,5 @@
-val VERSION = "0.1.0-20230122.1"
+val VERSION = "0.1.0-20230122.2"
+
 object Main {
   def main(args: Array[String]): Unit = {
     println(s"deps-v$VERSION")
@@ -10,21 +11,21 @@ object Main {
 
     given listParser: List[Parser] = List(SbtParser, IvyParser)
 
-    Deps.from(input) match
-      case Some(deps) =>
-        println(s"ivy:\n\t${deps.toIvy}")
-        println(s"\timport $$ivy.`${deps.toIvy}`\n")
+    Dependency.from(input) match
+      case Some(dependency) =>
+        println(s"ivy:\n\t${dependency.toIvy}")
+        println(s"\timport $$ivy.`${dependency.toIvy}`\n")
         println(
-          s"scala-cli repl:\n\tscala-cli repl -S 3.2.2 --dep ${deps.toIvy}\n"
+          s"scala-cli repl:\n\tscala-cli repl -S 3.2.2 --dep ${dependency.toIvy}\n"
         )
         println(
-          s"""mill:\n\toverride def ivyDeps = Agg(ivy"${deps.toIvy}")\n"""
+          s"""mill:\n\toverride def ivyDeps = Agg(ivy"${dependency.toIvy}")\n"""
         )
 
-        println(s"sbt:\n\t${deps.toSbt}\n")
+        println(s"sbt:\n\t${dependency.toSbt}\n")
 
         println(
-          s"maven:\n${deps.toMaven.linesIterator.map(it => s"\t${it}").mkString("\n")}\n"
+          s"maven:\n${dependency.toMaven.linesIterator.map(it => s"\t${it}").mkString("\n")}\n"
         )
       case None => println("unknown")
 
