@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "install": "cargo install -f --path ."
+  }
+}
