@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "build": "sbt nativeLink",
+    "run": "sbt run",
+    "install:win": "sbt clean && deno task build && cp target/scala-3.2.2/commands_scala-out.exe D:/dev-env/bin/commands.exe"
+  }
+}
