@@ -33,8 +33,10 @@ object Main {
 
     val names = dirList
       .flatMap(f =>
-        val files = f.listFiles()
-        if files == null then Array.empty[File] else files
+        try
+          val files = f.listFiles()
+          if files == null then Array.empty[File] else files
+        catch case _: Throwable => Array.empty[File]
       )
       .filter(it =>
         val name = it.getName
@@ -50,6 +52,7 @@ object Main {
         name <- names
         nameWrap = if full_name then name else name.noExtension
       do print(nameWrap + " ")
+
       println()
 
   extension (s: String)
