@@ -40,7 +40,8 @@ object Main {
       )
       .filter(it =>
         val name = it.getName
-        name.endsWith(".exe") || name.endsWith(".bat") || !name.contains(".")
+        // TODO: win / linux
+        name.endsWith(".exe") || name.endsWith(".bat") || name.endsWith(".cmd") || !name.contains(".")
       )
       .filter(_.isFile)
       .map(_.getName)
