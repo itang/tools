@@ -6,18 +6,7 @@ object AppLogic:
   opaque type CommandNames = List[String]
 
   def getNames(all: Boolean, searchKeys: Seq[String]): CommandNames =
-    val home = System.getProperty("user.home")
-
-    val dirList =
-      if all then System.getenv("Path").split(File.pathSeparator).map(_.trim).filterNot(_.isBlank).map(File(_)).toList
-      else
-        List(
-          Paths.get("D:/dev-env/bin"),
-          Paths.get(home, ".cargo", "bin"),
-          Paths.get(home, ".deno", "bin"),
-          Paths.get(home, "AppData/Roaming/npm")
-        ).map(_.toFile)
-
+    val dirList = getDirs(all)
     val names = dirList
       .flatMap(f =>
         try
@@ -37,6 +26,21 @@ object AppLogic:
     else names.filter(name => searchKeys.exists(key => name.noExtension.contains(key)))
 
   end getNames
+
+  private def getDirs(all: Boolean): List[File] =
+    val home = System.getProperty("user.home")
+    val files =
+      if all then System.getenv("Path").split(File.pathSeparator).map(_.trim).filterNot(_.isBlank).map(File(_)).toList
+      else
+        List(
+          Paths.get("D:/dev-env/bin"),
+          Paths.get(home, ".cargo", "bin"),
+          Paths.get(home, ".deno", "bin"),
+          Paths.get(home, "AppData/Roaming/npm")
+        ).map(_.toFile)
+
+    files.filter(_.isDirectory)
+  end getDirs
 
   extension (names: CommandNames)
     def prettyPrint(full_name: Boolean): Unit =
