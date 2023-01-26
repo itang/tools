@@ -2,7 +2,7 @@ import java.io.File
 import java.nio.file.Paths
 
 object AppLogic:
-  def getNames(all: Boolean): List[String] =
+  def getNames(all: Boolean, searchKeys: Seq[String]): List[String] =
     val home = System.getProperty("user.home")
 
     val dirList =
@@ -15,7 +15,7 @@ object AppLogic:
           Paths.get(home, "AppData/Roaming/npm")
         ).map(_.toFile)
 
-    dirList
+    val names = dirList
       .flatMap(f =>
         try
           val files = f.listFiles()
@@ -29,6 +29,10 @@ object AppLogic:
       )
       .filter(_.isFile)
       .map(_.getName)
+
+    if searchKeys.isEmpty then names
+    else names.filter(name => searchKeys.exists(key => name.noExtension.contains(key)))
+
   end getNames
 
   def printNames(names: List[String], full_name: Boolean): Unit =

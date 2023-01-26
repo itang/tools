@@ -1,7 +1,6 @@
 import tang.*
 
-import mainargs.{main, arg, ParserForMethods, Flag}
-import AppLogic.*
+import mainargs.{main, arg, ParserForMethods, Flag, Leftover}
 
 object Main:
 
@@ -12,9 +11,10 @@ object Main:
       @arg(short = 'a', doc = "print all commands")
       all: Flag,
       @arg(short = 'f', doc = "print full name")
-      full_name: Flag
-  ): Unit = _run(all.value, full_name.value)
+      full_name: Flag,
+      searchKeys: Leftover[String]
+  ): Unit = _run(all.value, full_name.value, searchKeys.value)
 
-  private def _run(all: Boolean, full_name: Boolean): Unit =
-    val names = getNames(all)
-    printNames(names, full_name)
+  private def _run(all: Boolean, full_name: Boolean, searchKeys: Seq[String]): Unit =
+    val names = AppLogic.getNames(all, searchKeys)
+    AppLogic.printNames(names, full_name)
