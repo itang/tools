@@ -37,10 +37,11 @@ object AppLogic:
 
   def printNames(names: List[String], full_name: Boolean): Unit =
     for (_, names) <- names.groupBy(_.head) do
+      print(">")
       for
         name <- names
         nameWrap = if full_name then name else name.noExtension
-      do print(nameWrap + " ")
+      do print(" " + nameWrap)
 
       println()
   end printNames
