@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "bsp": "mill mill.bsp.BSP/install",
+    "run": "mill _.run",
+    "build": "mill _.nativeLink",
+    "console": "mill -i _.console",
+    "edit": "deno task bsp && idea64 .",
+    "install:win": "deno task build && cp out/core/nativeLink.dest/out D:/dev-env/bin/commands.exe",
+    "clean": "mill clean"
+  }
+}
