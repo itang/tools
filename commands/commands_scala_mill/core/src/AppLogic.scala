@@ -5,6 +5,14 @@ object AppLogic:
 
   opaque type CommandNames = List[String]
 
+  extension (names: CommandNames)
+    def prettyPrint(full_name: Boolean): Unit =
+      val namesGrouped = names.groupBy(_.head)
+      for (_, names) <- namesGrouped do
+        val s = s"""> ${names.map(_.display(full_name)).mkString(" ")}"""
+        println(s)
+    end prettyPrint
+
   def getNames(all: Boolean, searchKeys: Seq[String]): CommandNames =
     val dirList = getDirs(all)
     val names = dirList
@@ -27,6 +35,8 @@ object AppLogic:
 
   end getNames
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   private def getDirs(all: Boolean): List[File] =
     val home = System.getProperty("user.home")
     val files =
@@ -41,14 +51,6 @@ object AppLogic:
 
     files.filter(_.isDirectory)
   end getDirs
-
-  extension (names: CommandNames)
-    def prettyPrint(full_name: Boolean): Unit =
-      val namesGrouped = names.groupBy(_.head)
-      for (_, names) <- namesGrouped do
-        val s = s"""> ${names.map(_.display(full_name)).mkString(" ")}"""
-        println(s)
-    end prettyPrint
 
   extension (name: String)
     private inline def display(full_name: Boolean): String =
