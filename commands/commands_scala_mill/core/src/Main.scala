@@ -1,4 +1,5 @@
-import mainargs.{main, arg, ParserForMethods, Flag, Leftover}
+import app.AppLogic
+import mainargs.{Flag, Leftover, ParserForMethods, arg, main}
 
 object Main:
 

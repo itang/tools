@@ -1,5 +1,8 @@
+package app
+
 import java.io.File
 import java.nio.file.Paths
+import app.Util.*
 
 object AppLogic:
 
@@ -51,16 +54,3 @@ object AppLogic:
   extension (name: String)
     private inline def display(full_name: Boolean): String =
       if full_name then name else name.noExtension
-
-    private inline def noExtension: String =
-      if name.contains(".") then
-        val pos = name.lastIndexOf(".")
-        name.substring(0, pos)
-      else name
-
-  extension (file: File)
-    private def isExe: Boolean = file.isFile && {
-      val name = file.getName
-      // TODO: win / linux
-      name.endsWith(".exe") || name.endsWith(".bat") || name.endsWith(".cmd") || !name.contains(".")
-    }
