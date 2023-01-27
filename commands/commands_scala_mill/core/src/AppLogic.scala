@@ -7,40 +7,36 @@ object AppLogic:
 
   extension (names: CommandNames)
     def prettyPrint(full_name: Boolean): Unit =
-      val namesGrouped = names.groupBy(_.head)
-      for (_, names) <- namesGrouped do
-        val s = s"""> ${names.map(_.display(full_name)).mkString(" ")}"""
-        println(s)
-    end prettyPrint
+      val s = names
+        .groupBy(_.head)
+        .toList
+        .sortBy(_._1)
+        .map { case (_, names) => s"""> ${names.map(_.display(full_name)).mkString(" ")}""" }
+        .mkString("\n")
+      println(s)
 
   def getNames(all: Boolean, searchKeys: Seq[String]): CommandNames =
-    val dirList = getDirs(all)
-    val names = dirList
-      .flatMap(f =>
+    val names = getDirs(all)
+      .flatMap(dir =>
         try
-          val files = f.listFiles()
+          val files = dir.listFiles()
           if files == null then Array.empty[File] else files
         catch case _: Throwable => Array.empty[File]
       )
-      .filter(it =>
-        val name = it.getName
-        // TODO: win / linux
-        name.endsWith(".exe") || name.endsWith(".bat") || name.endsWith(".cmd") || !name.contains(".")
-      )
-      .filter(_.isFile)
+      .filter(_.isExe)
       .map(_.getName)
 
     if searchKeys.isEmpty then names
-    else names.filter(name => searchKeys.exists(key => name.noExtension.contains(key)))
-
-  end getNames
+    else names.filter(name => searchKeys.exists(name.noExtension.contains))
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   private def getDirs(all: Boolean): List[File] =
     val home = System.getProperty("user.home")
     val files =
-      if all then System.getenv("Path").split(File.pathSeparator).map(_.trim).filterNot(_.isBlank).map(File(_)).toList
+      if all then
+        val path = System.getenv("Path")
+        path.split(File.pathSeparator).map(_.trim).filterNot(_.isBlank).map(File(_)).toList
       else
         List(
           Paths.get("D:/dev-env/bin"),
@@ -61,3 +57,10 @@ object AppLogic:
         val pos = name.lastIndexOf(".")
         name.substring(0, pos)
       else name
+
+  extension (file: File)
+    private def isExe: Boolean = file.isFile && {
+      val name = file.getName
+      // TODO: win / linux
+      name.endsWith(".exe") || name.endsWith(".bat") || name.endsWith(".cmd") || !name.contains(".")
+    }
