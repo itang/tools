@@ -5,7 +5,7 @@ val tangVersion = "0.1.2-SNAPSHOT"
 
 object core extends ScalaNativeModule {
   override def scalaVersion       = "3.2.2"
-  override def scalaNativeVersion = "0.4.9"
+  override def scalaNativeVersion = "0.4.10"
 
   override def ivyDeps = Agg(ivy"com.lihaoyi::mainargs::0.3.0")
 
