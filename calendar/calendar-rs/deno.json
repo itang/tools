@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "deno:version": "deno --version",
+    "add:toolkit": "cargo add chrono reqwest",
+    "install": "cargo install --path ."
+  }
+}
