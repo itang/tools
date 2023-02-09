@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use chrono::{Datelike, Days, offset, Weekday};
 use clap::Parser;
 
@@ -12,20 +14,22 @@ struct Args {
     days: u64,
 }
 
+const MAX_DAYS: u64 = 10_000;
+
 fn main() {
     let args = Args::parse();
 
     let now = offset::Local::now();
 
-    let days = args.days;
-    for i in 0..=days {
+    let days = min(args.days, MAX_DAYS);
+    let lines: Vec<String> = (0..=days).map(|i| {
         let to = now.checked_add_days(Days::new(i)).unwrap();
         let df: &str = &to.format("%Y-%m-%d").to_string();
-
         let wf = to.weekday().format().unwrap_or("");
-
-        println!("{i}: {df} - {wf}");
-    }
+        format!("{i}: {df} - {wf}")
+    }).collect();
+    let output = lines.join("\n");
+    println!("{output}");
 }
 
 trait WS {
