@@ -1,14 +1,16 @@
 [package]
-name = "head_news_rs"
-version = "0.1.0"
+name = "head_news"
+version = "0.2.0-20230217.1"
 edition = "2021"
 
-[[bin]]
-name = "head_news"
-path = "src/main.rs"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "head_news"
+path = "src/lib/mod.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+async-trait = "0.1.64"
 reqwest = "0.11.14"
 scraper = "0.14.0"
 tokio = { version = "1.24.2", features = ["full"] }
