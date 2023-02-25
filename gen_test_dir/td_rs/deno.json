@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "dev": "cargo watch -x run",
+    "run": "cargo run",
+    "install": "cargo install --path .",
+    "edit": "idea64 .",
+    "add:toolkit": "cargo add tap chrono time reqwest fs_extra itertools xshell anyhow thiserror && cargo add serde --features derive && cargo add serde_json",
+    "add:ext": "cargo add once_cell humantime url rust_decimal rust_decimal_macros && cargo add uuid --features v4,fast-rng,macro-diagnostics",
+    "add:clap": "cargo add clap --features derive",
+    "add:tokio": "cargo add tokio --features full"
+  }
+}

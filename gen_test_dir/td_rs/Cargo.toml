@@ -1,0 +1,18 @@
+[package]
+name = "td"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4.23"
+
+
+[profile.release]
+# https://doc.rust-lang.org/cargo/reference/profiles.html
+strip = "debuginfo"
+incremental = true
+lto = true          # Link Time Optimization (LTO)
+opt-level = 'z'     # Optimize for size
+codegen-units = 1   # Parallel Code Generation Units
