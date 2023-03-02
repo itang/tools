@@ -1,9 +1,15 @@
-use chrono::prelude::*;
 use std::fs;
+
+use chrono::prelude::*;
 
 pub fn gen_dir_str() -> String {
     let now = Local::now();
-    format!("{}", now.format("%d_%m"))
+    let s = format!("{}", now.format("%m%d"));
+    if s.starts_with("0") {
+        s[1..].to_string()
+    } else {
+        s
+    }
 }
 
 pub trait DirCreate {
