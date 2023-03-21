@@ -4,10 +4,11 @@ use td::DirCreate;
 fn main() {
     let dir = gen_dir_str();
     let r = dir.create();
-    if r {
-        println!("create {dir} success");
-        println!("cd {dir}");
-    } else {
-        println!("create {dir} failed");
+    match r {
+        Ok(()) => {
+            println!("create {dir} success");
+            println!("cd {dir}");
+        }
+        Err(err) => println!("{err}"),
     }
 }
