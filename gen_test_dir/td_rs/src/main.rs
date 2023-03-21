@@ -6,6 +6,7 @@ fn main() {
     let r = dir.create();
     if r {
         println!("create {dir} success");
+        println!("cd {dir}");
     } else {
         println!("create {dir} failed");
     }
