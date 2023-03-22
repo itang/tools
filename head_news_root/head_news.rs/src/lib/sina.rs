@@ -1,9 +1,11 @@
+//! sina module.
 use async_trait::async_trait;
 use scraper::Html;
 use scraper::Selector;
 
 use crate::types::*;
 
+/// Sina.
 pub struct Sina;
 
 #[async_trait]
@@ -21,8 +23,8 @@ impl Portal for Sina {
         let news_list = document
             .select(&selector)
             .map(|element| News {
-                title: element.text().collect::<String>(),
-                href: element.value().attr("href").unwrap().to_string(),
+                title: element.text().collect::<String>().trim().to_string(),
+                href: element.value().attr("href").expect("get href").trim().to_string(),
             })
             .collect();
 
