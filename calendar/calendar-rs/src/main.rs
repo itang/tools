@@ -1,3 +1,6 @@
+#![deny(clippy::unwrap_used)]
+#![forbid(unsafe_code)]
+
 use clap::Parser;
 
 #[derive(Parser)]

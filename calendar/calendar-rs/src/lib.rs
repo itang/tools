@@ -1,6 +1,14 @@
+#![deny(clippy::unwrap_used)]
+#![forbid(unsafe_code)]
+#![deny(missing_docs)]
+
+//! calendar lib.
+//!
+//!
 use std::cmp::min;
 
-use chrono::{Datelike, Days, offset, Weekday};
+use chrono::{offset, Datelike, Days, Weekday};
+use tabled::{Style, Tabled};
 
 //TODO: 月日历
 //TODO: 周日历
@@ -8,17 +16,28 @@ use chrono::{Datelike, Days, offset, Weekday};
 
 const MAX_DAYS: u64 = 10_000;
 
+/// pretty display days.
+/// @param days: the days to display
 pub fn display_day(days: u64) -> String {
     let now = offset::Local::now();
 
     let days = min(days, MAX_DAYS);
-    let lines: Vec<String> = (0..=days).map(|i| {
-        let to = now.checked_add_days(Days::new(i)).unwrap();
-        let df: &str = &to.format("%Y-%m-%d").to_string();
-        let wf = to.weekday().format().unwrap_or("");
-        format!("{i}: {df} - {wf}")
-    }).collect();
-    lines.join("\n")
+    let lines: Vec<DayItem> = (0..=days)
+        .enumerate()
+        .map(|(index, i)| {
+            let to = now.checked_add_days(Days::new(i)).unwrap();
+            let df: &str = &to.format("%Y-%m-%d").to_string();
+            let wf = to.weekday().format().unwrap_or("");
+            DayItem {
+                no: index,
+                date_f: df.to_string(),
+                week_f: wf.to_string(),
+            }
+        })
+        .collect();
+
+    let mut table = tabled::Table::new(lines);
+    table.with(Style::psql()).to_string()
 }
 
 trait WS {
@@ -40,4 +59,15 @@ impl WS for Weekday {
             _ => None,
         }
     }
+}
+
+/// Day Row for table.
+#[derive(Debug, Tabled)]
+pub struct DayItem {
+    /// The no.
+    pub no: usize,
+    /// The date.
+    pub date_f: String,
+    /// The href.
+    pub week_f: String,
 }
