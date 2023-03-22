@@ -1,6 +1,6 @@
 [package]
 name = "head_news"
-version = "0.2.0-20230217.1"
+version = "0.2.1-20230322.1"
 edition = "2021"
 
 
@@ -13,6 +13,7 @@ path = "src/lib/mod.rs"
 async-trait = "0.1.64"
 reqwest = "0.11.14"
 scraper = "0.14.0"
+tabled = "0.10.0"
 tokio = { version = "1.24.2", features = ["full"] }
 
 

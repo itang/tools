@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 
-#[derive(Debug)]
+use tabled::Tabled;
+
+#[derive(Debug, Tabled)]
 pub struct News {
     pub title: String,
     pub href: String,

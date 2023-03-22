@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "watch": "cargo watch -x run",
+    "dev": "cargo watch -x run",
     "run": "cargo run",
     "install": "cargo install -f --path ."
   }
