@@ -34,10 +34,7 @@ pub trait DirCreate {
 
 impl DirCreate for String {
     fn create(&self) -> Result<(), DirCreateError> {
-        fs::create_dir(self).map_err(|e| DirCreateError::Io {
-            dir: self.clone(),
-            source: e,
-        })
+        fs::create_dir(self).map_err(|e| DirCreateError::Io { dir: self.clone(), source: e })
     }
 }
 
