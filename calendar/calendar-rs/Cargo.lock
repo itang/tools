@@ -37,7 +37,7 @@ checksum = "2c676a478f63e9fa2dd5368a42f28bba0d6c560b775f38583c8bbaa7fcd67c9c"
 
 [[package]]
 name = "calendar"
-version = "0.2.0-20230217.1"
+version = "0.3.0-20230323.1"
 dependencies = [
  "chrono",
  "clap",

@@ -24,15 +24,26 @@ pub fn display_day(days: u64) -> String {
     let days = min(days, MAX_DAYS);
     let lines: Vec<DayItem> = (0..=days)
         .enumerate()
-        .map(|(index, i)| {
-            let to = now.checked_add_days(Days::new(i)).unwrap();
+        .flat_map(|(index, i)| {
+            let to = now
+                .checked_add_days(Days::new(i))
+                .expect("checked add days");
             let df: &str = &to.format("%Y-%m-%d").to_string();
             let wf = to.weekday().format().unwrap_or("");
-            DayItem {
-                no: index,
+            let mut vec = vec![DayItem {
+                no: format!("{index}"),
                 date_f: df.to_string(),
                 week_f: wf.to_string(),
+            }];
+            if to.weekday().is_last_day_of_week() {
+                vec.push(DayItem {
+                    no: "-".to_string(),
+                    date_f: "-".to_string(),
+                    week_f: "-".to_string(),
+                });
             }
+
+            vec
         })
         .collect();
 
@@ -43,6 +54,8 @@ pub fn display_day(days: u64) -> String {
 trait WS {
     type Output;
     fn format(&self) -> Self::Output;
+
+    fn is_last_day_of_week(&self) -> bool;
 }
 
 impl WS for Weekday {
@@ -59,13 +72,17 @@ impl WS for Weekday {
             _ => None,
         }
     }
+
+    fn is_last_day_of_week(&self) -> bool {
+        self.num_days_from_monday() == 6
+    }
 }
 
 /// Day Row for table.
 #[derive(Debug, Tabled)]
 pub struct DayItem {
     /// The no.
-    pub no: usize,
+    pub no: String,
     /// The date.
     pub date_f: String,
     /// The href.
