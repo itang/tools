@@ -9,6 +9,7 @@ edition = "2021"
 chrono = "0.4.23"
 clap = { version = "4.1.4", features = ["derive"] }
 tabled = "0.10.0"
+tap = "1.0.1"
 
 [profile.release]
 # https://doc.rust-lang.org/cargo/reference/profiles.html

@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "deno:version": "deno --version",
+    "lint": "cargo clippy",
     "add:toolkit": "cargo add chrono reqwest",
     "install": "cargo install --path ."
   }

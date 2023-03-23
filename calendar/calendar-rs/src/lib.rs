@@ -9,6 +9,7 @@ use std::cmp::min;
 
 use chrono::{offset, Datelike, Days, Weekday};
 use tabled::{Style, Tabled};
+use tap::Tap;
 
 //TODO: 月日历
 //TODO: 周日历
@@ -22,7 +23,8 @@ pub fn display_day(days: u64) -> String {
     let now = offset::Local::now();
 
     let days = min(days, MAX_DAYS);
-    let lines: Vec<DayItem> = (0..=days)
+
+    let rows: Vec<DayItem> = (0..=days)
         .enumerate()
         .flat_map(|(index, i)| {
             let to = now
@@ -30,25 +32,20 @@ pub fn display_day(days: u64) -> String {
                 .expect("checked add days");
             let df: &str = &to.format("%Y-%m-%d").to_string();
             let wf = to.weekday().format().unwrap_or("");
-            let mut vec = vec![DayItem {
-                no: format!("{index}"),
-                date_f: df.to_string(),
-                week_f: wf.to_string(),
-            }];
-            if to.weekday().is_last_day_of_week() {
-                vec.push(DayItem {
-                    no: "-".to_string(),
-                    date_f: "-".to_string(),
-                    week_f: "-".to_string(),
-                });
-            }
 
-            vec
+            vec![DayItem::new(index.to_string(), df, wf)].tap_mut(|it| {
+                if to.weekday().is_last_day_of_week() {
+                    it.push(DayItem::blank());
+                }
+            })
         })
         .collect();
 
-    let mut table = tabled::Table::new(lines);
-    table.with(Style::psql()).to_string()
+    tabled::Table::new(rows)
+        .tap_mut(|it| {
+            it.with(Style::psql());
+        })
+        .to_string()
 }
 
 trait WS {
@@ -87,4 +84,23 @@ pub struct DayItem {
     pub date_f: String,
     /// The href.
     pub week_f: String,
+}
+
+impl DayItem {
+    /// Make a DayItem.
+    pub fn new<A, B>(no: A, date_f: B, week_f: B) -> Self
+    where
+        A: Into<String>,
+        B: Into<String>,
+    {
+        Self {
+            no: no.into(),
+            date_f: date_f.into(),
+            week_f: week_f.into(),
+        }
+    }
+    /// Make a blank DayItem.
+    pub fn blank() -> Self {
+        Self::new("", "-", "-")
+    }
 }
