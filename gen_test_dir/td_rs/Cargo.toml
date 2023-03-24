@@ -1,12 +1,13 @@
 [package]
 name = "td"
-version = "0.2.0-20230323.1"
+version = "0.3.0-20230324.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "0.4.23"
+colored = "2.0.0"
 thiserror = "1.0.40"
 
 
