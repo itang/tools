@@ -6,7 +6,7 @@ fn main() -> ExitCode {
     let dir = gen_dir_str();
     let create_result = dir.create();
 
-    info!("try to create directory: '{dir}' on '{:?}'...", current_dir().expect("get current dir"));
+    info!("try to create directory: '{dir}' on '{}'...", current_dir().expect("get current dir").as_path().display());
 
     let exit_code = match create_result {
         Ok(()) => {
