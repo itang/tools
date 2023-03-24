@@ -1,23 +1,6 @@
 use std::{env::current_dir, process::ExitCode};
 
-use colored::Colorize;
-
-use td::gen_dir_str;
-use td::DirCreate;
-
-macro_rules! info {
-    ($($arg:tt)*) => {{
-        let res = std::fmt::format(std::format_args!($($arg)*));
-         println!("{}: {}", "INFO".blue(), res.green());
-    }}
-}
-
-macro_rules! warn {
-      ($($arg:tt)*) => {{
-        let res = std::fmt::format(std::format_args!($($arg)*));
-           println!("{}: {}", "WARN".yellow(), res.red());
-    }}
-}
+use td::{dir::*, info, warn};
 
 fn main() -> ExitCode {
     let dir = gen_dir_str();
