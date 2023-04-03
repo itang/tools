@@ -44,7 +44,7 @@ pub mod dir {
     #[derive(Error, Debug)]
     pub enum DirCreateError {
         /// Io error.
-        #[error("create dir '{dir}' error, caused by {source}")]
+        #[error("create dir '{dir}' error, caused by '{source}'")]
         Io {
             /// dir
             dir: String,

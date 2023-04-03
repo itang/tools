@@ -277,7 +277,7 @@ dependencies = [
 
 [[package]]
 name = "td"
-version = "0.3.0-20230324.1"
+version = "0.3.0-20230403.1"
 dependencies = [
  "chrono",
  "colored",
