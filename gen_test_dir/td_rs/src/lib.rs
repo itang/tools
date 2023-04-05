@@ -17,7 +17,7 @@ pub mod dir {
     pub fn gen_dir_str() -> String {
         let now = Local::now();
         let s = format!("{}", now.format("%m%d"));
-        if s.starts_with('0') {
+        let s = if s.starts_with('0') {
             match s.strip_prefix('0') {
                 Some(r) => r.to_string(),
                 None => unreachable!(),
@@ -25,7 +25,8 @@ pub mod dir {
             //s[1..].to_string()
         } else {
             s
-        }
+        };
+        format!("t{s}")
     }
 
     /// DirCreate
