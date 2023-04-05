@@ -1,6 +1,6 @@
 use std::{env::current_dir, process::ExitCode};
 
-use td::{dir::*, info, warn};
+use td::{gen_dir_str, info, warn, DirCreate};
 
 fn main() -> ExitCode {
     let dir = gen_dir_str();
