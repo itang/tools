@@ -13,6 +13,9 @@ pub mod dir {
     use chrono::prelude::*;
     use thiserror::Error;
 
+    /// The prefix string.
+    pub const PREFIX_STR: &str = "t";
+
     /// generate a dir.
     pub fn gen_dir_str() -> String {
         let now = Local::now();
@@ -26,7 +29,7 @@ pub mod dir {
         } else {
             s
         };
-        format!("t{s}")
+        format!("{PREFIX_STR}{s}")
     }
 
     /// DirCreate
@@ -73,4 +76,15 @@ macro_rules! warn {
         let res = std::fmt::format(std::format_args!($($arg)*));
         println!("{}: {}", "WARN".yellow(), res.red());
     }}
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::dir::{gen_dir_str, PREFIX_STR};
+
+    #[test]
+    fn test_gen_dir_str() {
+        let d = gen_dir_str();
+        assert!(d.starts_with(PREFIX_STR));
+    }
 }
