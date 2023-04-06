@@ -8,5 +8,7 @@
 
 mod dir;
 mod macros;
+mod state;
 
 pub use dir::{gen_dir_str, DirCreate, DirCreateError};
+pub use state::SILENT as SILENT_MODE;

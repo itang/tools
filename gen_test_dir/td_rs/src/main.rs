@@ -1,8 +1,25 @@
 use std::{env::current_dir, process::ExitCode};
 
+use clap::Parser;
+use serde::Serialize;
+
 use td::{gen_dir_str, info, warn, DirCreate};
 
+#[derive(Parser)]
+struct Args {
+    #[arg(long, default_value_t = false)]
+    json: bool,
+}
+
+#[derive(Serialize, Debug)]
+struct Data {
+    dir: String,
+}
+
 fn main() -> ExitCode {
+    let args = Args::parse();
+    td::SILENT_MODE.set(args.json).expect("set value");
+
     let dir = gen_dir_str();
     let create_result = dir.create();
 
@@ -11,6 +28,7 @@ fn main() -> ExitCode {
     let exit_code = match create_result {
         Ok(()) => {
             info!("create '{dir}' directory success");
+
             ExitCode::SUCCESS
         },
         Err(err) => {
@@ -18,6 +36,12 @@ fn main() -> ExitCode {
             ExitCode::FAILURE
         },
     };
+
+    if args.json {
+        let data = Data { dir: dir.clone() };
+        let json = serde_json::to_string_pretty(&data).expect("to json");
+        println!("{json}");
+    }
 
     info!("cd {dir}");
 

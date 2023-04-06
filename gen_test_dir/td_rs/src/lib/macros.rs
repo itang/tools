@@ -1,12 +1,14 @@
-//! macros modules.
+//! macros module.
 
 /// log info.
 #[macro_export]
 macro_rules! info {
     ($($arg:tt)*) => {{
         use colored::Colorize;
-        let res = std::fmt::format(std::format_args!($($arg)*));
-        println!("{}: {}", "INFO".blue(), res.green());
+        if !td::SILENT_MODE.get().expect("get") {
+            let res = std::fmt::format(std::format_args!($($arg)*));
+            println!("{}: {}", "INFO".blue(), res.green());
+        }
     }}
 }
 
@@ -15,7 +17,9 @@ macro_rules! info {
 macro_rules! warn {
     ($($arg:tt)*) => {{
         use colored::Colorize;
-        let res = std::fmt::format(std::format_args!($($arg)*));
-        println!("{}: {}", "WARN".yellow(), res.red());
+        if !td::SILENT_MODE.get().expect("get") {
+            let res = std::fmt::format(std::format_args!($($arg)*));
+            println!("{}: {}", "WARN".yellow(), res.red());
+        }
     }}
 }
