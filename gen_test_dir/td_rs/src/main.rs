@@ -1,3 +1,8 @@
+//! td-cli main.
+#![deny(clippy::unwrap_used)]
+#![forbid(unsafe_code)]
+#![deny(missing_docs)]
+
 use std::{env::current_dir, process::ExitCode};
 
 use clap::Parser;
@@ -6,7 +11,9 @@ use serde::Serialize;
 use td::{gen_dir_str, info, warn, DirCreate};
 
 #[derive(Parser)]
+#[command(author, version, about, long_about = None)]
 struct Args {
+    /// Output to json format
     #[arg(long, default_value_t = false)]
     json: bool,
 }
@@ -28,7 +35,6 @@ fn main() -> ExitCode {
     let exit_code = match create_result {
         Ok(()) => {
             info!("create '{dir}' directory success");
-
             ExitCode::SUCCESS
         },
         Err(err) => {
