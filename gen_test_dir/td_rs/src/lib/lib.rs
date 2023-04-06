@@ -11,4 +11,4 @@ mod macros;
 mod state;
 
 pub use dir::{gen_dir_str, DirCreate, DirCreateError};
-pub use state::SILENT as SILENT_MODE;
+pub use state::{get_silent_mode, init_silent_mode};

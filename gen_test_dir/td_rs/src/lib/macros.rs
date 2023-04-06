@@ -5,7 +5,7 @@
 macro_rules! info {
     ($($arg:tt)*) => {{
         use colored::Colorize;
-        if !td::SILENT_MODE.get().expect("get") {
+        if !td::get_silent_mode() {
             let res = std::fmt::format(std::format_args!($($arg)*));
             println!("{}: {}", "INFO".blue(), res.green());
         }
@@ -17,7 +17,7 @@ macro_rules! info {
 macro_rules! warn {
     ($($arg:tt)*) => {{
         use colored::Colorize;
-        if !td::SILENT_MODE.get().expect("get") {
+        if !td::get_silent_mode() {
             let res = std::fmt::format(std::format_args!($($arg)*));
             println!("{}: {}", "WARN".yellow(), res.red());
         }

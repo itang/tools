@@ -25,7 +25,7 @@ struct Data {
 
 fn main() -> ExitCode {
     let args = Args::parse();
-    td::SILENT_MODE.set(args.json).expect("set value");
+    td::init_silent_mode(args.json);
 
     let dir = gen_dir_str();
     let create_result = dir.create();
