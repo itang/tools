@@ -5,6 +5,9 @@ authors = ["itang <live.tang@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "jy"
+path = "src/lib/mod.rs"
 
 [dependencies]
 anyhow = "1.0.71"
