@@ -27,7 +27,7 @@ fn main() -> Result<()> {
             println!("{}", "-".repeat(80));
             println!("dry run. exit!");
             Ok(())
-        },
+        }
         Opt { show_info: true, .. } => {
             println!("CONFIG_PATH_ENV_KEY: {}", opt::CONFIG_PATH_ENV_KEY);
             println!("ENV {} VALUE: {:?}", opt::CONFIG_PATH_ENV_KEY, std::env::var(opt::CONFIG_PATH_ENV_KEY));
@@ -35,23 +35,36 @@ fn main() -> Result<()> {
             println!("DEFAULT CONFIG CONTENT:\n{}", opt::DEFAULT_CONFIG);
 
             Ok(())
-        },
+        }
         _ => {
             let content = match opt.get_config_path() {
-                Ok(path) => match get_content(path.clone()) {
-                    Ok(content) => content,
-                    Err(e) => panic!("WARN: 无法加载配置文件 {:?}, error: {}", path, e),
-                },
-                Err(e) => {
-                    println!("WARN: 未指定要加载配置文件, 使用默认配置列表 (error: {})", e);
-                    opt::DEFAULT_CONFIG.into()
-                },
+                Ok(path) => {
+                    println!("INFO: 配置路径:{:?}", path.clone());
+                    match get_content(path.clone()) {
+                        Ok(content) => content,
+                        Err(e) => panic!("WARN: 尝试从配置路径加载文件失败 {:?}, error: {}", path, e),
+                    }
+                }
+                Err(_) => {
+                    let home_config_dir = dirs::home_dir().expect("get home dir").join(".jy");
+                    println!("INFO: 未指定要加载配置文件, 尝试从{:?}加载", home_config_dir.clone());
+                    let home_config_path = home_config_dir.join(opt::DEFAULT_FILE_NAME);
+                    if home_config_path.exists() {
+                        println!("INFO: 默认配置文件存在 {:?}", home_config_path.clone());
+                        get_content(home_config_path)?
+                    } else {
+                        fs::create_dir(home_config_dir).expect("create dir");
+                        println!("WARN: 默认配置文件不存在, 使用默认配置列表创建{:?}...", home_config_path.clone());
+                        fs::write(home_config_path, opt::DEFAULT_CONFIG).expect("write file");
+                        opt::DEFAULT_CONFIG.into()
+                    }
+                }
             };
 
             let config = content.parse::<Value>()?;
 
             browser_batch(config)
-        },
+        }
     }
 }
 

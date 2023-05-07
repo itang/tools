@@ -41,9 +41,7 @@ impl IConfigPath for Opt {
     fn get_config_path(&self) -> Result<PathBuf> {
         match &self.config {
             Some(p) => Ok(p.clone()),
-            None => env::var(CONFIG_PATH_ENV_KEY)
-                .map(|c| Path::new(&c).to_path_buf())
-                .or_else(|_| Ok(env::var("HOME").map(|x| Path::new(&x).join("bin").join(DEFAULT_FILE_NAME))?)),
+            None => Ok(env::var(CONFIG_PATH_ENV_KEY).map(|c| Path::new(&c).to_path_buf())?),
         }
     }
 }
