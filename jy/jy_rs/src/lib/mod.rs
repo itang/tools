@@ -15,14 +15,16 @@ pub mod browser;
 pub mod opt;
 
 /// get content from path
-pub fn get_content<P>(config_path: P) -> Result<String>
+pub fn get_config<P>(config_path: P) -> Result<Value>
 where
     P: AsRef<Path>,
 {
     let config_path: &Path = config_path.as_ref();
     println!("INFO: read from config file: {:?}", config_path);
 
-    Ok(fs::read_to_string(config_path)?)
+    let result = fs::read_to_string(config_path)?.parse::<Value>();
+
+    Ok(result?)
 }
 
 /// get urls from toml config

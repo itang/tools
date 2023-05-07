@@ -8,7 +8,6 @@
 //!
 
 use std::fs;
-use toml::Value;
 
 use anyhow::{Error, Result};
 
@@ -29,10 +28,10 @@ fn main() -> Result<()> {
 }
 
 fn handle_jy(opt: Opt) -> Result<()> {
-    let content = match opt.get_config_path() {
+    let config = match opt.get_config_path() {
         Ok(path) => {
             println!("INFO: 配置路径:{:?}", path);
-            match jy::get_content(&path) {
+            match jy::get_config(&path) {
                 Ok(content) => content,
                 Err(e) => panic!("WARN: 尝试从配置路径加载文件失败 {:?}, error: {}", path, e),
             }
@@ -43,7 +42,7 @@ fn handle_jy(opt: Opt) -> Result<()> {
             let home_config_path = home_config_dir.join(opt::DEFAULT_FILE_NAME);
             if home_config_path.exists() {
                 println!("INFO: 默认配置文件存在 {:?}", home_config_path);
-                jy::get_content(home_config_path)?
+                jy::get_config(home_config_path)?
             } else {
                 fs::create_dir(home_config_dir).expect("create dir");
                 println!("WARN: 默认配置文件不存在, 使用默认配置列表创建{:?}...", home_config_path);
@@ -53,7 +52,6 @@ fn handle_jy(opt: Opt) -> Result<()> {
         },
     };
 
-    let config = content.parse::<Value>()?;
     let urls = jy::urls(config);
 
     browser::browser_batch(urls)
@@ -69,7 +67,7 @@ fn handle_show_info() -> Result<(), Error> {
 }
 
 fn handle_dry_run(opt: Opt) -> Result<(), Error> {
-    let content = jy::get_content(opt.get_config_path()?)?;
+    let content = jy::get_config(opt.get_config_path()?)?;
     println!("{content}");
 
     println!("{}", "-".repeat(80));
