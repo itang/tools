@@ -30,6 +30,13 @@ pub struct Opt {
     pub show_info: bool,
 }
 
+impl Opt {
+    /// parse from args
+    pub fn get() -> Self {
+        Self::parse()
+    }
+}
+
 macro_rules! default_config_name {
     () => {
         "jiayou.toml"
