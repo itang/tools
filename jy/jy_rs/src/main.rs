@@ -21,7 +21,6 @@ fn main() -> Result<()> {
     println!("{opt:?}");
 
     match opt {
-        Opt { dry_run: true, .. } => handle_dry_run(opt),
         Opt { show_info: true, .. } => handle_show_info(),
         _ => handle_jy(opt),
     }
@@ -62,16 +61,6 @@ fn handle_show_info() -> Result<(), Error> {
     println!("ENV {} VALUE: {:?}", opt::CONFIG_PATH_ENV_KEY, std::env::var(opt::CONFIG_PATH_ENV_KEY));
     println!("DEFAULT FILE NAME: {}", opt::DEFAULT_FILE_NAME);
     println!("DEFAULT CONFIG CONTENT:\n{}", opt::DEFAULT_CONFIG);
-
-    Ok(())
-}
-
-fn handle_dry_run(opt: Opt) -> Result<(), Error> {
-    let content = jy::get_config(opt.get_config_path()?)?;
-    println!("{content}");
-
-    println!("{}", "-".repeat(80));
-    println!("dry run. exit!");
 
     Ok(())
 }
