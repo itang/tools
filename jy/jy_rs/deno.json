@@ -3,6 +3,6 @@
     "fmt": "cargo fmt",
     "lint": "cargo clippy",
     "run": "cargo run",
-    "install": "cargo install --path ."
+    "install": "cargo install --locked --path ."
   }
 }
