@@ -2,7 +2,7 @@
   "tasks": {
     "build": "sbt nativeLink",
     "run": "sbt run",
-    "install:win0": "sbt clean && deno task build && cp target/scala-3.2.2/commands_scala-out.exe D:/dev-env/bin/commands.exe",
-    "install:win": "deno task build && cp target/scala-3.2.2/commands_scala-out.exe D:/dev-env/bin/commands.exe"
+    "install:win0": "sbt clean && deno task build && cp target/scala-3.3.0/commands_scala-out.exe D:/dev-env/bin/commands.exe",
+    "install:win": "deno task build && cp target/scala-3.3.0/commands_scala-out.exe D:/dev-env/bin/commands.exe"
   }
 }
