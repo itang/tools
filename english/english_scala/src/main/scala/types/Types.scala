@@ -7,12 +7,13 @@ case class Group(name: String, items: List[Item])
 
 extension (s: String)
   def toItems: List[Item] =
-    s.stripMargin.linesIterator
-      .map(it =>
-        val Array(a, rest @ _*) = it.split(" ")
-        Item(a, rest.mkString(" "), "")
-      )
+    s.linesIterator
+      .map(_.split(" "))
       .toList
+      .flatMap {
+        case Array(a, rest*) => Some(Item(a, rest.mkString(" "), ""))
+        case _               => None
+      }
 
 given Conversion[String, List[Item]] with
   override def apply(x: String): List[Item] = x.toItems

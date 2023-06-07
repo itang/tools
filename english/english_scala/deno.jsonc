@@ -2,6 +2,6 @@
   "tasks": {
     "build": "sbt nativeLink",
     "run": "sbt run",
-    "install:win": "deno task build && cp target/scala-3.3.0/english-out.exe D:/dev-env/bin/english.exe"
+    "install:win": "deno task build && cp target/scala-3.3.0/english_scala-out.exe D:/dev-env/bin/english.exe"
   }
 }
