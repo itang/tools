@@ -10,10 +10,9 @@ extension (s: String)
     s.linesIterator
       .map(_.split(" "))
       .toList
-      .flatMap {
+      .flatMap:
         case Array(a, rest*) => Some(Item(a, rest.mkString(" "), ""))
         case _               => None
-      }
 
 given stringToListItem: Conversion[String, List[Item]] with
   override def apply(x: String): List[Item] = x.toItems
