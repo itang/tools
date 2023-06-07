@@ -1,0 +1,18 @@
+scalaVersion := "3.3.0"
+
+enablePlugins(ScalaNativePlugin)
+
+//import scala.scalanative.build._
+//nativeConfig ~= {
+  //_.withLTO(LTO.thin)
+    //.withMode(Mode.releaseFast)
+    //.withGC(GC.commix)
+//}
+
+nativeConfig ~= {
+  _.withIncrementalCompilation(true)
+}
+
+libraryDependencies ++= Seq(
+  "com.funpaas" %%% "tang-scala" % "0.1.2-SNAPSHOT"
+)
