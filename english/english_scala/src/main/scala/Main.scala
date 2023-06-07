@@ -7,47 +7,51 @@ import types.Group
 object Main:
 
   def main(args: Array[String]): Unit = args match
-    case Array()                         => allCommands |> distinctCommands |> commandsToGroups |> print
+    case Array()                         => allCommands |> commandsToGroups |> printGroups
     case Array("--help" | "-h" | "help") => help()
-    case _                               => args.toList |> filterArgs |> distinctCommands |> commandsToGroups |> print
+    case _ => args.toList |> filterArgs |> toDistinctCommands |> commandsToGroups |> printGroups
 
   private def filterArgs(args: List[String]): List[String] =
     args.flatMap:
-      case x if !allCommands.contains(x) =>
+      case x if !allCommandNames.contains(x) =>
         System.err.println(s"> Unknown '$x' command, just ignore")
         None
       case x => Some(x)
 
-  private def distinctCommands(args: List[String]): Set[Command] =
+  private def toDistinctCommands(args: List[String]): List[Command] =
     args.flatMap {
-      case it if monthCommand.contains(it)   => Some(monthCommand)
-      case it if weekCommand.contains(it)    => Some(weekCommand)
-      case it if quarterCommand.contains(it) => Some(quarterCommand)
-      case it if daysCommand.contains(it)    => Some(daysCommand)
+      case it if MonthCommand.contains(it)   => Some(MonthCommand)
+      case it if WeekCommand.contains(it)    => Some(WeekCommand)
+      case it if QuarterCommand.contains(it) => Some(QuarterCommand)
+      case it if DaysCommand.contains(it)    => Some(DaysCommand)
       case _                                 => None
-    }.toSet
+    }.distinct
 
-  private def commandsToGroups(commands: Set[Command]): Set[Group] =
+  private def commandsToGroups(commands: List[Command]): List[Group] =
     commands.flatMap:
-      case Command("month", _)   => Some(monthGroup)
-      case Command("week", _)    => Some(weekGroup)
-      case Command("quarter", _) => Some(quarterGroup)
-      case Command("days", _)    => Some(daysGroup)
-      case _                     => panic_!("unknown command")
+      case MonthCommand   => Some(monthGroup)
+      case WeekCommand    => Some(weekGroup)
+      case QuarterCommand => Some(quarterGroup)
+      case DaysCommand    => Some(daysGroup)
+      case _              => panic_!("unknown command")
 
-  private def print(groups: Iterable[Group]): Unit =
-    val s = groups.map { case Group(name, items) => s"$name\n${"-" * 60}\n${items.mkString("\n")}" }.mkString("\n\n\n")
-    s |> println
+  private def printGroups(groups: Iterable[Group]): Unit =
+    val s = groups
+      .map { case Group(name, items) => s"$name\n${"-" * 60}\n${items.mkString("\n")}" }
+      .mkString("\n\n\n")
+
+    println(s)
 
   private def help(): Unit =
-    println(s"""|$$ english [command] ... [command]
-                |    sub commands:
-                |      ${monthCommand.all_commands.mkString(", ")}
-                |      ${weekCommand.all_commands.mkString((", "))}
-                |      ${quarterCommand.all_commands.mkString(", ")}
-                |      ${daysCommand.all_commands.mkString(", ")}
-                |
-                |    e.g.
-                |      english month
-                |
-                |""".stripMargin)
+    s"""|$$ english [command] ... [command]
+        |    sub commands:
+        |      ${MonthCommand.nameAndAlias.mkString(", ")}
+        |      ${WeekCommand.nameAndAlias.mkString((", "))}
+        |      ${QuarterCommand.nameAndAlias.mkString(", ")}
+        |      ${DaysCommand.nameAndAlias.mkString(", ")}
+        |
+        |    e.g.
+        |      english month
+        |
+        |""".stripMargin
+      |> println

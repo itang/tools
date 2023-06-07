@@ -15,5 +15,5 @@ extension (s: String)
         case _               => None
       }
 
-given Conversion[String, List[Item]] with
+given stringToListItem: Conversion[String, List[Item]] with
   override def apply(x: String): List[Item] = x.toItems
