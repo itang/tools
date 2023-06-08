@@ -1,31 +1,14 @@
-import cli.Command
-import cli.Commands.*
+import cli.*
 import data.{daysGroup, monthGroup, quarterGroup, weekGroup}
-import tang.{panic_!, |>}
+import tang.{|>, panic_!}
 import types.Group
 
 object Main:
 
   def main(args: Array[String]): Unit = args match
-    case Array()                         => allCommands |> commandsToGroups |> printGroups
+    case Array()                         => Command.all |> commandsToGroups |> printGroups
     case Array("--help" | "-h" | "help") => help()
-    case _ => args.toList |> filterArgs |> toDistinctCommands |> commandsToGroups |> printGroups
-
-  private def filterArgs(args: List[String]): List[String] =
-    args.flatMap:
-      case x if !allCommandNames.contains(x) =>
-        System.err.println(s"> Unknown '$x' command, just ignore")
-        None
-      case x => Some(x)
-
-  private def toDistinctCommands(args: List[String]): List[Command] =
-    args.flatMap {
-      case it if MonthCommand.contains(it)   => Some(MonthCommand)
-      case it if WeekCommand.contains(it)    => Some(WeekCommand)
-      case it if QuarterCommand.contains(it) => Some(QuarterCommand)
-      case it if DaysCommand.contains(it)    => Some(DaysCommand)
-      case _                                 => None
-    }.distinct
+    case _                               => args.toList |> (Command.from(_)) |> commandsToGroups |> printGroups
 
   private def commandsToGroups(commands: List[Command]): List[Group] =
     commands.flatMap:

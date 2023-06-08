@@ -4,12 +4,6 @@ enablePlugins(ScalaNativePlugin)
 
 import scala.scalanative.build._
 
-//nativeConfig ~= {
-//_.withLTO(LTO.thin)
-//.withMode(Mode.releaseFast)
-//.withGC(GC.commix)
-//}
-
 nativeConfig ~= {
   _.withIncrementalCompilation(true)
     .withLTO(LTO.thin)
