@@ -30,7 +30,7 @@ object Main:
     s"""|$$ english [command] ... [command]
         |    sub commands:
         |      ${MonthCommand.nameAndAlias.mkString(", ")}
-        |      ${WeekCommand.nameAndAlias.mkString((", "))}
+        |      ${WeekCommand.nameAndAlias.mkString(", ")}
         |      ${QuarterCommand.nameAndAlias.mkString(", ")}
         |      ${DaysCommand.nameAndAlias.mkString(", ")}
         |
