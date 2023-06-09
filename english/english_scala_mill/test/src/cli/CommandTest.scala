@@ -4,7 +4,7 @@ import utest.*
 
 object CommandTest extends TestSuite:
 
-  val tests = Tests:
+  val tests: Tests = Tests:
     test("from"):
       assert(Command.from("month") == Some(MonthCommand))
       assert(Command.from("m") == Some(MonthCommand))
