@@ -9,21 +9,21 @@ object Main extends RootModule with ScalaNativeModule {
 
   override def scalaNativeVersion = "0.4.14"
 
-  override def releaseMode = ReleaseMode.ReleaseFast
-  override def nativeGC = "none"
-  override def nativeLTO = LTO.Thin
-
   override def ivyDeps = Agg(ivy"com.funpaas::tang-scala:$tangVersion")
 
   override def javacOptions = Seq("-Dfile.encoding=utf-8")
 
-  //object test extends Tests with TestModule.Utest {
-  //  def ivyDeps = Agg(ivy"com.lihaoyi::utest::0.6.3")
-  //}
+  override def releaseMode = ReleaseMode.ReleaseFast
+  override def nativeGC    = "none"
+  override def nativeLTO   = LTO.Thin
 
-  //def moduleDeps = Seq(javatest)
+  object test extends ScalaTests {
+    override def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.7.11")
+
+    override def testFramework = "utest.runner.Framework"
+
+    override def moduleDeps = super.moduleDeps // ++ Seq(baz.test)
+  }
 
   override def forkArgs = Seq("-Dfile.encoding=utf-8")
 }
-
-//object javatest extends JavaModule {}

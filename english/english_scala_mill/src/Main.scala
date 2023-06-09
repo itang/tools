@@ -9,7 +9,7 @@ object Main:
     case Array()                               => Command.all |> commandsToGroups |> printGroups
     case Array("--help" | "-h" | "help")       => help()
     case Array("--version" | "-v" | "version") => version()
-    case _                                     => args.toList |> (Command.from(_)) |> commandsToGroups |> printGroups
+    case _ => args.toList |> (Command.fromList(_).map(_._2)) |> commandsToGroups |> printGroups
 
   private def commandsToGroups(commands: List[Command]): List[Group] =
     commands.flatMap:
@@ -19,11 +19,11 @@ object Main:
       case DaysCommand    => Some(GroupRepository.daysGroup)
 
   private def printGroups(groups: Iterable[Group]): Unit =
-    val s = groups
-      .map { case Group(name, items) => s"$name\n${"-" * 60}\n${items.mkString("\n")}" }
+    groups
+      .map:
+        case Group(name, items) => s"$name\n${"-" * 60}\n${items.mkString("\n")}"
       .mkString("\n\n\n")
-
-    println(s)
+      |> println
 
   private def help(): Unit =
     s"""|$$ english [command] ... [command]
@@ -43,4 +43,4 @@ object Main:
       |> println
 
   private def version(): Unit =
-    "v0.1-20230608.1" |> println
+    "v0.2-20230609.1" |> println

@@ -3,6 +3,7 @@
     "dev": "mill --watch run",
     "run": "mill run",
     "build": "mill nativeLink",
+    "test": "mill test",
     "console": "mill -i console",
     "bsp": "mill mill.bsp.BSP/install",
     "idea": "mill mill.scalalib.GenIdea/idea",
