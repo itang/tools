@@ -1,17 +1,17 @@
 package cli
 
-sealed abstract class Command(val name: String, val alias: List[String]):
-  lazy val nameAndAlias: List[String] = name :: alias
+sealed abstract class Command(val name: String, val alias: String*):
+  lazy val nameAndAlias: List[String] = name :: alias.toList
 
   def contains(command: String): Boolean = nameAndAlias.contains(command)
 
-object MonthCommand extends Command("month", List("m", "-m"))
+object MonthCommand extends Command("month", "m", "-m")
 
-object WeekCommand extends Command("week", List("w", "-w"))
+object WeekCommand extends Command("week", "w", "-w")
 
-object QuarterCommand extends Command("quarter", List("q", "-q"))
+object QuarterCommand extends Command("quarter", "q", "-q")
 
-object DaysCommand extends Command("days", List("d", "-d"))
+object DaysCommand extends Command("days", "d", "-d")
 
 object Command:
   val all: List[Command] = List(MonthCommand, WeekCommand, QuarterCommand, DaysCommand)
