@@ -26,13 +26,13 @@ object CommandTest extends TestSuite:
 
     test("fromList"):
       import Command.fromList
-      assert(
+      assert:
         fromList(List("m", "d", "q", "w")) == List(
           ("m", MonthCommand),
           ("d", DaysCommand),
           ("q", QuarterCommand),
           ("w", WeekCommand)
         )
-      )
 
-      assert(fromList(List("m", "unknown1", "d", "unknown2"), _ => {}) == List(("m", MonthCommand), ("d", DaysCommand)))
+      assert:
+        fromList(List("m", "unknown1", "d", "unknown2"), _ => {}) == List(("m", MonthCommand), ("d", DaysCommand))
