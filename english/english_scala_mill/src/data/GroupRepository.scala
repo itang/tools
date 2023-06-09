@@ -3,7 +3,7 @@ package data
 import types.{*, given}
 
 object GroupRepository:
-  def monthGroup = Group(
+  def monthGroup: Group = Group(
     "月份英文及英文缩写",
     List(
       Item("一月", "January", "Jan"),
@@ -21,26 +21,26 @@ object GroupRepository:
     )
   )
 
-  def weekGroup = Group(
+  def weekGroup: Group = Group(
     "星期英文",
     """|星期一 Monday
-     |星期二 Tuesday
-     |星期三 Wednesday
-     |星期四 Thursday
-     |星期五 Friday
-     |星期六 Saturday
-     |星期天 Sunday""".stripMargin
+       |星期二 Tuesday
+       |星期三 Wednesday
+       |星期四 Thursday
+       |星期五 Friday
+       |星期六 Saturday
+       |星期天 Sunday""".stripMargin
   )
 
-  def quarterGroup = Group(
+  def quarterGroup: Group = Group(
     "季度英文",
     """|春天 Spring
-     |夏天 Summer
-     |秋天 Autumn/Fall
-     |冬天 Winter""".stripMargin
+       |夏天 Summer
+       |秋天 Autumn/Fall
+       |冬天 Winter""".stripMargin
   )
 
-  def daysGroup = Group(
+  def daysGroup: Group = Group(
     "日期英文",
     """|昨天 Yesterday
      |今天 Today
