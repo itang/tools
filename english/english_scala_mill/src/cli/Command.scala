@@ -1,6 +1,6 @@
 package cli
 
-sealed case class Command(name: String, alias: List[String]):
+sealed abstract class Command(val name: String, val alias: List[String]):
   lazy val nameAndAlias: List[String] = name :: alias
 
   def contains(command: String): Boolean = nameAndAlias.contains(command)

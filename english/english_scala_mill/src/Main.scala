@@ -1,5 +1,5 @@
 import cli.*
-import data.{daysGroup, monthGroup, quarterGroup, weekGroup}
+import data.*
 import tang.{panic_!, |>}
 import types.Group
 
@@ -13,11 +13,10 @@ object Main:
 
   private def commandsToGroups(commands: List[Command]): List[Group] =
     commands.flatMap:
-      case MonthCommand   => Some(monthGroup)
-      case WeekCommand    => Some(weekGroup)
-      case QuarterCommand => Some(quarterGroup)
-      case DaysCommand    => Some(daysGroup)
-      case _              => panic_!("unknown command")
+      case MonthCommand   => Some(GroupRepository.monthGroup)
+      case WeekCommand    => Some(GroupRepository.weekGroup)
+      case QuarterCommand => Some(GroupRepository.quarterGroup)
+      case DaysCommand    => Some(GroupRepository.daysGroup)
 
   private def printGroups(groups: Iterable[Group]): Unit =
     val s = groups
