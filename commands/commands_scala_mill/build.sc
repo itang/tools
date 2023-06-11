@@ -3,7 +3,7 @@ import mill.scalanativelib.api.{ReleaseMode, LTO}
 
 val tangVersion = "0.1.2-SNAPSHOT"
 
-object core extends ScalaNativeModule {
+object Main extends RootModule with ScalaNativeModule {
   override def scalaVersion       = "3.3.0"
   override def scalaNativeVersion = "0.4.13"
 

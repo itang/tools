@@ -1,11 +1,16 @@
 {
   "tasks": {
     "bsp": "mill mill.bsp.BSP/install",
-    "run": "mill _.run",
-    "build": "mill _.nativeLink",
-    "console": "mill -i _.console",
-    "edit": "deno task bsp && idea64 .",
-    "install:win": "deno task build && cp out/core/nativeLink.dest/out D:/dev-env/bin/commands.exe",
-    "clean": "mill clean"
+    "run": "mill run",
+    "build": "mill nativeLink",
+    "console": "mill -i console",
+    "install:win": "deno task build && cp out/nativeLink.dest/out D:/dev-env/bin/commands.exe",
+    "clean": "mill clean",
+    "bsp": "mill mill.bsp.BSP/install",
+    "idea": "mill mill.scalalib.GenIdea/idea",
+    "edit:bsp": "deno task bsp && idea64 .",
+    "edit": "deno task idea && idea64 .",
+    "re:edit": "rm -rf .bsp .idea && deno task edit",
+    "re:edit:bsp": "rm -rf .bsp .idea && deno task edit:bsp"
   }
 }
