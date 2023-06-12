@@ -1,6 +1,7 @@
 {
   "tasks": {
     "lint": "cargo clippy",
+    "fmt": "cargo fmt",
     "dev": "cargo watch -x run",
     "run": "cargo run",
     "install": "cargo install --path .",

@@ -45,7 +45,10 @@ fn handle_list() -> anyhow::Result<()> {
     let pid_list: Vec<u32> = get_java_proces_list()?;
 
     println!("INFO: java process pid list: {:?}", pid_list);
-    println!("INFO: for kill cmd, kill -f {}", pid_list.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(" "));
+    println!(
+        "INFO: for kill cmd, kill -f {}",
+        pid_list.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(" ")
+    );
 
     Ok(())
 }
