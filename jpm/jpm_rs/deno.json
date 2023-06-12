@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "lint": "cargo clippy",
+    "dev": "cargo watch -x run",
+    "run": "cargo run",
+    "install": "cargo install --path .",
+    "edit": "idea64 .",
+    "add:toolkit": "cargo add tap chrono time fs_extra itertools xshell anyhow thiserror && cargo add reqwest --features json && cargo add serde --features derive && cargo add serde_json",
+    "add:ext": "cargo add dirs once_cell humantime url rust_decimal rust_decimal_macros && cargo add uuid --features v4,fast-rng,macro-diagnostics",
+    "add:clap": "cargo add clap --features derive",
+    "add:tokio": "cargo add tokio --features full",
+    "doc": "cargo doc --document-private-items --open"
+  }
+}
