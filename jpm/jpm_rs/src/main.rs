@@ -34,7 +34,7 @@ fn main() -> anyhow::Result<()> {
 fn handle_kill(_args: KillArgs) -> anyhow::Result<()> {
     let pid_list: Vec<u32> = get_java_proces_list()?;
     if pid_list.is_empty() {
-        println!("no java process, exit")
+        println!("INFO: no java process, exit")
     } else {
         kill_all(pid_list, true)?;
     }
@@ -44,7 +44,8 @@ fn handle_kill(_args: KillArgs) -> anyhow::Result<()> {
 fn handle_list() -> anyhow::Result<()> {
     let pid_list: Vec<u32> = get_java_proces_list()?;
 
-    println!("java process pid list: {:?}", pid_list);
+    println!("INFO: java process pid list: {:?}", pid_list);
+    println!("INFO: for kill cmd, kill -f {}", pid_list.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(" "));
 
     Ok(())
 }

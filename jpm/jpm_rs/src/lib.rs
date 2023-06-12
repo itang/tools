@@ -28,14 +28,14 @@ pub fn get_java_proces_list() -> anyhow::Result<Vec<Pid>> {
 }
 
 /// kill process by pid.
-pub fn kill_all(pid_list: Vec<u32>, force: bool) -> anyhow::Result<()> {
+pub fn kill_all(pid_list: Vec<Pid>, force: bool) -> anyhow::Result<()> {
     let result = to_kill_command(pid_list, force).output()?;
     println!("{:?}", result);
 
     Ok(())
 }
 
-fn to_kill_command(pid_list: Vec<u32>, force: bool) -> Command {
+fn to_kill_command(pid_list: Vec<Pid>, force: bool) -> Command {
     assert!(!pid_list.is_empty());
 
     let mut args = Vec::new();
