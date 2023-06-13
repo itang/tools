@@ -2,9 +2,9 @@
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
-//! crate killjp.
+//! crate jpm.
 //!
-//! add doc here
+//! Java Process Manager
 
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -22,7 +22,8 @@ pub struct Pid {
 }
 
 impl Pid {
-    fn new(value: u32) -> Self {
+    /// new
+    pub fn new(value: u32) -> Self {
         Self { value }
     }
 }
