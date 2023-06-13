@@ -3,7 +3,7 @@
 
 use clap::{Args, Parser, Subcommand};
 
-use jpm::{get_java_proces_list, kill_all, Proc};
+use jpm::Proc;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -47,21 +47,23 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn handle_kill(args: KillArgs) -> anyhow::Result<()> {
-    let pid_list: Vec<Proc> = get_java_proces_list(args.glob)?;
+    let pid_list: Vec<Proc> = Proc::get_java_process_list(args.glob)?;
+
     display(&pid_list);
     println!("{}", "-".repeat(60));
 
     if pid_list.is_empty() {
         println!("INFO: no java process, exit")
     } else {
-        kill_all(pid_list.into_iter().map(|x| x.pid).collect(), args.force)?;
+        Proc::kill_all(pid_list.into_iter().map(|x| x.pid).collect(), args.force)?;
     }
 
     Ok(())
 }
 
 fn handle_list(args: ListArgs) -> anyhow::Result<()> {
-    let pid_list: Vec<Proc> = get_java_proces_list(args.glob)?;
+    let pid_list: Vec<Proc> = Proc::get_java_process_list(args.glob)?;
+
     display(&pid_list);
     println!("{}", "-".repeat(60));
 

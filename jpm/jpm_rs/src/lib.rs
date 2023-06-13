@@ -11,6 +11,7 @@ use std::ops::Deref;
 use std::process::Command;
 use std::str::FromStr;
 
+use anyhow::Result;
 use glob::Pattern;
 
 /// Pid
@@ -57,71 +58,80 @@ pub struct Proc {
     pub detail: String,
 }
 
-/// get java process list
-pub fn get_java_proces_list(glob: Option<String>) -> anyhow::Result<Vec<Proc>> {
-    let output = Command::new("jps").args(vec!["-lv"]).output()?;
+type CmdString = String;
 
-    let result = String::from_utf8(output.stdout)?;
+impl Proc {
+    /// get java process list
+    pub fn get_java_process_list(glob: Option<String>) -> Result<Vec<Proc>> {
+        let output = Command::new("jps").args(vec!["-lv"]).output()?;
 
-    let mut pid_list: Vec<Proc> = result
-        .lines()
-        .filter(|x| !x.contains("jps"))
-        .map(|x| Proc { pid: x.split(' ').next().expect("").parse().expect("parse to pid"), detail: x.to_string() })
-        .collect();
+        let result = String::from_utf8(output.stdout)?;
 
-    if let Some(pattern) = glob {
-        let p = Pattern::new(&pattern).expect("pattern");
-        pid_list.retain(|x| p.matches(&x.detail));
+        let mut pid_list: Vec<Proc> = result
+            .lines()
+            .filter(|&x| !x.contains("jps"))
+            .map(|x| {
+                let pid = x.split(' ').next().expect("").parse().expect("parse to pid");
+                let detail = x.to_string();
+                Proc { pid, detail }
+            })
+            .collect();
+
+        if let Some(pattern) = glob {
+            let p = Pattern::new(&pattern).expect("pattern");
+            pid_list.retain(|x| p.matches(&x.detail));
+        }
+
+        Ok(pid_list)
     }
 
-    Ok(pid_list)
-}
+    /// kill process by pid.
+    pub fn kill_all(pid_list: Vec<Pid>, force: bool) -> Result<()> {
+        let (cmd_string, mut command) = Self::build_kill_command(pid_list, force);
+        println!("exec: {}", cmd_string);
+        println!("{}", "-".repeat(60));
 
-/// kill process by pid.
-pub fn kill_all(pid_list: Vec<Pid>, force: bool) -> anyhow::Result<()> {
-    let (cmd_string, mut command) = to_kill_command(pid_list, force);
-    println!("exec: {}", cmd_string);
-    println!("{}", "-".repeat(60));
+        let result = command.output()?;
+        println!("{}", result.status);
+        println!("stdout: {}", String::from_utf8_lossy(&result.stdout));
+        println!("stderr: {}", String::from_utf8_lossy(&result.stderr));
 
-    let result = command.output()?;
-    println!("{}", result.status);
-    println!("stdout: {}", String::from_utf8_lossy(&result.stdout));
-    println!("stderr: {}", String::from_utf8_lossy(&result.stderr));
+        Ok(())
+    }
 
-    Ok(())
-}
+    fn build_kill_command(pid_list: Vec<Pid>, force: bool) -> (CmdString, Command) {
+        assert!(!pid_list.is_empty());
 
-fn to_kill_command(pid_list: Vec<Pid>, force: bool) -> (String, Command) {
-    assert!(!pid_list.is_empty());
+        let args = {
+            let mut args = Vec::new();
+            args.push("-c".to_string());
 
-    let args = {
-        let mut args = Vec::new();
-        args.push("-c".to_string());
+            let mut sub_args = Vec::new();
+            sub_args.push("kill".to_string());
+            if force {
+                sub_args.push("-f".to_string());
+            }
+            for pid in pid_list {
+                sub_args.push(pid.to_string());
+            }
 
-        let mut sub_args = Vec::new();
-        sub_args.push("kill".to_string());
-        if force {
-            sub_args.push("-f".to_string());
-        }
-        for pid in pid_list {
-            sub_args.push(pid.to_string());
-        }
+            let kill = sub_args.into_iter().collect::<Vec<String>>().join(" ");
+            args.push(kill);
 
-        let kill = sub_args.into_iter().collect::<Vec<String>>().join(" ");
-        args.push(kill);
-        args
-    };
+            args
+        };
 
-    let args_for_display = args
-        .iter()
-        .map(|x| if x.contains(' ') { format!("'{x}'") } else { x.to_string() })
-        .collect::<Vec<String>>()
-        .join(" ");
+        let args_for_display = args
+            .iter()
+            .map(|x| if x.contains(' ') { format!("'{x}'") } else { x.to_string() })
+            .collect::<Vec<String>>()
+            .join(" ");
 
-    let cmd_string = format!("nu {}", args_for_display);
+        let cmd_string = format!("nu {}", args_for_display);
 
-    let mut nu = Command::new("nu");
-    nu.args(args);
+        let mut nu = Command::new("nu");
+        nu.args(args);
 
-    (cmd_string, nu)
+        (cmd_string, nu)
+    }
 }
