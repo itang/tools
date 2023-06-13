@@ -9,6 +9,7 @@
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::process::Command;
+use std::str::FromStr;
 
 use glob::Pattern;
 
@@ -30,6 +31,14 @@ impl Deref for Pid {
 
     fn deref(&self) -> &Self::Target {
         &self.value
+    }
+}
+
+impl FromStr for Pid {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Pid::new(s.parse()?))
     }
 }
 
@@ -57,10 +66,7 @@ pub fn get_java_proces_list(glob: Option<String>) -> anyhow::Result<Vec<Proc>> {
     let mut pid_list: Vec<Proc> = result
         .lines()
         .filter(|x| !x.contains("jps"))
-        .map(|x| Proc {
-            pid: Pid::new(x.split(' ').next().expect("").to_string().parse().expect("")),
-            detail: x.to_string(),
-        })
+        .map(|x| Proc { pid: x.split(' ').next().expect("").parse().expect("parse to pid"), detail: x.to_string() })
         .collect();
 
     if let Some(pattern) = glob {
