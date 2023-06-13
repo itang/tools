@@ -6,6 +6,7 @@
 //!
 //! add doc here
 
+use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::process::Command;
 
@@ -13,13 +14,28 @@ use glob::Pattern;
 
 /// Pid
 #[derive(Debug)]
-pub struct Pid(pub u32);
+pub struct Pid {
+    /// value
+    pub value: u32,
+}
+
+impl Pid {
+    fn new(value: u32) -> Self {
+        Self { value }
+    }
+}
 
 impl Deref for Pid {
     type Target = u32;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.value
+    }
+}
+
+impl Display for Pid {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
     }
 }
 
@@ -42,7 +58,7 @@ pub fn get_java_proces_list(glob: Option<String>) -> anyhow::Result<Vec<Proc>> {
         .lines()
         .filter(|x| !x.contains("jps"))
         .map(|x| Proc {
-            pid: Pid(x.split(' ').next().expect("").to_string().parse().expect("")),
+            pid: Pid::new(x.split(' ').next().expect("").to_string().parse().expect("")),
             detail: x.to_string(),
         })
         .collect();
@@ -57,31 +73,38 @@ pub fn get_java_proces_list(glob: Option<String>) -> anyhow::Result<Vec<Proc>> {
 
 /// kill process by pid.
 pub fn kill_all(pid_list: Vec<Pid>, force: bool) -> anyhow::Result<()> {
-    let result = to_kill_command(pid_list, force).output()?;
-    println!("exit status: {}", result.status);
+    let (cmd_string, mut command) = to_kill_command(pid_list, force);
+    println!("exec: {}", cmd_string);
+    println!("{}", "-".repeat(60));
+
+    let result = command.output()?;
+    println!("{}", result.status);
     println!("stdout: {}", String::from_utf8_lossy(&result.stdout));
     println!("stderr: {}", String::from_utf8_lossy(&result.stderr));
 
     Ok(())
 }
 
-fn to_kill_command(pid_list: Vec<Pid>, force: bool) -> Command {
+fn to_kill_command(pid_list: Vec<Pid>, force: bool) -> (String, Command) {
     assert!(!pid_list.is_empty());
 
-    let mut args = Vec::new();
-    args.push("-c".to_string());
+    let args = {
+        let mut args = Vec::new();
+        args.push("-c".to_string());
 
-    let mut sub_args = Vec::new();
-    sub_args.push("kill".to_string());
-    if force {
-        sub_args.push("-f".to_string());
-    }
-    for pid in pid_list {
-        sub_args.push(pid.0.to_string());
-    }
+        let mut sub_args = Vec::new();
+        sub_args.push("kill".to_string());
+        if force {
+            sub_args.push("-f".to_string());
+        }
+        for pid in pid_list {
+            sub_args.push(pid.to_string());
+        }
 
-    let kill = sub_args.into_iter().collect::<Vec<String>>().join(" ");
-    args.push(kill);
+        let kill = sub_args.into_iter().collect::<Vec<String>>().join(" ");
+        args.push(kill);
+        args
+    };
 
     let args_for_display = args
         .iter()
@@ -89,10 +112,10 @@ fn to_kill_command(pid_list: Vec<Pid>, force: bool) -> Command {
         .collect::<Vec<String>>()
         .join(" ");
 
-    println!("exec: nu {}", args_for_display);
+    let cmd_string = format!("nu {}", args_for_display);
 
     let mut nu = Command::new("nu");
     nu.args(args);
 
-    nu
+    (cmd_string, nu)
 }
