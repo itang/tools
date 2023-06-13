@@ -72,9 +72,15 @@ impl Proc {
             .lines()
             .filter(|&x| !x.contains("jps"))
             .map(|x| {
-                let pid_str = x.split(' ').next().expect("has next");
-                let pid = pid_str.parse().expect("parse to pid");
-                let detail = x.to_string();
+                let pos = x.find(' ').expect("find ' '");
+
+                let pid = {
+                    let pid_str = &x[..pos];
+                    pid_str.parse().expect("parse to pid")
+                };
+
+                let detail = x[pos..].trim().to_string();
+
                 Proc { pid, detail }
             })
             .collect();
