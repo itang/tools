@@ -1,6 +1,6 @@
 [package]
 name = "jpm"
-version = "0.1.0-20230612.1"
+version = "0.2.0-20230613.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.71"
 clap = { version = "4.3.3", features = ["derive"] }
+glob = "0.3.1"
 #tap = "1.0.1"
 
 

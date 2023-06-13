@@ -6,23 +6,51 @@
 //!
 //! add doc here
 
+use std::ops::Deref;
 use std::process::Command;
 
-/// Pid type
-pub type Pid = u32;
+use glob::Pattern;
+
+/// Pid
+#[derive(Debug)]
+pub struct Pid(pub u32);
+
+impl Deref for Pid {
+    type Target = u32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Proc type
+#[derive(Debug)]
+pub struct Proc {
+    /// pid
+    pub pid: Pid,
+    /// detail info
+    pub detail: String,
+}
 
 /// get java process list
-pub fn get_java_proces_list() -> anyhow::Result<Vec<Pid>> {
+pub fn get_java_proces_list(glob: Option<String>) -> anyhow::Result<Vec<Proc>> {
     let output = Command::new("jps").args(vec!["-lv"]).output()?;
 
     let result = String::from_utf8(output.stdout)?;
-    println!("{}", result);
 
-    let pid_list: Vec<u32> = result
+    let mut pid_list: Vec<Proc> = result
         .lines()
         .filter(|x| !x.contains("jps"))
-        .map(|x| x.split(' ').next().expect("").to_string().parse().expect(""))
+        .map(|x| Proc {
+            pid: Pid(x.split(' ').next().expect("").to_string().parse().expect("")),
+            detail: x.to_string(),
+        })
         .collect();
+
+    if let Some(pattern) = glob {
+        let p = Pattern::new(&pattern).expect("pattern");
+        pid_list.retain(|x| p.matches(&x.detail));
+    }
 
     Ok(pid_list)
 }
@@ -30,7 +58,9 @@ pub fn get_java_proces_list() -> anyhow::Result<Vec<Pid>> {
 /// kill process by pid.
 pub fn kill_all(pid_list: Vec<Pid>, force: bool) -> anyhow::Result<()> {
     let result = to_kill_command(pid_list, force).output()?;
-    println!("{:?}", result);
+    println!("exit status: {}", result.status);
+    println!("stdout: {}", String::from_utf8_lossy(&result.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&result.stderr));
 
     Ok(())
 }
@@ -47,7 +77,7 @@ fn to_kill_command(pid_list: Vec<Pid>, force: bool) -> Command {
         sub_args.push("-f".to_string());
     }
     for pid in pid_list {
-        sub_args.push(pid.to_string());
+        sub_args.push(pid.0.to_string());
     }
 
     let kill = sub_args.into_iter().collect::<Vec<String>>().join(" ");
