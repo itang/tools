@@ -27,6 +27,7 @@ struct KillArgs {
     /// force kill
     #[arg(short, long)]
     force: bool,
+    //TODO: 指定 pids for kill
 }
 
 #[derive(Args, Debug)]
