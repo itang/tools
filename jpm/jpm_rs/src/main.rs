@@ -78,6 +78,11 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
 }
 
 fn display(procs: &[Proc]) {
-    let ps = procs.iter().map(|p| format!("{} {}", p.pid, p.detail)).collect::<Vec<String>>().join("\n");
+    let ps = procs
+        .iter()
+        .enumerate()
+        .map(|(i, p)| format!("{:2}: {} {}", i + 1, p.pid, p.detail))
+        .collect::<Vec<String>>()
+        .join("\n\n");
     println!("{ps}");
 }
