@@ -69,11 +69,16 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
     display(&pid_list);
     println!("{}", "-".repeat(60));
 
-    println!("INFO: Java process pid list: {:?}", pid_list.iter().map(|x| *x.pid).collect::<Vec<u32>>());
-    println!(
-        "INFO: kill cmd, 'kill -f {}'",
-        pid_list.iter().map(|x| x.pid.to_string()).collect::<Vec<String>>().join(" ").green()
-    );
+    if pid_list.is_empty() {
+        println!("INFO: No Found Java process, just exit.")
+    } else {
+        let pids = pid_list.iter().map(|x| x.pid.to_string().green().to_string()).collect::<Vec<String>>().join(", ");
+        println!("INFO: Java process pid list: [{}]", pids);
+        println!(
+            "INFO: kill cmd, 'kill -f {}'",
+            pid_list.iter().map(|x| x.pid.to_string()).collect::<Vec<String>>().join(" ").green()
+        );
+    }
 
     Ok(())
 }
@@ -82,7 +87,9 @@ fn display(procs: &[Proc]) {
     let ps = procs
         .iter()
         .enumerate()
-        .map(|(i, p)| format!("{:2}: {:6} {}", (i + 1).to_string().blue(), p.pid.to_string().green(), p.detail))
+        .map(|(i, p)| {
+            format!("{:2}: {:6} {} {}", (i + 1).to_string().yellow(), p.pid.to_string().green(), p.name.blue(), p.args)
+        })
         .collect::<Vec<String>>()
         .join("\n\n");
     println!("{ps}");

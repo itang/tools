@@ -55,8 +55,20 @@ impl Display for Pid {
 pub struct Proc {
     /// pid
     pub pid: Pid,
-    /// detail info
-    pub detail: String,
+    /// name
+    pub name: String,
+    ///args
+    pub args: String,
+}
+
+impl Proc {
+    fn detail(&self) -> String {
+        format!("{} {}", self.name, self.args)
+    }
+
+    fn full_line(&self) -> String {
+        format!("{} {}", self.pid, self.detail())
+    }
 }
 
 type CmdString = String;
@@ -71,23 +83,26 @@ impl Proc {
         let mut pid_list: Vec<Proc> = result
             .lines()
             .filter(|&x| !x.contains("jps"))
-            .map(|x| {
-                let pos = x.find(' ').expect("find ' '");
-
-                let pid = {
-                    let pid_str = &x[..pos];
-                    pid_str.parse().expect("parse to pid")
-                };
-
-                let detail = x[pos..].trim().to_string();
-
-                Proc { pid, detail }
+            .flat_map(|x| {
+                let arr: Vec<&str> = x.split_whitespace().collect();
+                match arr.as_slice() {
+                    &[pid_str, name, ref args_slice @ ..] => {
+                        let pid = pid_str.parse().expect("parse to pid");
+                        let name = name.to_string();
+                        let args = args_slice.join(" ");
+                        Some(Proc { pid, name, args })
+                    },
+                    _ => {
+                        println!("Unrecognized proc info:{}, just ignore", x);
+                        None
+                    },
+                }
             })
             .collect();
 
         if let Some(pattern) = glob {
             let p = Pattern::new(&pattern).expect("pattern");
-            pid_list.retain(|x| p.matches(&x.detail));
+            pid_list.retain(|x| p.matches(&x.full_line()));
         }
 
         Ok(pid_list)
