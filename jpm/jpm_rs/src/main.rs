@@ -52,11 +52,11 @@ fn handle_kill(args: KillArgs) -> anyhow::Result<()> {
     let pid_list: Vec<Proc> = Proc::get_java_process_list(args.glob)?;
 
     display(&pid_list);
-    println!("{}", "-".repeat(60));
 
     if pid_list.is_empty() {
         println!("INFO: No Found Java process, just exit.")
     } else {
+        println!("{}", "-".repeat(60));
         Proc::kill_all(pid_list.into_iter().map(|x| x.pid).collect(), args.force)?;
     }
 
@@ -67,11 +67,11 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
     let pid_list: Vec<Proc> = Proc::get_java_process_list(args.glob)?;
 
     display(&pid_list);
-    println!("{}", "-".repeat(60));
 
     if pid_list.is_empty() {
         println!("INFO: No Found Java process, just exit.")
     } else {
+        println!("{}", "-".repeat(60));
         let pids = pid_list.iter().map(|x| x.pid.to_string().green().to_string()).collect::<Vec<String>>().join(", ");
         println!("INFO: Java process pid list: [{}]", pids);
         println!(
@@ -84,13 +84,21 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
 }
 
 fn display(procs: &[Proc]) {
-    let ps = procs
-        .iter()
-        .enumerate()
-        .map(|(i, p)| {
-            format!("{:2}: {:6} {} {}", (i + 1).to_string().yellow(), p.pid.to_string().green(), p.name.blue(), p.args)
-        })
-        .collect::<Vec<String>>()
-        .join("\n\n");
-    println!("{ps}");
+    if !procs.is_empty() {
+        let ps = procs
+            .iter()
+            .enumerate()
+            .map(|(i, p)| {
+                format!(
+                    "{:2}: {:6} {} {}",
+                    (i + 1).to_string().yellow(),
+                    p.pid.to_string().green(),
+                    p.name.blue(),
+                    p.args
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n\n");
+        println!("{ps}");
+    }
 }
