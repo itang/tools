@@ -84,7 +84,7 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
 }
 
 fn display(procs: &[Proc]) {
-    println!("Found {} processes:", procs.len().to_string().green());
+    println!("Found {} Java processes:", procs.len().to_string().green());
     if !procs.is_empty() {
         let ps = procs
             .iter()
