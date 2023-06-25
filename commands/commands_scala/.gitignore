@@ -1,7 +1,13 @@
-.bsp
-.bloop
-.metals
-
+*.iml
 .idea
 
+out
+out.*
+
+.bloop
+.bsp
+.metals
+null
+
 target
+

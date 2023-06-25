@@ -1,8 +1,21 @@
 {
   "tasks": {
-    "build": "sbt nativeLink",
-    "run": "sbt run",
-    "install:win0": "sbt clean && deno task build && cp target/scala-3.3.0/commands_scala-out.exe D:/dev-env/bin/commands.exe",
-    "install:win": "deno task build && cp target/scala-3.3.0/commands_scala-out.exe D:/dev-env/bin/commands.exe"
+    "run": "mill run",
+    "build": "mill nativeLink",
+    "console": "mill -i console",
+    "install:win": "deno task build && cp out/nativeLink.dest/out D:/dev-env/bin/commands.exe",
+    "clean": "mill clean",
+
+    "sbt:run": "sbt run",
+    "sbt:build": "sbt nativeLink",
+    "sbt:clean": "sbt clean",
+
+    "bsp": "mill mill.bsp.BSP/install",
+    "idea": "mill mill.scalalib.GenIdea/idea",
+    "edit:bsp": "deno task bsp && idea64 .",
+    "edit": "deno task idea && idea64 .",
+    "edit:clean": "rm -rf .bsp .idea",
+    "re:edit": "deno task edit:clean && deno task edit",
+    "re:edit:bsp": "deno task edit:clean && deno task edit:bsp"
   }
 }

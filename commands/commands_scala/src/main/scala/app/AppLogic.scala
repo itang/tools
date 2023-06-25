@@ -23,11 +23,11 @@ object AppLogic:
       .flatMap(dir =>
         try
           val files = dir.listFiles()
-          if files == null then Array.empty[File] else files
+          if files == null then Array.empty[File] else files.nn
         catch case _: Throwable => Array.empty[File]
       )
-      .filter(_.isExe)
-      .map(_.getName)
+      .filter(_.nn.isExe)
+      .map(_.nn.getName.nn)
 
     if searchKeys.isEmpty then names
     else names.filter(name => searchKeys.exists(name.noExtension.contains))
@@ -38,15 +38,15 @@ object AppLogic:
     val home = System.getProperty("user.home")
     val files =
       if all then
-        val path = System.getenv("Path")
-        path.split(File.pathSeparator).map(_.trim).filterNot(_.isBlank).map(File(_)).toList
+        val path = System.getenv("Path").nn
+        path.split(File.pathSeparator).nn.map(_.nn.trim.nn).filterNot(_.isBlank.nn).map(File(_)).toList
       else
         List(
           Paths.get("D:/dev-env/bin"),
           Paths.get(home, ".cargo", "bin"),
           Paths.get(home, ".deno", "bin"),
           Paths.get(home, "AppData/Roaming/npm")
-        ).map(_.toFile)
+        ).map(_.nn.toFile.nn)
 
     files.filter(_.isDirectory)
   end getDirs
