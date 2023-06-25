@@ -11,7 +11,7 @@ extension (s: String)
       .map(_.split(" "))
       .toList
       .flatMap:
-        case Array(a, rest*) => Some(Item(a, rest.mkString(" "), ""))
+        case Array(a, rest*) => Some(Item(a.nn, rest.mkString(" "), ""))
         case _               => None
 
 given stringToListItem: Conversion[String, List[Item]] with

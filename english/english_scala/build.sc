@@ -3,7 +3,7 @@ import mill.scalanativelib.api.{ReleaseMode, LTO}
 
 val tangVersion = "0.1.2-SNAPSHOT"
 
-object Main extends RootModule with ScalaNativeModule {
+object Main extends RootModule with SbtModule with ScalaNativeModule {
 
   override def scalaVersion = "3.3.0"
 
@@ -12,6 +12,8 @@ object Main extends RootModule with ScalaNativeModule {
   override def ivyDeps = Agg(ivy"com.funpaas::tang-scala:$tangVersion")
 
   override def javacOptions = Seq("-Dfile.encoding=utf-8")
+
+  override def scalacOptions = super.scalacOptions.map(_ ++ Seq("-Wunused:all", "-Wvalue-discard", "-Yexplicit-nulls"))
 
   override def releaseMode = ReleaseMode.ReleaseFast
   override def nativeGC    = "none"
