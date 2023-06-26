@@ -1,3 +1,11 @@
+//> using scala "3.3.0"
+//> using option "-Wunused:all" "-Wvalue-discard" "-Yexplicit-nulls"
+
+//> using nativeVersion 0.4.14
+//> using nativeGc "none"
+//> using nativeLto "thin"
+//> using nativeMode "release"
+
 val VERSION = "0.1.0-20230122.2"
 
 object Main {
@@ -18,7 +26,7 @@ object Main {
                   |  import $$ivy.`${dependency.toIvy}`
                   |
                   |scala-cli repl:
-                  |  scala-cli repl -S 3.2.2 --dep ${dependency.toIvy}
+                  |  scala-cli repl -S 3.3.0 --dep ${dependency.toIvy}
                   |
                   |mill:
                   |  override def ivyDeps = Agg(ivy"${dependency.toIvy}")

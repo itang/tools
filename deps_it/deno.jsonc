@@ -4,6 +4,7 @@
     //"dist:scala-native": "scala-cli package -f -o deps --native-image main.scala -- -H:-CheckToolchain",
     "dist:scala-native": "scala-cli package -f -o deps --native .",
     "install:win": "deno task dist:scala-native; mv deps D:/dev-env/bin/deps.exe",
-    "install:linux": "deno task dist:scala-native && mv deps ~/.local/bin/"
+    "install:linux": "deno task dist:scala-native && mv deps ~/.local/bin/",
+    "edit": "rm -rf .bsp .idea && scala-cli setup-ide . && idea64 ."
   }
 }

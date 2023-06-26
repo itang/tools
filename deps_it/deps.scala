@@ -25,6 +25,7 @@ trait Parser:
 
 object SbtParser extends Parser:
   def unapply(s: String): Option[Dependency] =
+    import scala.language.unsafeNulls
     if s.contains("%") then
       val Array(a, b, c) = s.trim
         .replaceAll("%", "")
@@ -39,6 +40,7 @@ object SbtParser extends Parser:
 
 object IvyParser extends Parser:
   def unapply(s: String): Option[Dependency] =
+    import scala.language.unsafeNulls
     if s.contains(":") then
       val Array(a, b, c) = s.trim.replaceAll(":", " ").split("\\s+").map(_.trim)
       Some(Dependency(a, b, c))
