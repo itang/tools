@@ -11,4 +11,6 @@ dist
 *.build*.txt
 deps_it.exe
 
+deps
+
 .scala-build

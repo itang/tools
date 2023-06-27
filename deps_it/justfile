@@ -1,0 +1,28 @@
+# justfile
+
+set shell := ["nu", "-c"]
+
+bin_dir := if os_family() == "windows" { "D:/dev-env/bin" } else { env_var('HOME') / 'dev-env' / 'bin' }
+bin_name := if os_family() == "windows" { 'deps.exe' } else { 'deps' }
+
+default:
+  just --list
+
+run *args='':
+  scala-cli run . {{args}}
+
+build:
+  scala-cli package -f -o deps --native .
+
+install: build
+  -{{bin_name}} --version
+  mv -f deps {{bin_dir}}/{{bin_name}}
+  {{bin_name}} --version
+
+edit:
+  rm -rf .bsp .idea
+  -scala-cli setup-ide .
+  -idea64 .
+
+info:
+  echo 'bin_dir: {{bin_dir}}'

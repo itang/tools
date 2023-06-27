@@ -6,7 +6,7 @@
 //> using nativeLto "thin"
 //> using nativeMode "release"
 
-val VERSION = "0.1.0-20230122.2"
+val VERSION = "0.1.0-20230627.2"
 
 object Main {
   def main(args: Array[String]): Unit = {
