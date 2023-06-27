@@ -1,0 +1,28 @@
+# justfile
+
+set shell := ["nu", "-c"]
+
+bin_dir := if os_family() == "windows" { "D:/dev-env/bin" } else { env_var('HOME') / 'dev-env' / 'bin' }
+
+default:
+  just --list
+
+dev:
+  mill -w run
+
+run *args='':
+  mill run {{args}}
+
+build:
+  mill nativeLink
+
+test:
+  mill test
+
+install: build
+  -en --version
+  cp out/nativeLink.dest/out {{bin_dir}}/en.exe
+  en --version
+
+info:
+  echo 'bin_dir: {{bin_dir}}'
