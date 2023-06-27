@@ -16,6 +16,6 @@
     "edit": "deno task idea && idea64 .",
     "re:edit": "rm -rf .bsp .idea && deno task edit",
     "re:edit:bsp": "rm -rf .bsp .idea && deno task edit:bsp",
-    "install:win": "deno task build && cp out/nativeLink.dest/out D:/dev-env/bin/en.exe"
+    //"install:win": "deno task build && cp out/nativeLink.dest/out D:/dev-env/bin/en.exe"
   }
 }
