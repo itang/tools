@@ -1,0 +1,29 @@
+{
+  "tasks": {
+    "compile": "mill compile",
+    "dev": "mill --watch run",
+    "run": "mill run",
+    "test": "mill test",
+    "console": "mill -i console",
+
+    "sbt:compile": "sbt compile",
+    "sbt:dev": "sbt '~reStart --- -Dfile.encoding=utf-8'",
+    "sbt:run": "sbt run",
+    "sbt:test": "sbt test",
+
+    "native-build": "sbt 'show graalvm-native-image:packageBin'",
+
+    "dist": "sbt stage",
+    "deps:update": "scala-update",
+    "reset": "sbt clean && sbt shutdownall && bloop exit",
+
+    "idea": "mill mill.scalalib.GenIdea/idea",
+    "edit:bsp": "deno task bsp && idea64 .",
+    "edit": "deno task idea && idea64 .",
+    "re:edit": "deno task edit:clean && deno task edit",
+    "re:edit:bsp": "deno task edit:clean && deno task edit:bsp",
+    "edit:clean": "rm -rf .bsp .idea",
+    //"copy-dist": "deno run -A devops/copy_dist.ts",
+    //"install": "deno task native-build && deno task copy-dist"
+  }
+}
