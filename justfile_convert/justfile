@@ -1,0 +1,47 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+test:
+  mill test
+
+sbt_test:
+  sbt test
+
+build:
+  sbt 'show graalvm-native-image:packageBin'
+
+sbt_compile:
+  sbt compile
+
+run *args:
+  mill run {{args}}
+
+[windows]
+install: build
+
+sbt_run:
+  sbt run
+
+compile:
+  mill compile
+
+deps_update:
+  scala-update
+
+dist:
+  sbt stage
+
+dev:
+  mill --watch run
+
+sbt_dev:
+  sbt '~reStart --- -Dfile.encoding=utf-8'
+
+edit_clean:
+  rm -rf .bsp .idea
+
+console:
+  mill -i console
+
