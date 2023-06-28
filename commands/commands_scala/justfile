@@ -4,21 +4,27 @@ set shell := ["nu", "-c"]
 
 bin_dir := if os_family() == "windows" { "D:/dev-env/bin" } else { env_var('HOME') / 'dev-env' / 'bin' }
 bin_name := if os_family() == "windows" { 'commands.exe' } else { 'commands' }
+
 default:
   just --list
 
+# 开发运行
 dev:
   mill -w run
 
+# 运行
 run *args='':
   mill run {{args}}
 
+# 构建 native link
 build:
   mill nativeLink
 
+# 测试
 test:
   mill test
 
+# 安装到系统
 install: build
   -{{bin_name}} --version
   cp out/nativeLink.dest/out {{bin_dir}}/{{bin_name}}
