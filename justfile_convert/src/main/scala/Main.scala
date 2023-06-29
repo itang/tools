@@ -1,4 +1,4 @@
-import lib.*
+import lib.{convertToJustfile, getDenoJsonFiles}
 import tang.{ignore, time, |>, |>!}
 
 import scala.language.unsafeNulls

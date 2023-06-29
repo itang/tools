@@ -1,5 +1,6 @@
 import mill._, scalalib._
-
+import $ivy.`io.github.alexarchambault.mill::mill-native-image::0.1.25`
+import io.github.alexarchambault.millnativeimage.NativeImage
 
 object Versions {
   val tangVersion = "0.1.2-SNAPSHOT"
@@ -11,8 +12,7 @@ object Versions {
 import Versions._
 import Versions.Tests
 
-
-object Main extends RootModule with SbtModule with ScalaModule {
+object Main extends RootModule with SbtModule with ScalaModule with NativeImage {
   def scalaVersion = "3.3.0"
 
   override def ivyDeps = Agg(
@@ -25,6 +25,19 @@ object Main extends RootModule with SbtModule with ScalaModule {
   override def scalacOptions = super.scalacOptions.map(_ ++ Seq("-Wunused:all", "-Wvalue-discard", "-Yexplicit-nulls"))
 
   override def forkArgs = Seq("-Dfile.encoding=utf-8")
+
+  override def nativeImageName = "justfile_convert"
+  override def nativeImageMainClass = "Main"
+  //override def nativeImageGraalVmJvmId = "graalvm-java17:22.3.1"
+  override def nativeImageClassPath = runClasspath()
+  override def nativeImageOptions = Seq(
+    "-Ob", // to speed up builds during development
+    "--no-fallback",
+    "--report-unsupported-elements-at-runtime",
+    "-H:+ReportExceptionStackTraces",
+    "--enable-preview",
+    "-H:-CheckToolchain"
+  ) ++ (if (sys.props.get("os.name").contains("Linux")) Seq("--static") else Seq.empty)
 
   object test extends SbtModuleTests with TestModule.Munit {
     def ivyDeps = Agg(
