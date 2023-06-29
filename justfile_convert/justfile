@@ -7,22 +7,23 @@ test:
   mill test
 
 sbt_test:
-  sbt test
+  sbtn test
 
 build:
-  sbt 'show graalvm-native-image:packageBin'
+  sbtn 'show graalvm-native-image:packageBin'
 
 sbt_compile:
-  sbt compile
+  sbtn compile
 
 run *args:
   mill run {{args}}
 
 [windows]
 install: build
+  cp target/graalvm-native-image/justfile_convert.exe D:/dev-env/bin/
 
 sbt_run:
-  sbt run
+  sbtn run
 
 compile:
   mill compile
@@ -31,7 +32,7 @@ deps_update:
   scala-update
 
 dist:
-  sbt stage
+  sbtn stage
 
 dev:
   mill --watch run
@@ -44,4 +45,3 @@ edit_clean:
 
 console:
   mill -i console
-
