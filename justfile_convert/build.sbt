@@ -35,7 +35,7 @@ lazy val graalVMNativeImageCommandStr = {
   val windows = System.getProperty("os.name").toLowerCase.contains("windows")
   val nativeImageCmd = "native-image" + (if (windows) ".cmd" else "")
   import scala.util.chaining._
-  s"${System.getenv("GRAALVM_HOME")}/bin/$nativeImageCmd".tap(cmd => {
+  s"${Option(System.getenv("GRAALVM_HOME")).getOrElse(System.getenv("JAVA_HOME"))}/bin/$nativeImageCmd".tap(cmd => {
     println(s"[info] native image cmd: ${cmd}")
   })
 }

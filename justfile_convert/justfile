@@ -15,11 +15,13 @@ sbt_compile:
 run *args:
   mill run {{args}}
 
-build:
+build_sbt:
   sbtn 'show graalvm-native-image:packageBin'
 
+alias install := install_sbt
+
 [windows]
-install: build
+install_sbt: build_sbt
   cp target/graalvm-native-image/justfile_convert.exe D:/dev-env/bin/
 
 build_mill:
@@ -29,8 +31,9 @@ build_mill:
 install_mill: build_mill
   cp out/nativeImage.dest/justfile_convert.exe D:/dev-env/bin/
 
-sbt_run:
-  sbtn run
+
+sbt_run *args:
+  sbtn run {{args}}
 
 compile:
   mill compile
