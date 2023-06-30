@@ -12,7 +12,7 @@ object Main:
           val justfileContent = convertToJustfile(path) |>! println
           val targetPath      = path / os.up / "justfile" |>! println
 
-          os.write.over(targetPath, justfileContent)
+          justfileContent writeTo targetPath
         })
     } catch {
       case e: Exception => println(s"ERROR: ${e.getMessage} ${Option(e.getCause).map(_.getMessage).getOrElse("")}")
@@ -20,3 +20,5 @@ object Main:
   }.ignore()
 
   private def getDirFromArgs(args: Array[String]): Option[String] = args.headOption
+
+  extension (s: String) inline private infix def writeTo(path: os.Path): Unit = os.write.over(path, s)
