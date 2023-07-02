@@ -2,12 +2,30 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="Program.fs" />
     <Content Include=".gitignore" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Publish Native AOT -->
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
+
+    <!-- https://docs.microsoft.com/zh-cn/dotnet/core/deploying/trimming/prepare-libraries-for-trimming -->
+    <IsTrimmable>true</IsTrimmable>
+    <PublishTrimmed>true</PublishTrimmed>
+
+    <!-- Prevent warnings from unused code in dependencies -->
+    <TrimMode>link</TrimMode>
+
+    <!-- https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+  </PropertyGroup>
 
 </Project>
