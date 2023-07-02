@@ -65,17 +65,17 @@ let html =
 printfn "%s" html
 File.WriteAllText("xiplan.html", html)
 
-let dates2 = (new Dates("2021-10-27")).[-2..20]
-
-for index, d in Seq.indexed dates2 do
-    printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
-
-let dates3 = Dates().[10..20]
-
-for index, d in Seq.indexed dates3 do
-    printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
-
-let dates4 = Dates().[*]
-
-for index, d in Seq.indexed (dates4 |> Seq.take 2) do
-    printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
+// let dates2 = (new Dates("2021-10-27")).[-2..20]
+//
+// for index, d in Seq.indexed dates2 do
+//     printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
+//
+// let dates3 = Dates().[10..20]
+//
+// for index, d in Seq.indexed dates3 do
+//     printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
+//
+// let dates4 = Dates().[*]
+//
+// for index, d in Seq.indexed (dates4 |> Seq.take 2) do
+//     printfn "%d: %s" index (d.ToString("yyyy-MM-dd"))
