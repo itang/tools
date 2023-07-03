@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.SystemCommandLine" Version="0.17.0-beta4" />
+    <PackageReference Include="FsPrettyTable" Version="0.1.0" />
   </ItemGroup>
 
   <!-- https://docs.microsoft.com/en-us/dotnet/core/deploying/native-aot -->

@@ -1,6 +1,7 @@
 module Calendar
 
 open System
+open PrettyTable
 
 type DayOfWeek with
     member this.Formated =
@@ -14,12 +15,6 @@ type DayOfWeek with
         | DayOfWeek.Sunday -> "星期日"
         | _ -> "Unknown"
 
-    member this.IsWeekend =
-        match this with
-        | DayOfWeek.Saturday
-        | DayOfWeek.Sunday -> true
-        | _ -> false
-
     member this.isLastDayOfWeek =
         match this with
         | DayOfWeek.Sunday -> true
@@ -28,14 +23,27 @@ type DayOfWeek with
 
 type DateTime with
     member this.Formated = this.ToString("yyyy-MM-dd")
-    member this.FormatedLong = this.ToString("yyyy-MM-dd HH:mm:ss")
 
 let displayDay (days: int) =
     let startDate = DateTime.Now
+    let headers = [ "no"; "week_f"; "day_f" ]
 
-    for i in 0 .. (days - 1) do
-        let d = startDate.AddDays i
-        printfn $"{i + 1}: {d.DayOfWeek.Formated} - {d.Formated}"
+    let rows =
+        seq {
+            for i in 0 .. (days - 1) do
+                let day = startDate.AddDays i
 
-        if d.DayOfWeek.isLastDayOfWeek then
-            printfn "-"
+                yield
+                    [ $"{i + 1}"
+                      day.DayOfWeek.Formated
+                      day.Formated ]
+
+                if day.DayOfWeek.isLastDayOfWeek then
+                    yield [ "-"; "---"; "-" ]
+        }
+
+    rows
+    |> Seq.toList
+    |> prettyTable
+    |> withHeaders headers
+    |> printTable
