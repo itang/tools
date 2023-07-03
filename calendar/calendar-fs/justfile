@@ -1,0 +1,30 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+run *args="":
+  dotnet run -- {{args}}
+
+
+dev *args="":
+  dotnet watch run -- {{args}}
+
+
+[windows]
+publish:
+  dotnet publish -r win-x64 -c Release
+  ls bin\Release\net8.0\win-x64\publish\
+
+[linux]
+publish:
+  dotnet publish -r linux-x64 -c Release
+
+
+[windows]
+install: publish
+    cp bin\Release\net8.0\win-x64\publish\* D:/dev-env/bin/
+        
+[linux]
+install: publish
+  cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
