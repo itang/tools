@@ -39,7 +39,7 @@ let displayDay (days: int) =
                       day.Formated ]
 
                 if day.DayOfWeek.isLastDayOfWeek then
-                    yield [ "-"; "---"; "-" ]
+                    yield [ ""; "-"; "-" ]
         }
 
     rows
