@@ -5,7 +5,6 @@ let mainHandle (days: option<int>) =
 
     0
 
-
 [<EntryPoint>]
 let main argv =
     let days = Input.OptionMaybe<int>([ "--days"; "-d" ], "display days")

@@ -4,6 +4,7 @@ open System
 open PrettyTable
 
 type DayOfWeek with
+
     member this.Formated =
         match this with
         | DayOfWeek.Monday -> "星期一"
@@ -20,8 +21,8 @@ type DayOfWeek with
         | DayOfWeek.Sunday -> true
         | _ -> false
 
-
 type DateTime with
+
     member this.Formated = this.ToString("yyyy-MM-dd")
 
 let displayDay (days: int) =
@@ -33,17 +34,10 @@ let displayDay (days: int) =
             for i in 0 .. (days - 1) do
                 let day = startDate.AddDays i
 
-                yield
-                    [ $"{i + 1}"
-                      day.DayOfWeek.Formated
-                      day.Formated ]
+                yield [ $"{i + 1}"; day.DayOfWeek.Formated; day.Formated ]
 
                 if day.DayOfWeek.isLastDayOfWeek then
                     yield [ ""; "-"; "-" ]
         }
 
-    rows
-    |> Seq.toList
-    |> prettyTable
-    |> withHeaders headers
-    |> printTable
+    rows |> Seq.toList |> prettyTable |> withHeaders headers |> printTable
