@@ -26,6 +26,12 @@ type DayOfWeek with
         | DayOfWeek.Sunday -> true
         | _ -> false
 
+    member this.isWeekend =
+        match this with
+        | DayOfWeek.Sunday -> true
+        | DayOfWeek.Saturday -> true
+        | _ -> false
+
 type DateTime with
 
     member this.Formated = this.ToString("yyyy-MM-dd")
@@ -57,39 +63,45 @@ let private displayDayHtml (dates: seq<DateTime>) =
                     yield $"""<tr><td colspan="3">-</td></tr>"""
         }
 
-    let html = $"""<table>{rows |> Seq.toArray |> String.concat ""}</table>"""
+    let html = $"""<table>{rows |> String.concat ""}</table>"""
     IO.File.WriteAllText("c.html", html)
     html |> printfn "%s"
 
 let private displayDayTask (dates: seq<DateTime>) =
     let headers = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
+    let rowNum = headers |> List.length
 
     let rowspan = 4
 
     let rows =
         seq {
             for (i, day) in (dates |> Seq.toList |> List.indexed) do
+                let rowspan = if day.DayOfWeek.isWeekend then 2 else 4
+
                 yield
-                    $"""<tr><td rowspan="{rowspan}">{day.Formated}</td><td rowspan="4">{day.DayOfWeek.Formated}</td><td></td><td></td>"""
+                    $"""<tr><td rowspan="{rowspan}">{day.Formated}</td><td rowspan="{rowspan}">{day.DayOfWeek.Formated}</td><td></td><td></td>"""
 
                 for _ in 1 .. (rowspan - 1) do
                     yield $"""<tr><td></td><td></td><td></td>"""
 
                 if day.DayOfWeek.isLastDayOfWeek then
-                    yield $"""<tr><td colspan="5">-</td></tr>"""
+                    yield $"""<tr><td colspan="{rowNum}">-</td></tr>"""
         }
 
-    let h = seq { for c in headers -> $"<td>{c}</td>" } |> String.concat ""
+    let columns = seq { for c in headers -> $"<td>{c}</td>" } |> String.concat ""
 
     let html =
         $"""
-<style>table, th, td {{
+<style>
+table, th, td {{
   border: 1px solid black;
   border-collapse: collapse;
 }}
 </style>
-<table><tr>{h}</tr>
-<body>{rows |> Seq.toArray |> String.concat ""}<body></table>
+<table>
+  <tr>{columns}</tr>
+  <body>{rows |> String.concat ""}<body>
+</table>
 """
 
     IO.File.WriteAllText("t.html", html)
