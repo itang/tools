@@ -71,8 +71,6 @@ let private displayDayTask (dates: seq<DateTime>) =
     let headers = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
     let rowNum = headers |> List.length
 
-    let rowspan = 4
-
     let rows =
         seq {
             for (i, day) in (dates |> Seq.toList |> List.indexed) do
