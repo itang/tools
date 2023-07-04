@@ -6,13 +6,7 @@ open System.IO
 let private defaultProjectRoot = "."
 
 let private ignoreDirPattens =
-    Set.ofList [ "$RECYCLE.BIN"
-                 ".git"
-                 "bin"
-                 "target"
-                 ".idea"
-                 ".vscode"
-                 "obj" ]
+    Set.ofList [ "$RECYCLE.BIN"; ".git"; "bin"; "target"; ".idea"; ".vscode"; "obj" ]
 
 // https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/active-patterns
 let private (|IgnoreDir|_|) (dir: string) =
@@ -48,8 +42,7 @@ let private toPackage (path: string) =
         try
             let ret = path.Substring(pos + javaDir.Length + 1)
             Some(ret.Replace(Path.DirectorySeparatorChar |> Char.ToString, "."))
-        with
-        | e ->
+        with e ->
             printfn $"process path:%s{path}, error: %A{e}"
             None
     else
@@ -62,9 +55,7 @@ let private info0 value = printfn $"INFO: %s{value}"
 [<EntryPoint>]
 let main argv =
     let projectRoot =
-        argv
-        |> getProjectRootFromArgv
-        |> Option.defaultValue defaultProjectRoot
+        argv |> getProjectRootFromArgv |> Option.defaultValue defaultProjectRoot
 
     do
         info0 $"projectRoot: %s{projectRoot}"
@@ -88,8 +79,7 @@ let main argv =
         info0 $"java package count: %d{packages |> List.length}"
 
 
-    let contents =
-        String.Join(Environment.NewLine, packages)
+    let contents = String.Join(Environment.NewLine, packages)
 
     do File.WriteAllText("package.txt", contents)
 

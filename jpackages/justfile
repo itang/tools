@@ -28,8 +28,11 @@ publish:
 
 [windows]
 install: publish
-  cp bin\Release\net8.0\win-x64\publish\* D:/dev-env/bin/
+  cp bin\Release\net8.0\win-x64\publish\*.exe D:/dev-env/bin/
 
 [linux]
 install: publish
   cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
+
+fmt:
+  dotnet fantomas .
