@@ -3,6 +3,11 @@ module Calendar
 open System
 open PrettyTable
 
+type Format =
+    | HtmlView
+    | TuiView
+    | TaskView
+
 type DayOfWeek with
 
     member this.Formated =
@@ -25,15 +30,15 @@ type DateTime with
 
     member this.Formated = this.ToString("yyyy-MM-dd")
 
-let displayDay (days: int) =
-    let startDate = DateTime.Now
-    let headers = [ "no"; "week_f"; "day_f" ]
+    member this.Dates(days: int) : seq<DateTime> =
+        seq { for i in 0 .. (days - 1) -> this.AddDays(i) }
 
+let headers = [ "no"; "week_f"; "day_f" ]
+
+let private displayDayTui (dates: seq<DateTime>) =
     let rows =
         seq {
-            for i in 0 .. (days - 1) do
-                let day = startDate.AddDays i
-
+            for (i, day) in (dates |> Seq.toList |> List.indexed) do
                 yield [ $"{i + 1}"; day.DayOfWeek.Formated; day.Formated ]
 
                 if day.DayOfWeek.isLastDayOfWeek then
@@ -41,3 +46,58 @@ let displayDay (days: int) =
         }
 
     rows |> Seq.toList |> prettyTable |> withHeaders headers |> printTable
+
+let private displayDayHtml (dates: seq<DateTime>) =
+    let rows =
+        seq {
+            for (i, day) in (dates |> Seq.toList |> List.indexed) do
+                yield $"<tr><td>{i + 1}</td><td>{day.DayOfWeek.Formated}</td><td>{day.Formated}</td>"
+
+                if day.DayOfWeek.isLastDayOfWeek then
+                    yield $"""<tr><td colspan="3">-</td></tr>"""
+        }
+
+    let html = $"""<table>{rows |> Seq.toArray |> String.concat ""}</table>"""
+    System.IO.File.WriteAllText("c.html", html)
+    html |> printfn "%s"
+
+let private displayDayTask (dates: seq<DateTime>) =
+    let headers = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
+
+    let rows =
+        seq {
+            for (i, day) in (dates |> Seq.toList |> List.indexed) do
+                yield
+                    $"""<tr><td rowspan="4">{day.Formated}</td><td rowspan="4">{day.DayOfWeek.Formated}</td><td></td><td></td>"""
+
+                for j in 0..2 do
+                    yield $"""<tr><td></td><td></td><td></td>"""
+
+                if day.DayOfWeek.isLastDayOfWeek then
+                    yield $"""<tr><td colspan="5">-</td></tr>"""
+        }
+
+    let h = seq { for c in headers -> $"<td>{c}</td>" } |> String.concat ""
+
+    let html =
+        $"""
+<style>table, th, td {{
+  border: 1px solid black;
+  border-collapse: collapse;
+}}
+</style>
+<table><tr>{h}</tr>
+<body>{rows |> Seq.toArray |> String.concat ""}<body></table>
+"""
+
+    System.IO.File.WriteAllText("t.html", html)
+    html |> printfn "%s"
+
+let displayDay (days: int) (format: Format) =
+    let startDate = DateTime.Now
+    let dates = startDate.Dates(days)
+
+    match format with
+    | TuiView -> displayDayTui dates
+    | HtmlView -> displayDayHtml dates
+    | TaskView -> displayDayTask dates

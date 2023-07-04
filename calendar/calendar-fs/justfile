@@ -3,6 +3,11 @@ set shell := ["nu", "-c"]
 default:
   just --list
 
+
+prepare:
+  dotnet tool restore
+
+
 run *args="":
   dotnet run -- {{args}}
 
