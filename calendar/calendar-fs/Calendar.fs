@@ -58,19 +58,21 @@ let private displayDayHtml (dates: seq<DateTime>) =
         }
 
     let html = $"""<table>{rows |> Seq.toArray |> String.concat ""}</table>"""
-    System.IO.File.WriteAllText("c.html", html)
+    IO.File.WriteAllText("c.html", html)
     html |> printfn "%s"
 
 let private displayDayTask (dates: seq<DateTime>) =
     let headers = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
 
+    let rowspan = 4
+
     let rows =
         seq {
             for (i, day) in (dates |> Seq.toList |> List.indexed) do
                 yield
-                    $"""<tr><td rowspan="4">{day.Formated}</td><td rowspan="4">{day.DayOfWeek.Formated}</td><td></td><td></td>"""
+                    $"""<tr><td rowspan="{rowspan}">{day.Formated}</td><td rowspan="4">{day.DayOfWeek.Formated}</td><td></td><td></td>"""
 
-                for j in 0..2 do
+                for _ in 1 .. (rowspan - 1) do
                     yield $"""<tr><td></td><td></td><td></td>"""
 
                 if day.DayOfWeek.isLastDayOfWeek then
@@ -90,14 +92,17 @@ let private displayDayTask (dates: seq<DateTime>) =
 <body>{rows |> Seq.toArray |> String.concat ""}<body></table>
 """
 
-    System.IO.File.WriteAllText("t.html", html)
+    IO.File.WriteAllText("t.html", html)
     html |> printfn "%s"
 
 let displayDay (days: int) (format: Format) =
     let startDate = DateTime.Now
     let dates = startDate.Dates(days)
 
-    match format with
-    | TuiView -> displayDayTui dates
-    | HtmlView -> displayDayHtml dates
-    | TaskView -> displayDayTask dates
+    let handle =
+        match format with
+        | TuiView -> displayDayTui
+        | HtmlView -> displayDayHtml
+        | TaskView -> displayDayTask
+
+    handle dates
