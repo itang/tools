@@ -39,9 +39,9 @@ type DateTime with
     member this.Dates(days: int) : seq<DateTime> =
         seq { for i in 0 .. (days - 1) -> this.AddDays(i) }
 
-let headers = [ "no"; "week_f"; "day_f" ]
-
 let private displayDayTui (dates: seq<DateTime>) =
+    let columns = [ "no"; "week_f"; "day_f" ]
+
     let rows =
         seq {
             for (i, day) in (dates |> Seq.toList |> List.indexed) do
@@ -51,7 +51,7 @@ let private displayDayTui (dates: seq<DateTime>) =
                     yield [ ""; "-"; "-" ]
         }
 
-    rows |> Seq.toList |> prettyTable |> withHeaders headers |> printTable
+    rows |> Seq.toList |> prettyTable |> withHeaders columns |> printTable
 
 let private displayDayHtml (dates: seq<DateTime>) =
     let rows =
@@ -68,8 +68,8 @@ let private displayDayHtml (dates: seq<DateTime>) =
     html |> printfn "%s"
 
 let private displayDayTask (dates: seq<DateTime>) =
-    let headers = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
-    let rowNum = headers |> List.length
+    let columns = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
+    let rowNum = columns |> List.length
 
     let rows =
         seq {
@@ -86,7 +86,7 @@ let private displayDayTask (dates: seq<DateTime>) =
                     yield $"""<tr><td colspan="{rowNum}">-</td></tr>"""
         }
 
-    let columns = seq { for c in headers -> $"<td>{c}</td>" } |> String.concat ""
+    let header = seq { for c in columns -> $"<td>{c}</td>" } |> String.concat ""
 
     let html =
         $"""
@@ -97,7 +97,7 @@ table, th, td {{
 }}
 </style>
 <table>
-  <tr>{columns}</tr>
+  <thead><tr>{columns}</tr></thead>
   <body>{rows |> String.concat ""}<body>
 </table>
 """
