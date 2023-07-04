@@ -28,3 +28,7 @@ install: publish
 [linux]
 install: publish
   cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
+
+
+fmt:
+  dotnet fantomas .
