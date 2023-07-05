@@ -2,13 +2,9 @@ module Formater
 
 open System
 open PrettyTable
+
 open Calendar
 open Common
-
-type Format =
-    | HtmlView
-    | TuiView
-    | TaskView
 
 type Formater =
     abstract member Format: ICalendar -> string
