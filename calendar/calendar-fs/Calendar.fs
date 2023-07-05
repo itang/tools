@@ -65,7 +65,7 @@ let private displayDayHtml (dates: seq<DateTime>) =
 
     let html = $"""<table>{String.concat "" rows}</table>"""
     IO.File.WriteAllText("c.html", html)
-    html |> printfn "%s"
+    printfn "%s" html
 
 let private displayDayTask (dates: seq<DateTime>) =
     let columns = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
@@ -102,7 +102,7 @@ table, th, td {{
 """
 
     IO.File.WriteAllText("t.html", html)
-    html |> printfn "%s"
+    printfn "%s" html
 
 let displayDay (days: int) (format: Format) =
     let startDate = DateTime.Now
