@@ -1,19 +1,24 @@
 open FSharp.SystemCommandLine
+open System
+
 open Calendar
+open Formater
 
 let mainHandle (days: option<int>, format: option<string>) =
     let days = Option.defaultValue 10 days
 
     try
-        let format =
+        let formater: Formater =
             match format with
-            | Some "html" -> HtmlView
-            | Some "task" -> TaskView
-            | Some "tui" -> TuiView
+            | Some "html" -> HtmlFormater()
+            | Some "task" -> TaskFormater()
+            | Some "tui" -> TuiFormater()
             | Some v -> failwithf "unknown format: %s" v
-            | _ -> TuiView
+            | _ -> TuiFormater()
 
-        Calendar.displayDay days format
+        let calendar = Calendar(DateTime.Now, days)
+
+        formater.Format(calendar) |> ignore
 
         0
     with e ->

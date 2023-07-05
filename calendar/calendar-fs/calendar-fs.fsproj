@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common.fs" />
     <Compile Include="Calendar.fs" />
+    <Compile Include="Formater.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
