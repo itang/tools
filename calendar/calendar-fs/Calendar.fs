@@ -63,7 +63,7 @@ let private displayDayHtml (dates: seq<DateTime>) =
                     yield $"""<tr><td colspan="3">-</td></tr>"""
         }
 
-    let html = $"""<table>{rows |> String.concat ""}</table>"""
+    let html = $"""<table>{String.concat "" rows}</table>"""
     IO.File.WriteAllText("c.html", html)
     html |> printfn "%s"
 
@@ -89,8 +89,7 @@ let private displayDayTask (dates: seq<DateTime>) =
     let header = seq { for c in columns -> $"<td>{c}</td>" } |> String.concat ""
 
     let html =
-        $"""
-<style>
+        $"""<style>
 table, th, td {{
   border: 1px solid black;
   border-collapse: collapse;
@@ -98,7 +97,7 @@ table, th, td {{
 </style>
 <table>
   <thead><tr>{columns}</tr></thead>
-  <body>{rows |> String.concat ""}<body>
+  <body>{String.concat "" rows}<body>
 </table>
 """
 

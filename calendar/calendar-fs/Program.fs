@@ -4,15 +4,21 @@ open Calendar
 let mainHandle (days: option<int>, format: option<string>) =
     let days = Option.defaultValue 10 days
 
-    let format =
-        match format with
-        | Some "html" -> HtmlView
-        | Some "task" -> TaskView
-        | _ -> TuiView
+    try
+        let format =
+            match format with
+            | Some "html" -> HtmlView
+            | Some "task" -> TaskView
+            | Some "tui" -> TuiView
+            | Some v -> failwithf "unknown format: %s" v
+            | _ -> TuiView
 
-    Calendar.displayDay days format
+        Calendar.displayDay days format
 
-    0
+        0
+    with e ->
+        printfn "ERROR: %s" e.Message
+        -1
 
 [<EntryPoint>]
 let main argv =

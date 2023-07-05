@@ -8,11 +8,11 @@ prepare:
   dotnet tool restore
 
 
-run *args="":
+run *args:
   dotnet run -- {{args}}
 
 
-dev *args="":
+dev *args:
   dotnet watch run -- {{args}}
 
 
@@ -28,7 +28,7 @@ publish:
 
 [windows]
 install: publish
-    cp bin\Release\net8.0\win-x64\publish\* D:/dev-env/bin/
+    cp bin\Release\net8.0\win-x64\publish\*.exe D:/dev-env/bin/
         
 [linux]
 install: publish
