@@ -70,6 +70,7 @@ type TaskFormater() =
                 }
 
             let header = seq { for c in columns -> $"<td>{c}</td>" } |> String.concat ""
+            let columns = seq { for c in columns -> $"<td>{c}</td>" } |> String.concat ""
 
             let html =
                 $"""<style>
