@@ -66,7 +66,6 @@ type TaskFormater() =
                 }
 
             let header = seq { for c in columns -> $"<td>{c}</td>" } |> String.concat ""
-            let columns = seq { for c in columns -> $"<td>{c}</td>" } |> String.concat ""
 
             let html =
                 $"""<style>
@@ -76,7 +75,7 @@ table, th, td {{
 }}
 </style>
 <table>
-  <thead><tr>{columns}</tr></thead>
+  <thead><tr>{header}</tr></thead>
   <body>{String.concat "" rows}<body>
 </table>
 """
