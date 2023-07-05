@@ -17,13 +17,15 @@ let mainHandle (days: option<int>, format: option<string>) =
 
         0
     with e ->
-        printfn "ERROR: %s" e.Message
+        printfn "[ERROR] %s" e.Message
         -1
 
 [<EntryPoint>]
 let main argv =
     let days = Input.OptionMaybe<int>([ "--days"; "-d" ], "display days")
-    let format = Input.OptionMaybe<string>([ "--format"; "-f" ], "format")
+
+    let format =
+        Input.OptionMaybe<string>([ "--format"; "-f" ], "format: tui | html | task")
 
     rootCommand argv {
         description "calendar something"
