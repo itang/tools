@@ -40,6 +40,7 @@ type HtmlFormater() =
                 }
 
             let html = $"""<table>{String.concat "" rows}</table>"""
+            //TODO: 抽出来
             IO.File.WriteAllText("c.html", html)
             printfn "%s" html
             html
@@ -80,6 +81,7 @@ table, th, td {{
 </table>
 """
 
+            //抽出来
             IO.File.WriteAllText("t.html", html)
             printfn "%s" html
             html
