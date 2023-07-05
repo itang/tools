@@ -8,7 +8,9 @@ open Calendar.Api
 open Formater.Api
 
 type TuiFormater() =
-    interface IFormater with
+    interface IFormater<string> with
+        member _.Name: string = "tui"
+
         member _.Format(cal: ICalendar) : string =
 
             let columns = [ "no"; "week_f"; "day_f" ]
@@ -22,11 +24,12 @@ type TuiFormater() =
                             yield [ ""; "-"; "-" ]
                 }
 
-            rows |> Seq.toList |> prettyTable |> withHeaders columns |> printTable
-            ""
+            rows |> Seq.toList |> prettyTable |> withHeaders columns |> sprintTable
 
 type HtmlFormater() =
-    interface IFormater with
+    interface IFormater<string> with
+        member _.Name: string = "html"
+
         member _.Format(cal: ICalendar) : string =
             let rows =
                 seq {
@@ -37,14 +40,12 @@ type HtmlFormater() =
                             yield $"""<tr><td colspan="3">-</td></tr>"""
                 }
 
-            let html = $"""<table>{String.concat "" rows}</table>"""
-            //TODO: 抽出来
-            IO.File.WriteAllText("c.html", html)
-            printfn "%s" html
-            html
+            $"""<table>{String.concat "" rows}</table>"""
 
 type TaskFormater() =
-    interface IFormater with
+    interface IFormater<string> with
+        member _.Name: string = "task"
+
         member _.Format(cal: ICalendar) : string =
             let columns = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
             let rowNum = columns |> List.length
@@ -79,7 +80,4 @@ table, th, td {{
 </table>
 """
 
-            //抽出来
-            IO.File.WriteAllText("t.html", html)
-            printfn "%s" html
             html

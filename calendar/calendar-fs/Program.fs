@@ -5,12 +5,14 @@ open Calendar.Api
 open Calendar.Impl
 open Formater.Api
 open Formater.Impl
+open Persistence.Api
+open Persistence.Impl
 
 let mainHandle (days: option<int>, format: option<string>) =
     let days = Option.defaultValue 10 days
 
     try
-        let formater: IFormater =
+        let formater: IFormater<string> =
             match format with
             | Some "html" -> HtmlFormater()
             | Some "task" -> TaskFormater()
@@ -20,7 +22,11 @@ let mainHandle (days: option<int>, format: option<string>) =
 
         let calendar: ICalendar = Calendar(DateTime.Now, days)
 
-        formater.Format(calendar) |> ignore
+        let content = formater.Format calendar
+
+        let persistence: IPersistence = FilePersistence()
+
+        persistence.Save formater.Name content
 
         0
     with e ->

@@ -12,6 +12,8 @@
     <Compile Include="Calendar.Impl.fs" />
     <Compile Include="Formater.Api.fs" />
     <Compile Include="Formater.Impl.fs" />
+    <Compile Include="Persistence.Api.fs" />
+    <Compile Include="Persistence.Impl.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
