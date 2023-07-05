@@ -1,16 +1,14 @@
-module Formater
+module Formater.Impl
 
 open System
 open PrettyTable
 
-open Calendar
 open Common
-
-type Formater =
-    abstract member Format: ICalendar -> string
+open Calendar.Api
+open Formater.Api
 
 type TuiFormater() =
-    interface Formater with
+    interface IFormater with
         member _.Format(cal: ICalendar) : string =
 
             let columns = [ "no"; "week_f"; "day_f" ]
@@ -28,7 +26,7 @@ type TuiFormater() =
             ""
 
 type HtmlFormater() =
-    interface Formater with
+    interface IFormater with
         member _.Format(cal: ICalendar) : string =
             let rows =
                 seq {
@@ -46,7 +44,7 @@ type HtmlFormater() =
             html
 
 type TaskFormater() =
-    interface Formater with
+    interface IFormater with
         member _.Format(cal: ICalendar) : string =
             let columns = [ "日期"; "星期"; "工作项"; "工时"; "备注" ]
             let rowNum = columns |> List.length

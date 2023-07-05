@@ -1,10 +1,9 @@
-module Calendar
+module Calendar.Impl
 
 open System
 open Common
 
-type ICalendar =
-    abstract Dates: unit -> seq<DateTime>
+open Calendar.Api
 
 type Calendar(startDate: DateTime, days: int) =
     interface ICalendar with

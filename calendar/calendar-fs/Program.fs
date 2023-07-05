@@ -1,14 +1,16 @@
 open FSharp.SystemCommandLine
 open System
 
-open Calendar
-open Formater
+open Calendar.Api
+open Calendar.Impl
+open Formater.Api
+open Formater.Impl
 
 let mainHandle (days: option<int>, format: option<string>) =
     let days = Option.defaultValue 10 days
 
     try
-        let formater: Formater =
+        let formater: IFormater =
             match format with
             | Some "html" -> HtmlFormater()
             | Some "task" -> TaskFormater()
@@ -16,7 +18,7 @@ let mainHandle (days: option<int>, format: option<string>) =
             | Some v -> failwithf "unknown format: %s" v
             | _ -> TuiFormater()
 
-        let calendar = Calendar(DateTime.Now, days)
+        let calendar: ICalendar = Calendar(DateTime.Now, days)
 
         formater.Format(calendar) |> ignore
 

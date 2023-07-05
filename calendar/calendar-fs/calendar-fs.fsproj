@@ -8,8 +8,10 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
-    <Compile Include="Calendar.fs" />
-    <Compile Include="Formater.fs" />
+    <Compile Include="Calendar.Api.fs" />
+    <Compile Include="Calendar.Impl.fs" />
+    <Compile Include="Formater.Api.fs" />
+    <Compile Include="Formater.Impl.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
