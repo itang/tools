@@ -16,26 +16,15 @@ module private Dotnet =
     let newSln target = dotnet [ "new"; "sln"; "-o"; target ]
 
     let newProject template target =
-        dotnet [ "new"
-                 template
-                 "-lang"
-                 "F#"
-                 "-o"
-                 target ]
+        dotnet [ "new"; template; "-lang"; "F#"; "-o"; target ]
 
     let addRef target source =
-        dotnet [ "add"
-                 target
-                 "reference"
-                 source ]
+        dotnet [ "add"; target; "reference"; source ]
 
     let addProject target source = dotnet [ "sln"; target; "add"; source ]
 
     let addPackage project package =
-        dotnet [ "add"
-                 project
-                 "package"
-                 package ]
+        dotnet [ "add"; project; "package"; package ]
 
 let newFSharpSln name dir =
     let libProject = dir / "src" / "Library"
