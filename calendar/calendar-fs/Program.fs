@@ -26,9 +26,9 @@ let mainHandle (days: option<int>, format: option<string>) =
 
         printfn "%s" content
 
-        let persistence: IPersistence = FilePersistence()
-
-        persistence.Save formatter.Name content
+        if formatter.Name <> "tui" then
+            let persistence: IPersistence = FilePersistence()
+            persistence.Save formatter.Name content
 
         0
     with e ->
