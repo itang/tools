@@ -19,7 +19,7 @@ dev *args:
 [windows]
 publish:
   dotnet publish -r win-x64 -c Release
-  ls bin\Release\net8.0\win-x64\publish\
+  ls bin\Release\net8.0\win-x64\publish
 
 [linux]
 publish:
