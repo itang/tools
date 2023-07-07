@@ -3,8 +3,8 @@ open System
 
 open Calendar.Api
 open Calendar.Impl
-open Formater.Api
-open Formater.Impl
+open Formatter.Api
+open Formatter.Impl
 open Persistence.Api
 open Persistence.Impl
 
@@ -12,21 +12,23 @@ let mainHandle (days: option<int>, format: option<string>) =
     let days = Option.defaultValue 10 days
 
     try
-        let formater: IFormater<string> =
+        let formatter: IFormatter<string> =
             match format with
-            | Some "html" -> HtmlFormater()
-            | Some "task" -> TaskFormater()
-            | Some "tui" -> TuiFormater()
+            | Some "html" -> HtmlFormatter()
+            | Some "task" -> TaskFormatter()
+            | Some "tui" -> TuiFormatter()
             | Some v -> failwithf "unknown format: %s" v
-            | _ -> TuiFormater()
+            | _ -> TuiFormatter()
 
         let calendar: ICalendar = Calendar(DateTime.Now, days)
 
-        let content = formater.Format calendar
+        let content = formatter.Format calendar
+
+        printfn "%s" content
 
         let persistence: IPersistence = FilePersistence()
 
-        persistence.Save formater.Name content
+        persistence.Save formatter.Name content
 
         0
     with e ->

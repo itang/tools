@@ -1,7 +1,7 @@
-module Formater.Api
+module Formatter.Api
 
 open Calendar.Api
 
-type IFormater<'a> =
+type IFormatter<'a> =
     abstract member Format: ICalendar -> 'a
     abstract member Name: string with get

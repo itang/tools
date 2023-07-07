@@ -1,14 +1,14 @@
-module Formater.Impl
+module Formatter.Impl
 
 open System
 open PrettyTable
 
 open Common
 open Calendar.Api
-open Formater.Api
+open Formatter.Api
 
-type TuiFormater() =
-    interface IFormater<string> with
+type TuiFormatter() =
+    interface IFormatter<string> with
         member _.Name: string = "tui"
 
         member _.Format(cal: ICalendar) : string =
@@ -26,8 +26,8 @@ type TuiFormater() =
 
             rows |> Seq.toList |> prettyTable |> withHeaders columns |> sprintTable
 
-type HtmlFormater() =
-    interface IFormater<string> with
+type HtmlFormatter() =
+    interface IFormatter<string> with
         member _.Name: string = "html"
 
         member _.Format(cal: ICalendar) : string =
@@ -42,8 +42,8 @@ type HtmlFormater() =
 
             $"""<table>{String.concat "" rows}</table>"""
 
-type TaskFormater() =
-    interface IFormater<string> with
+type TaskFormatter() =
+    interface IFormatter<string> with
         member _.Name: string = "task"
 
         member _.Format(cal: ICalendar) : string =
