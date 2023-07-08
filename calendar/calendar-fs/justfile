@@ -15,6 +15,9 @@ run *args:
 dev *args:
   dotnet watch run -- {{args}}
 
+build:
+  dotnet build
+
 
 [windows]
 publish:
