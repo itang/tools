@@ -17,14 +17,14 @@ let mainHandle (days: option<int>, format: option<string>) =
             | Some "html" -> HtmlFormatter()
             | Some "task" -> TaskFormatter()
             | Some "tui" -> TuiFormatter()
-            | Some v -> failwithf "unknown format: %s" v
+            | Some v -> failwith $"unknown format: %s{v}"
             | _ -> TuiFormatter()
 
         let calendar: ICalendar = Calendar(DateTime.Now, days)
 
         let content = formatter.Format calendar
 
-        printfn "%s" content
+        printfn $"%s{content}"
 
         if formatter.Name <> "tui" then
             let persistence: IPersistence = FilePersistence()
@@ -32,7 +32,7 @@ let mainHandle (days: option<int>, format: option<string>) =
 
         0
     with e ->
-        printfn "[ERROR] %s" e.Message
+        printfn $"[ERROR] %s{e.Message}"
         -1
 
 [<EntryPoint>]

@@ -11,7 +11,7 @@ type FilePersistence() =
                 match key with
                 | "html" -> "c.html"
                 | "task" -> "t.html"
-                | _ -> failwithf "Persistence, unknown key: %s" key
+                | _ -> failwith $"Persistence, unknown key: %s{key}"
 
             printfn $"write to file: '{file}'..."
             File.WriteAllText(file, content)

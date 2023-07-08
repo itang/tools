@@ -1,6 +1,5 @@
 module Formatter.Impl
 
-open System
 open PrettyTable
 
 open Common
@@ -17,7 +16,7 @@ type TuiFormatter() =
 
             let rows =
                 seq {
-                    for (i, day) in (cal.Dates() |> Seq.toList |> List.indexed) do
+                    for i, day in (cal.Dates() |> Seq.toList |> List.indexed) do
                         yield [ $"{i + 1}"; day.DayOfWeek.Formated; day.Formated ]
 
                         if day.DayOfWeek.isLastDayOfWeek then
@@ -33,7 +32,7 @@ type HtmlFormatter() =
         member _.Format(cal: ICalendar) : string =
             let rows =
                 seq {
-                    for (i, day) in (cal.Dates() |> Seq.toList |> List.indexed) do
+                    for i, day in (cal.Dates() |> Seq.toList |> List.indexed) do
                         yield $"<tr><td>{i + 1}</td><td>{day.DayOfWeek.Formated}</td><td>{day.Formated}</td>"
 
                         if day.DayOfWeek.isLastDayOfWeek then
@@ -52,7 +51,7 @@ type TaskFormatter() =
 
             let rows =
                 seq {
-                    for (i, day) in (cal.Dates() |> Seq.toList |> List.indexed) do
+                    for _, day in (cal.Dates() |> Seq.toList |> List.indexed) do
                         let rowspan = if day.DayOfWeek.isWeekend then 2 else 4
 
                         yield
