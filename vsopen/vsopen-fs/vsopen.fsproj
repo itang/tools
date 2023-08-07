@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<!--     <TargetFrameworks>net7.0;net8.0</TargetFrameworks> -->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Program.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FSharp.SystemCommandLine" Version="0.17.0-beta4" />
+	</ItemGroup>
+
+	<!-- https://docs.microsoft.com/en-us/dotnet/core/deploying/native-aot -->
+	<!-- dotnet publish -r win-x64 -c Release -->
+	<!-- dotnet publish -r linux-x64 -c Release -->
+	<!-- dotnet publish -r linux-arm64 -c Release -->
+	<PropertyGroup>
+		<!-- Publish Native AOT -->
+		<PublishAot>true</PublishAot>
+		<StripSymbols>true</StripSymbols>
+
+		<!-- https://docs.microsoft.com/zh-cn/dotnet/core/deploying/trimming/prepare-libraries-for-trimming -->
+		<IsTrimmable>true</IsTrimmable>
+		<PublishTrimmed>true</PublishTrimmed>
+
+		<!-- Prevent warnings from unused code in dependencies -->
+		<TrimMode>link</TrimMode>
+
+		<!-- https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md -->
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+	</PropertyGroup>
+</Project>
