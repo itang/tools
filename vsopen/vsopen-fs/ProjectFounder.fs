@@ -3,7 +3,6 @@
 open System
 
 let private getNameByExt (files: string seq) (ext: string) =
-    printfn $"try find {ext} file ..."
     files |> Seq.tryFind (fun f -> f.EndsWith(ext))
 
 /// Get sln or project file name in current work directory
@@ -19,7 +18,10 @@ let getSlnOrProjectName () : string option =
         }
 
     let searchProjectFiles =
-        searchExtensions |> Seq.map (fun ext -> (ext, getNameInFilesByExt ext))
+        searchExtensions
+        |> Seq.map (fun ext ->
+            printfn $"try find {ext} file ..."
+            (ext, getNameInFilesByExt ext))
 
     let found = searchProjectFiles |> Seq.tryFind (fun (_, p) -> Option.isSome p)
 
