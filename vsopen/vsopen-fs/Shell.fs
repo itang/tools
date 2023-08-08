@@ -1,7 +1,6 @@
 ﻿module Shell
 
 open System
-//open Fli
 
 /// Process Result
 type ProcessResult =
@@ -31,8 +30,3 @@ let private executeProcess (processName: string) (processArgs: string) =
 
 /// Launch visual studio
 let devenv (name: string) = executeProcess "devenv" name
-(* cli {
-            Exec "devenv"
-            Arguments name
-        }
-        |> Command.execute *)
