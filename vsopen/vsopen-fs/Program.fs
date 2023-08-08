@@ -2,57 +2,71 @@ open FSharp.SystemCommandLine
 
 open System
 
-type ProcessResult =
-    { ExitCode: int
-      StdOut: string
-      StdErr: string }
+module Shell =
+    //open Fli
 
-let private executeProcess (processName: string) (processArgs: string) =
-    let psi = new Diagnostics.ProcessStartInfo(processName, processArgs)
-    psi.UseShellExecute <- false
-    psi.RedirectStandardOutput <- true
-    psi.RedirectStandardError <- true
-    psi.CreateNoWindow <- true
-    let proc = Diagnostics.Process.Start(psi)
-    let output = new Text.StringBuilder()
-    let error = new Text.StringBuilder()
-    proc.OutputDataReceived.Add(fun args -> output.Append(args.Data) |> ignore)
-    proc.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
-    proc.BeginErrorReadLine()
-    proc.BeginOutputReadLine()
-    proc.WaitForExit()
+    /// Process Result
+    type ProcessResult =
+        { ExitCode: int
+          StdOut: string
+          StdErr: string }
 
-    { ExitCode = proc.ExitCode
-      StdOut = output.ToString()
-      StdErr = error.ToString() }
+    let private executeProcess (processName: string) (processArgs: string) =
+        let psi = new Diagnostics.ProcessStartInfo(processName, processArgs)
+        psi.UseShellExecute <- false
+        psi.RedirectStandardOutput <- true
+        psi.RedirectStandardError <- true
+        psi.CreateNoWindow <- true
 
-let devenv name = executeProcess "devenv" name
+        let proc = Diagnostics.Process.Start(psi)
+        let output = new Text.StringBuilder()
+        let error = new Text.StringBuilder()
+        proc.OutputDataReceived.Add(fun args -> output.Append(args.Data) |> ignore)
+        proc.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
+        proc.BeginErrorReadLine()
+        proc.BeginOutputReadLine()
+        proc.WaitForExit()
 
-let getNameByExt (files: string seq) (ext: string) =
-    files |> Seq.filter (fun f -> f.EndsWith(ext)) |> Seq.tryHead
+        { ExitCode = proc.ExitCode
+          StdOut = output.ToString()
+          StdErr = error.ToString() }
 
-let getSlnOrProjectName () : string option =
-    let files = IO.Directory.EnumerateFiles "."
-    let getNameInFilesByExt = getNameByExt files
+    /// Launch visual studio
+    let devenv (name: string) = executeProcess "devenv" name
 
-    match getNameInFilesByExt ".sln" with
-    | Some name ->
-        printfn $"found sln file: {name}"
-        Some name
-    | None ->
-        match getNameInFilesByExt ".fsproj" with
+(*        cli {
+            Exec "devenv"
+            Arguments name
+        }
+        |> Command.execute *)
+
+module ProjectFounder =
+    let private getNameByExt (files: string seq) (ext: string) =
+        files |> Seq.filter (fun f -> f.EndsWith(ext)) |> Seq.tryHead
+
+    /// Get sln or project file name in current work directory
+    let getSlnOrProjectName () : string option =
+        let files = IO.Directory.EnumerateFiles "."
+        let getNameInFilesByExt = getNameByExt files
+
+        match getNameInFilesByExt ".sln" with
         | Some name ->
-            printfn $"found fsproj file: {name}"
+            printfn $"found sln file: {name}"
             Some name
-        | None -> None
+        | None ->
+            match getNameInFilesByExt ".fsproj" with
+            | Some name ->
+                printfn $"found fsproj file: {name}"
+                Some name
+            | None -> None
 
 let mainHandle (name) =
     try
         match name with
-        | Some name -> devenv name
+        | Some name -> Shell.devenv name
         | None ->
-            match getSlnOrProjectName () with
-            | Some name -> devenv name
+            match ProjectFounder.getSlnOrProjectName () with
+            | Some name -> Shell.devenv name
             | None -> failwith "NO FOUND project"
         |> printfn "%A"
 
@@ -63,10 +77,10 @@ let mainHandle (name) =
 
 [<EntryPoint>]
 let main argv =
-    let name = Input.ArgumentMaybe<string>("The file for the project")
+    let name = Input.ArgumentMaybe<string>("The file(.sln or .fsproj) for the project")
 
     rootCommand argv {
         description "visual studio project opener"
-        inputs (name) // must be set before setHandler
+        inputs (name)
         setHandler mainHandle
     }

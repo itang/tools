@@ -11,6 +11,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<!-- <PackageReference Include="Fli" Version="1.1.1" /> -->
 		<PackageReference Include="FSharp.SystemCommandLine" Version="0.17.0-beta4" />
 	</ItemGroup>
 
