@@ -6,7 +6,7 @@ let mainHandler =
             match name with
             | Some name -> Shell.devenv name
             | None ->
-                match ProjectFounder.getSlnOrProjectName () with
+                match ProjectFounder.tryFindSlnOrProjectName () with
                 | Some name -> Shell.devenv name
                 | None -> failwith "NO FOUND project"
             |> printfn "%A"
