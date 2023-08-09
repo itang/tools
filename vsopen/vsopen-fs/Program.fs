@@ -4,10 +4,10 @@ let mainHandler =
     fun (name) ->
         try
             match name with
-            | Some name -> Shell.devenv name
+            | Some name -> Shell.devenvAsync name
             | None ->
                 match ProjectFounder.tryFindSlnOrProjectName () with
-                | Some name -> Shell.devenv name
+                | Some name -> Shell.devenvAsync name
                 | None -> failwith "NO FOUND project"
             |> printfn "%A"
 

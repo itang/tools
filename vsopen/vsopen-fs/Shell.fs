@@ -22,11 +22,19 @@ let private executeProcess (processName: string) (processArgs: string) =
     proc.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
     proc.BeginErrorReadLine()
     proc.BeginOutputReadLine()
-    proc.WaitForExit()
 
-    { ExitCode = proc.ExitCode
-      StdOut = output.ToString()
-      StdErr = error.ToString() }
+    async {
+        proc.WaitForExit()
 
-/// Launch visual studio
-let devenv (name: string) = executeProcess "devenv" name
+        return
+            { ExitCode = proc.ExitCode
+              StdOut = output.ToString()
+              StdErr = error.ToString() }
+    }
+
+/// Async Launch visual stdio
+let devenvAsync (name: string) = executeProcess "devenv" name
+
+/// Sync launch visual studio
+let devenvSync (name: string) =
+    devenvAsync name |> Async.RunSynchronously

@@ -2,13 +2,13 @@
 
 open System
 
-let private getNameByExt (files: string seq) (ext: string) =
+let private tryFindNameByExt (files: string seq) (ext: string) =
     files |> Seq.tryFind (fun f -> f.EndsWith(ext))
 
 /// Get sln or project file name in current work directory
 let tryFindSlnOrProjectName () : string option =
     let files = IO.Directory.EnumerateFiles "."
-    let getNameInFilesByExt = getNameByExt files
+    let getNameInFilesByExt = tryFindNameByExt files
 
     let searchExtensions =
         seq {
