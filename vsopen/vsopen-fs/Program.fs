@@ -2,18 +2,14 @@ open FSharp.SystemCommandLine
 
 let mainHandler =
     fun (name) ->
-        try
-            match name with
-            | Some name -> Shell.devenvAsync name
-            | None ->
-                match ProjectFounder.tryFindSlnOrProjectName () with
-                | Some name -> Shell.devenvAsync name
-                | None -> failwith "NO FOUND project"
-            |> printfn "%A"
+        let nameOpt = name |> Option.orElseWith ProjectFounder.tryFindSlnOrProjectName
 
+        match nameOpt with
+        | Some name ->
+            Shell.devenvAsync name |> printfn "%A"
             0
-        with ex ->
-            eprintfn $"{ex.Message}"
+        | None ->
+            eprintfn "NO FOUND project"
             -1
 
 [<EntryPoint>]
