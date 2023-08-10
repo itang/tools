@@ -1,7 +1,7 @@
 open FSharp.SystemCommandLine
 
 let mainHandler =
-    fun (name) ->
+    fun name ->
         let nameOpt = name |> Option.orElseWith ProjectFounder.tryFindSlnOrProjectName
 
         match nameOpt with
