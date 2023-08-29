@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.SystemCommandLine" Version="0.17.0-beta4" />
+	<PackageReference Include="Tang" Version="1.0.5" />
   </ItemGroup>
 
 </Project>

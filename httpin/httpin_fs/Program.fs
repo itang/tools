@@ -1,6 +1,8 @@
 open System
 open System.Text
 
+open FSharp.SystemCommandLine
+
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.Hosting
@@ -60,16 +62,33 @@ type MyMiddleware(next: RequestDelegate) =
             return context.Response.WriteAsync(content)
         }
 
-//TODO: 支持命令行参数--port，指定端口
 //TODO: 记录请求历史并能查看
-[<EntryPoint>]
-let main args =
+let mainHandler (args: string array) (port: int option, host: string option) =
+    let port = port |> Option.defaultValue 5000
+    let host = host |> Option.defaultValue "localhost"
     let builder = WebApplication.CreateBuilder(args)
     let app = builder.Build()
 
     //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
     app.UseMiddleware<MyMiddleware>() |> ignore
+    app.Urls.Clear()
+    app.Urls.Add($"http://{host}:{port}")
 
     app.Run()
 
     0 // Exit code
+
+[<EntryPoint>]
+let main argv =
+    let handler = mainHandler argv
+
+    rootCommand argv {
+        description "httpin"
+
+        inputs (
+            Input.OptionMaybe<int>([ "--port"; "-p" ], "The listen port"),
+            Input.OptionMaybe<string>([ "--host" ], "The listen addr")
+        )
+
+        setHandler handler
+    }
