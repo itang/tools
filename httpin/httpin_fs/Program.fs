@@ -64,19 +64,23 @@ type MyMiddleware(next: RequestDelegate) =
 
 //TODO: 记录请求历史并能查看
 let mainHandler (args: string array) (port: int option, host: string option) =
-    let port = port |> Option.defaultValue 5000
-    let host = host |> Option.defaultValue "localhost"
-    let builder = WebApplication.CreateBuilder(args)
-    let app = builder.Build()
+    try
+        let port = port |> Option.defaultValue 5000
+        let host = host |> Option.defaultValue "localhost"
+        let builder = WebApplication.CreateBuilder(args)
+        let app = builder.Build()
 
-    //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
-    app.UseMiddleware<MyMiddleware>() |> ignore
-    app.Urls.Clear()
-    app.Urls.Add($"http://{host}:{port}")
+        //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
+        app.UseMiddleware<MyMiddleware>() |> ignore
+        app.Urls.Clear()
+        app.Urls.Add($"http://{host}:{port}")
 
-    app.Run()
+        app.Run()
 
-    0 // Exit code
+        0
+    with e ->
+        eprintfn $"ERROR: {e.Message}"
+        -1
 
 [<EntryPoint>]
 let main argv =
