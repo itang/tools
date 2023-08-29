@@ -11,7 +11,7 @@ type HttpRequest with
 
     member this.BodyToString() =
         task {
-            this.EnableBuffering() |> ignore
+            this.EnableBuffering()
             let buffer = Array.zeroCreate<byte> (Convert.ToInt32(this.ContentLength))
             let! _ = this.Body.ReadAsync(buffer, 0, buffer.Length)
             return Encoding.UTF8.GetString(buffer)
@@ -55,7 +55,7 @@ let inspect (ctx: HttpContext) =
 """
     }
 
-type MyMiddleware(next: RequestDelegate) =
+type MyMiddleware(_next: RequestDelegate) =
     member this.Invoke(context: HttpContext) =
         task {
             let! content = inspect context
@@ -84,8 +84,6 @@ let mainHandler (args: string array) (port: int option, host: string option) =
 
 [<EntryPoint>]
 let main argv =
-    let handler = mainHandler argv
-
     rootCommand argv {
         description "httpin"
 
@@ -94,5 +92,5 @@ let main argv =
             Input.OptionMaybe<string>([ "--host" ], "The listen addr")
         )
 
-        setHandler handler
+        setHandler (mainHandler argv)
     }
