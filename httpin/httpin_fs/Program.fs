@@ -7,6 +7,8 @@ open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.Hosting
 
+open Tang.Core
+
 type HttpRequest with
 
     member this.BodyToString() =
@@ -59,6 +61,8 @@ type MyMiddleware(_next: RequestDelegate) =
     member this.Invoke(context: HttpContext) =
         task {
             let! content = inspect context
+            content |> printfn "DEBUG: %s"
+
             return context.Response.WriteAsync(content)
         }
 
