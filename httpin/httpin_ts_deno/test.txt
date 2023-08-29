@@ -1,0 +1,51 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "You are a service that translates user requests into JSON objects of type \"SentimentResponse\" according to the following TypeScript definitions:\n```\n\r\nexport interface SentimentResponse {\r\n    /** The sentiment of the text. */\r\n    sentiment: \"negative\" | \"neutral\" | \"positive\";\r\n}```\nThe following is a user request:\n\"\"\"\nhello\n\"\"\"\nThe following is the user request translated into a JSON object with 2 spaces of indentation and no properties with the value undefined:\n"
+    }
+  ],
+  "temperature": 0,
+  "n": 1
+}{
+  "messages": [
+    {
+      "role": "user",
+      "content": "You are a service that translates user requests into JSON objects of type \"SentimentResponse\" according to the following TypeScript definitions:\n```\n\r\nexport interface SentimentResponse {\r\n    /** The sentiment of the text. */\r\n    sentiment: \"negative\" | \"neutral\" | \"positive\";\r\n}```\nThe following is a user request:\n\"\"\"\nhello\n\"\"\"\nThe following is the user request translated into a JSON object with 2 spaces of indentation and no properties with the value undefined:\n"
+    }
+  ],
+  "temperature": 0,
+  "n": 1
+}{
+  "messages": [
+    {
+      "role": "user",
+      "content": "You are a service that translates user requests into JSON objects of type \"SentimentResponse\" according to the following TypeScript definitions:\n```\n\r\nexport interface SentimentResponse {\r\n    /** The sentiment of the text. */\r\n    sentiment: \"negative\" | \"neutral\" | \"positive\";\r\n}```\nThe following is a user request:\n\"\"\"\nhello\n\"\"\"\nThe following is the user request translated into a JSON object with 2 spaces of indentation and no properties with the value undefined:\n"
+    }
+  ],
+  "temperature": 0,
+  "n": 1
+}
+
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "You are a service that translates user requests into JSON objects of type \"SentimentResponse\" according to the following TypeScript definitions:\n```\n\r\nexport interface SentimentResponse {\r\n    /** The sentiment of the text. */\r\n    sentiment: \"negative\" | \"neutral\" | \"positive\";\r\n}```\nThe following is a user request:\n\"\"\"\nhello\n\"\"\"\nThe following is the user request translated into a JSON object with 2 spaces of indentation and no properties with the value undefined:\n"
+    }
+  ],
+  "temperature": 0,
+  "n": 1
+}
+
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "You are a service that translates user requests into JSON objects of type \"CalendarActions\" according to the following TypeScript definitions:\n```\n// The following types define the structure of an object of type CalendarActions that represents a list of requested calendar actions\r\n\r\nexport type CalendarActions = {\r\n    actions: Action[];\r\n};\r\n\r\nexport type Action =\r\n    | AddEventAction\r\n    | RemoveEventAction\r\n    | AddParticipantsAction\r\n    | ChangeTimeRangeAction\r\n    | ChangeDescriptionAction\r\n    | FindEventsAction\r\n    | UnknownAction;\r\n\r\nexport type AddEventAction = {\r\n    actionType: 'add event';\r\n    event: Event;\r\n};\r\n\r\nexport type RemoveEventAction = {\r\n    actionType: 'remove event';\r\n    eventReference: EventReference;\r\n};\r\n\r\nexport type AddParticipantsAction = {\r\n    actionType: 'add participants';\r\n    // event to be augmented; if not specified assume last event discussed\r\n    eventReference?: EventReference;\r\n    // new participants (one or more)\r\n    participants: string[];\r\n};\r\n\r\nexport type ChangeTimeRangeAction = {\r\n    actionType: 'change time range';\r\n    // event to be changed\r\n    eventReference?: EventReference;\r\n    // new time range for the event\r\n    timeRange: EventTimeRange;\r\n};\r\n\r\nexport type ChangeDescriptionAction = {\r\n    actionType: 'change description';\r\n    // event to be changed\r\n    eventReference?: EventReference;\r\n    // new description for the event\r\n    description: string;\r\n};\r\n\r\nexport type FindEventsAction = {\r\n    actionType: 'find events';\r\n    // one or more event properties to use to search for matching events\r\n    eventReference: EventReference;\r\n};\r\n\r\n// if the user types text that can not easily be understood as a calendar action, this action is used\r\nexport interface UnknownAction {\r\n    actionType: 'unknown';\r\n    // text typed by the user that the system did not understand\r\n    text: string;\r\n}\r\n\r\nexport type EventTimeRange = {\r\n    startTime?: string;\r\n    endTime?: string;\r\n    duration?: string;\r\n};\r\n\r\nexport type Event = {\r\n    // date (example: March 22, 2024) or relative date (example: after EventReference)\r\n    day: string;\r\n    timeRange: EventTimeRange;\r\n    description: string;\r\n    location?: string;\r\n    // a list of people or named groups like 'team'\r\n    participants?: string[];\r\n};\r\n\r\n// properties used by the requester in referring to an event\r\n// these properties are only specified if given directly by the requester\r\nexport type EventReference = {\r\n    // date (example: March 22, 2024) or relative date (example: after EventReference)\r\n    day?: string;\r\n    // (examples: this month, this week, in the next two days)\r\n    dayRange?: string;\r\n    timeRange?: EventTimeRange;\r\n    description?: string;\r\n    location?: string;\r\n    participants?: string[];\r\n};\r\n```\nThe following is a user request:\n\"\"\"\nSet up an event for friday named Jeffs pizza party at 6pm\n\"\"\"\nThe following is the user request translated into a JSON object with 2 spaces of indentation and no properties with the value undefined:\n"
+    }
+  ],
+  "temperature": 0,
+  "n": 1
+}
+

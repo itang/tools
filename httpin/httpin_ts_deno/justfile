@@ -1,0 +1,18 @@
+# justfile
+## ref link: https://github.com/casey/just/blob/master/examples/kitchen-sink.just
+
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+
+dev:
+  deno run --watch -A main.ts
+
+run:
+  deno run -A main.ts 
+
+
+test:
+  curl -H "Content-Type: application/json" -X POST http://localhost:8000 --header 'X-Request-ID: H121' --data '{"name": "e121"}'
