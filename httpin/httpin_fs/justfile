@@ -43,7 +43,7 @@ install: publish
 
 [linux]
 install: publish
-  cp bin/Release/net8.0/linux-x64/publish/httpin_fs /home/itang/.local/bin/httpin
+  cp bin/Release/net8.0/linux-x64/publish/httpin_fs ~/.local/bin/httpin
 
 fmt:
   dotnet fantomas .
