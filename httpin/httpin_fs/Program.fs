@@ -7,8 +7,6 @@ open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.Hosting
 
-open Tang.Core
-
 type HttpRequest with
 
     member this.BodyToString() =
@@ -57,7 +55,7 @@ let inspect (ctx: HttpContext) =
 """
     }
 
-type MyMiddleware(_next: RequestDelegate) =
+type InspectMiddleware(_next: RequestDelegate) =
     member this.Invoke(context: HttpContext) =
         task {
             let! content = inspect context
@@ -69,15 +67,19 @@ type MyMiddleware(_next: RequestDelegate) =
 //TODO: 记录请求历史并能查看
 let mainHandler (args: string array) (port: int option, host: string option) =
     try
-        let port = port |> Option.defaultValue 5000
-        let host = host |> Option.defaultValue "localhost"
         let builder = WebApplication.CreateBuilder(args)
         let app = builder.Build()
 
-        //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
-        app.UseMiddleware<MyMiddleware>() |> ignore
+        //自定义监听地址和端口
+        let port = port |> Option.defaultValue 5000
+        let host = host |> Option.defaultValue "localhost"
+
         app.Urls.Clear()
         app.Urls.Add($"http://{host}:{port}")
+
+        // 设置全局拦截器
+        //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
+        app.UseMiddleware<InspectMiddleware>() |> ignore
 
         app.Run()
 
@@ -87,8 +89,8 @@ let mainHandler (args: string array) (port: int option, host: string option) =
         -1
 
 [<EntryPoint>]
-let main argv =
-    rootCommand argv {
+let main args =
+    rootCommand args {
         description "httpin"
 
         inputs (
@@ -96,5 +98,5 @@ let main argv =
             Input.OptionMaybe<string>([ "--host" ], "The listen addr")
         )
 
-        setHandler (mainHandler argv)
+        setHandler (mainHandler args)
     }
