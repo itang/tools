@@ -88,6 +88,8 @@ let mainHandler (args: string array) (port: int option, host: string option) =
         eprintfn $"ERROR: {e.Message}"
         -1
 
+//TODO:
+//1. 支持正向代理模式
 [<EntryPoint>]
 let main args =
     rootCommand args {
