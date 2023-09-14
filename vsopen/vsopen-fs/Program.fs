@@ -9,6 +9,7 @@ let mainHandler =
             Shell.devenvAsync name |> printfn "%A"
             0
         | None ->
+            //TODO: try find down / up
             eprintfn "NO FOUND project"
             -1
 
