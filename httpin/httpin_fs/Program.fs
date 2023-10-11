@@ -65,28 +65,29 @@ type InspectMiddleware(_next: RequestDelegate) =
         }
 
 //TODO: 记录请求历史并能查看
-let mainHandler (args: string array) (port: int option, host: string option) =
-    try
-        let builder = WebApplication.CreateBuilder(args)
-        let app = builder.Build()
+let mainHandlerFactory (args: string array) =
+    fun (port: int option, host: string option) ->
+        try
+            let builder = WebApplication.CreateBuilder(args)
+            let app = builder.Build()
 
-        //自定义监听地址和端口
-        let port = port |> Option.defaultValue 5000
-        let host = host |> Option.defaultValue "localhost"
+            //自定义监听地址和端口
+            let port = port |> Option.defaultValue 5000
+            let host = host |> Option.defaultValue "localhost"
 
-        app.Urls.Clear()
-        app.Urls.Add($"http://{host}:{port}")
+            app.Urls.Clear()
+            app.Urls.Add($"http://{host}:{port}")
 
-        // 设置全局拦截器
-        //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
-        app.UseMiddleware<InspectMiddleware>() |> ignore
+            // 设置全局拦截器
+            //app.Map("/*", Func<HttpContext, string>(inspect)) |> ignore
+            app.UseMiddleware<InspectMiddleware>() |> ignore
 
-        app.Run()
+            app.Run()
 
-        0
-    with e ->
-        eprintfn $"ERROR: {e.Message}"
-        -1
+            0
+        with e ->
+            eprintfn $"ERROR: {e.Message}"
+            -1
 
 //TODO:
 //1. 支持正向代理模式
@@ -100,5 +101,5 @@ let main args =
             Input.OptionMaybe<string>([ "--host" ], "The listen addr")
         )
 
-        setHandler (mainHandler args)
+        setHandler (mainHandlerFactory args)
     }
