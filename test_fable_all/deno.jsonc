@@ -1,5 +1,0 @@
-{
-  "tasks": {
-    "install": "deno install -n test_fable -f  -A --unstable main.ts"
-  }
-}
