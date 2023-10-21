@@ -5,7 +5,7 @@ open Tang.String
 module Deno =
     let args: array<string> = jsNative
 
-module JsonFormater =
+module JsonFormatter =
     let fmt value =
         let value = JS.JSON.parse value
         JS.JSON.stringify (value, (fun _ obj -> obj), Some 2)
@@ -17,6 +17,7 @@ let main _ =
 
     let arg1 = Deno.args |> Array.tryHead |> Option.defaultValue ""
 
+    //TODO: 支持--file 指定要格式化的json文件
     match arg1 with
     | "-h" -> printfn """help: fmt-json '<json string>'"""
     | "-v"
@@ -26,7 +27,7 @@ let main _ =
         let content = System.String.Join("", Deno.args)
 
         try
-            let ret = JsonFormater.fmt content
+            let ret = JsonFormatter.fmt content
             printfn "%s" ret
 
         with e ->
