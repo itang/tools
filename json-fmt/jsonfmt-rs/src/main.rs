@@ -12,6 +12,7 @@ struct Args {
     values: Vec<String>,
 }
 
+//TODO: 1. 支持--file 指定要格式化的文件， 2. 支持要格式的内容来自 std input
 fn main() {
     let args = Args::parse();
 
