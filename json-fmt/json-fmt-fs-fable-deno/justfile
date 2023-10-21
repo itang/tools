@@ -1,0 +1,35 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+prepare:
+  dotnet tool restore
+
+
+compile:
+  dotnet fable -o build/js
+
+dev:
+  dotnet fable watch . -o build/js --run deno run -A --unstable --watch build/js/Program.js
+
+run: compile
+  deno run -A --unstable build/js/Program.js
+
+build: compile
+  deno compile -A -o build/bin/json-fmt build/js/Program.js
+
+[windows]
+install: build
+  cp build/bin/json-fmt.exe D:/dev-env/bin/
+
+[linux]
+install: build
+  cp build/bin/fmt-json ~/.local/bin/
+
+fmt:
+  dotnet fantomas .
+
+clean:
+  dotnet fable clean --yes
+  dotnet clean

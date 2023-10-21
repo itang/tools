@@ -1,0 +1,15 @@
+{
+  "name": "fmt-json",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Program.fs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run:deno": "deno run -A --unstable Program.fs.js",
+    "run:node": "node Program.fs.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
