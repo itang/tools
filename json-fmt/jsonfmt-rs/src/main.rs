@@ -13,7 +13,7 @@ use jsonfmt::fmt;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// the file for format
-    #[arg(short = 'f')]
+    #[arg(short = 'f', long)]
     file: Option<PathBuf>,
 
     #[arg()]
