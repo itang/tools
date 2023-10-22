@@ -24,11 +24,11 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     let content = get_content(&args)?;
-
     let ret = fmt(&content);
+
     match ret {
         Ok(value) => println!("{value}"),
-        Err(err) => eprintln!("{err:?}"),
+        Err(err) => eprintln!("ERROR: {err:?}"),
     }
 
     Ok(())
