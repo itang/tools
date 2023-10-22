@@ -43,6 +43,7 @@ fn get_content(args: &Args) -> Result<String> {
         Ok(args.values.join(""))
     } else {
         //从标准输入获取
+        //on windows: ctrl + z get all input
         let mut buffer = String::new();
         let _ = stdin().read_to_string(&mut buffer)?;
         Ok(buffer)
