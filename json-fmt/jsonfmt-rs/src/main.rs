@@ -44,6 +44,7 @@ fn get_content(args: &Args) -> Result<String> {
     } else {
         //从标准输入获取
         //on windows: ctrl + z get all input
+        eprintln!("INFO: input the content for format(Press ctrl+z to finish typing):");
         let mut buffer = String::new();
         let _ = stdin().read_to_string(&mut buffer)?;
         Ok(buffer)
