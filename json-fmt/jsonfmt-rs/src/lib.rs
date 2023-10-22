@@ -8,8 +8,8 @@
 
 use serde_json::Value;
 
-/// fmt json string.
-pub fn fmt(s: &str) -> anyhow::Result<String> {
+/// format json string pretty.
+pub fn fmt_json_string_pretty(s: &str) -> anyhow::Result<String> {
     let value: Value = serde_json::from_str(s)?;
     let json = serde_json::to_string_pretty(&value)?;
 

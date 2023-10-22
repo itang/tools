@@ -7,7 +7,7 @@ use std::fs;
 use std::io::{stdin, Read};
 use std::path::PathBuf;
 
-use jsonfmt::fmt;
+use jsonfmt::fmt_json_string_pretty;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -24,9 +24,9 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     let content = get_content(&args)?;
-    let ret = fmt(&content);
+    let result = fmt_json_string_pretty(&content);
 
-    match ret {
+    match result {
         Ok(value) => println!("{value}"),
         Err(err) => eprintln!("ERROR: {err:?}"),
     }
