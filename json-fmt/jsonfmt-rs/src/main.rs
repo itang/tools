@@ -6,6 +6,7 @@ use clap::Parser;
 use std::fs;
 use std::io::{stdin, Read};
 use std::path::PathBuf;
+//use thiserror::Error;
 
 use jsonfmt::fmt_json_string_pretty;
 
@@ -18,6 +19,27 @@ struct Args {
 
     #[arg()]
     values: Vec<String>,
+}
+
+// #[derive(Error, Debug)]
+// enum GetJsonContentError {
+//     #[error("can't get content from args")]
+//     GetError,
+// }
+
+impl Args {
+    fn get_json_content(&self) -> Result<Option<String>> {
+        if let Some(file) = &self.file {
+            //来自--file 指定的文件
+            Ok(Some(fs::read_to_string(file)?))
+        } else if !self.values.is_empty() {
+            // 来自命令行参数值
+            Ok(Some(self.values.join("")))
+        } else {
+            Ok(None)
+            //Err(GetJsonContentError::GetError.into())
+        }
+    }
 }
 
 fn main() -> Result<()> {
@@ -35,18 +57,20 @@ fn main() -> Result<()> {
 }
 
 fn get_content(args: &Args) -> Result<String> {
-    if let Some(file) = &args.file {
-        //来自--file 指定的文件
-        Ok(fs::read_to_string(file)?)
-    } else if !args.values.is_empty() {
-        // 来自命令行参数值
-        Ok(args.values.join(""))
+    if let Some(value) = args.get_json_content()? {
+        //从命令行参数获取
+        Ok(value)
     } else {
         //从标准输入获取
-        //on windows: ctrl + z get all input
-        eprintln!("INFO: input the content for format(Press ctrl+z to finish typing):");
-        let mut buffer = String::new();
-        let _ = stdin().read_to_string(&mut buffer)?;
-        Ok(buffer)
+        get_content_from_stdin()
     }
+}
+
+fn get_content_from_stdin() -> Result<String> {
+    //on windows: ctrl + z get all input
+    eprintln!("INFO: input the content for format(Press ctrl+z to finish typing on windows):\n");
+    let mut buffer = String::new();
+    let _ = stdin().read_to_string(&mut buffer)?;
+
+    Ok(buffer)
 }
