@@ -5,11 +5,6 @@ open Tang.String
 module Deno =
     let args: array<string> = jsNative
 
-module JsonFormatter =
-    let fmt value =
-        let value = JS.JSON.parse value
-        JS.JSON.stringify (value, (fun _ obj -> obj), Some 2)
-
 [<EntryPoint>]
 let main _ =
     printfn "//args: %A" Deno.args
@@ -27,7 +22,7 @@ let main _ =
         let content = System.String.Join("", Deno.args)
 
         try
-            let ret = JsonFormatter.fmt content
+            let ret = JsonFormatter.prettyFormat content
             printfn "%s" ret
 
         with e ->
