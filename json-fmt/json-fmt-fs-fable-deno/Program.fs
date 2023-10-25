@@ -11,31 +11,23 @@ let main _ =
     // printfn "//args: %A" Deno.args
     // printfn "//%s" <| "*" * 100
 
-    let arg1 = Deno.args |> Array.tryHead |> Option.defaultValue ""
+    let options = Options.Parse(Deno.args)
+    //eprintfn "INFO: options: %A" options
+    //eprintfn ""
 
-    match arg1 with
-    | "-h" -> printfn """help: jsonfmt-fs -f <File> ['<json string>']"""
-    | "-v"
-    | "--version" -> printfn "0.1"
-    | "" -> error_input ()
-    | _ ->
-        let options = Options.Parse(Deno.args)
-        //eprintfn "INFO: options: %A" options
-        //eprintfn ""
+    if options.File.IsNone && (options.Values |> Array.isEmpty) then
+        error_input ()
+    else
+        let content =
+            match options.File with
+            | Some file -> Deno.readTextFileSync file
+            | None -> String.Join("", options.Values)
 
-        if options.File.IsNone && (options.Values |> Array.isEmpty) then
-            error_input ()
-        else
-            let content =
-                match options.File with
-                | Some file -> Deno.readTextFileSync file
-                | None -> String.Join("", options.Values)
+        try
+            let ret = JsonFormatter.prettyFormat content
+            printfn "%s" ret
 
-            try
-                let ret = JsonFormatter.prettyFormat content
-                printfn "%s" ret
-
-            with e ->
-                printfn "ERROR: %A" e
+        with e ->
+            printfn "ERROR: %A" e
 
     0

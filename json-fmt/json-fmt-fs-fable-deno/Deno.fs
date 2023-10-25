@@ -6,3 +6,4 @@ open Fable.Core
 module Deno =
     let args: array<string> = jsNative
     let readTextFileSync (path: string) = jsNative
+    let exit () = jsNative
