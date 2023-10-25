@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="JsonFormatter.fs" />
+    <Compile Include="Options.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
