@@ -1,12 +1,10 @@
-﻿open Fable.Core
-open Tang.String
+﻿open System
 
 open Cli
+open Native
 
-[<Global>]
-module Deno =
-    let args: array<string> = jsNative
-    let readTextFileSync (path: string) = jsNative
+let error_input () =
+    eprintfn "ERROR: please Input the content for format"
 
 [<EntryPoint>]
 let main _ =
@@ -15,23 +13,23 @@ let main _ =
 
     let arg1 = Deno.args |> Array.tryHead |> Option.defaultValue ""
 
-    //TODO: 支持--file 指定要格式化的json文件
     match arg1 with
     | "-h" -> printfn """help: jsonfmt-fs -f <File> ['<json string>']"""
     | "-v"
     | "--version" -> printfn "0.1"
+    | "" -> error_input ()
     | _ ->
         let options = Options.Parse(Deno.args)
-        eprintfn "INFO: options: %A" options
-        eprintfn ""
+        //eprintfn "INFO: options: %A" options
+        //eprintfn ""
 
-        if options.File.IsNone && options.Values |> Array.isEmpty then
-            eprintfn "please Input the content for format"
+        if options.File.IsNone && (options.Values |> Array.isEmpty) then
+            error_input ()
         else
             let content =
                 match options.File with
                 | Some file -> Deno.readTextFileSync file
-                | None -> System.String.Join("", options.Values)
+                | None -> String.Join("", options.Values)
 
             try
                 let ret = JsonFormatter.prettyFormat content
