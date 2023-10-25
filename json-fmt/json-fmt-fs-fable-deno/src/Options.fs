@@ -17,7 +17,7 @@ type Options =
             Deno.exit ()
         | "-v"
         | "--version" ->
-            printfn "0.1"
+            printfn "0.1.0-20231025.1"
             Deno.exit ()
         | _ -> ()
 

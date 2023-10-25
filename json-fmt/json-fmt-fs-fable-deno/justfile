@@ -11,13 +11,13 @@ compile:
   dotnet fable -o build/js
 
 dev:
-  dotnet fable watch . -o build/js --run deno run -A --unstable --watch build/js/Program.js
+  dotnet fable watch . -o build/js/src --run deno run -A --unstable --watch build/js/src/Program.js
 
 run: compile
-  deno run -A --unstable build/js/Program.js
+  deno run -A --unstable build/js/src/Program.js
 
 build: compile
-  deno compile -A -o build/bin/jsonfmt-fs build/js/Program.js
+  deno compile -A -o build/bin/jsonfmt-fs build/js/src/Program.js
 
 [windows]
 install: build

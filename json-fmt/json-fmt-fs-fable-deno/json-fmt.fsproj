@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="JsonFormatter.fs" />
-    <Compile Include="Deno.fs" />
-    <Compile Include="Options.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="src/JsonFormatter.fs" />
+    <Compile Include="src/Deno.fs" />
+    <Compile Include="src/Options.fs" />
+    <Compile Include="src/Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
