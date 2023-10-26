@@ -1,7 +1,7 @@
 module Cli
 
 open System
-open Native
+open Infra
 
 type Options =
     { File: option<string>
@@ -14,11 +14,11 @@ type Options =
         | "-h"
         | "--help" ->
             printfn """help: jsonfmt-fs -f <File> ['<json string>']"""
-            Deno.exit ()
+            Target.Exit (0)
         | "-v"
         | "--version" ->
             printfn "0.1.0-20231025.1"
-            Deno.exit ()
+            Target.Exit (0)
         | _ -> ()
 
         let mutable options = { File = None; Values = [||] }

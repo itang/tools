@@ -1,7 +1,7 @@
 ﻿open System
 
 open Cli
-open Native
+open Infra
 
 let error_input () =
     eprintfn "ERROR: please Input the content for format"
@@ -11,7 +11,7 @@ let main _ =
     // printfn "//args: %A" Deno.args
     // printfn "//%s" <| "*" * 100
 
-    let options = Options.Parse(Deno.args)
+    let options = Options.Parse(Target.GetArgs())
     //eprintfn "INFO: options: %A" options
     //eprintfn ""
 
@@ -20,11 +20,11 @@ let main _ =
     else
         let content =
             match options.File with
-            | Some file -> Deno.readTextFileSync file
+            | Some file -> Target.ReadTextFileSync(file)
             | None -> String.Join("", options.Values)
 
         try
-            let ret = JsonFormatter.prettyFormat content
+            let ret = Target.JsonPrettyFormat content
             printfn "%s" ret
 
         with e ->
