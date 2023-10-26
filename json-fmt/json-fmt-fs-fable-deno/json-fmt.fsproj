@@ -18,8 +18,7 @@
 
   <ItemGroup>
     <Compile Include="src/JsonFormatter.fs" />
-    <Compile Include="src/Deno.fs" />
-    <Compile Include="src/Infra.fs" />
+    <Compile Include="src/Native.fs" />
     <Compile Include="src/Options.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>

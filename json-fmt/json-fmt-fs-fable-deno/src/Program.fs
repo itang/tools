@@ -1,31 +1,25 @@
 ﻿open System
 
 open Cli
-open Infra
+open Native
 
 let error_input () =
     eprintfn "ERROR: please Input the content for format"
 
 [<EntryPoint>]
 let main _ =
-    // printfn "//args: %A" Deno.args
-    // printfn "//%s" <| "*" * 100
-
-    let options = Options.Parse(Target.GetArgs())
-    //eprintfn "INFO: options: %A" options
-    //eprintfn ""
+    let options = Options.Parse(native.GetArgs())
 
     if options.File.IsNone && (options.Values |> Array.isEmpty) then
         error_input ()
     else
         let content =
             match options.File with
-            | Some file -> Target.ReadTextFileSync(file)
+            | Some file -> native.ReadTextFileSync(file)
             | None -> String.Join("", options.Values)
 
         try
-            let ret = Target.JsonPrettyFormat content
-            printfn "%s" ret
+            content |> JsonFormatter.prettyFormat |> printfn "%s"
 
         with e ->
             printfn "ERROR: %A" e
