@@ -10,7 +10,7 @@ let error_input () =
 let main _ =
     let options = Options.Parse(native.GetArgs())
 
-    if options.File.IsNone && (options.Values |> Array.isEmpty) then
+    if options.File.IsNone && (Array.isEmpty options.Values) then
         error_input ()
     else
         let content =
