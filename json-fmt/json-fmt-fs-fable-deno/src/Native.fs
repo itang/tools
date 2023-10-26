@@ -12,13 +12,13 @@ open Fable.Core
 module Deno =
     let args: array<string> = jsNative
     let readTextFileSync (path: string) = jsNative
-    let exit () = jsNative
+    let exit (exitCode: int) = jsNative
 
 let native =
     { new INative with
         member _.GetArgs() : array<string> = Deno.args
         member _.ReadTextFileSync(path: string) : string = Deno.readTextFileSync (path)
-        member _.Exit(_: int) : unit = Deno.exit () }
+        member _.Exit(exitCode: int) : unit = Deno.exit (exitCode) }
 
 #else
 
@@ -29,5 +29,5 @@ let native =
     { new INative with
         member _.GetArgs() : array<string> = Environment.GetCommandLineArgs()[1..]
         member _.ReadTextFileSync(path: string) : string = File.ReadAllText(path)
-        member _.Exit(code: int) : unit = Environment.Exit(code) }
+        member _.Exit(exitCode: int) : unit = Environment.Exit(exitCode) }
 #endif
