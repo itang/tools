@@ -8,14 +8,14 @@
 
   
   <PropertyGroup>
-    <PublishAot>true</PublishAot>
+    <!--<PublishAot>true</PublishAot>-->
     <OptimizationPreference>Speed</OptimizationPreference>
   </PropertyGroup>
   
   <PropertyGroup>
     <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Compile Include="src/JsonFormatter.fs" />
     <Compile Include="src/Deno.fs" />

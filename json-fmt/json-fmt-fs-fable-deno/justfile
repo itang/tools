@@ -7,45 +7,63 @@ prepare:
   dotnet tool restore
 
 
-compile:
+compile-js:
   dotnet fable -o build/js
 
-dev:
+dev-deno:
   dotnet fable watch . -o build/js/src --run deno run -A --unstable --watch build/js/src/Program.js
 
-run: compile
+run-deno: compile-js
   deno run -A --unstable build/js/src/Program.js
 
-build: compile
-  deno compile -A -o build/bin/jsonfmt-fs build/js/src/Program.js
+build-fs-deno: compile-js
+  deno compile -A -o build/bin/jsonfmt-fs-deno build/js/src/Program.js
 
 [windows]
-install: build
-  cp build/bin/jsonfmt-fs.exe D:/dev-env/bin/
+install-deno: build-fs-deno
+  cp build/bin/jsonfmt-fs-deno.exe D:/dev-env/bin/
 
 [linux]
-install: build
-  cp build/bin/jsonfmt-fs ~/.local/bin/
+install-deno: build-fs-deno
+  cp build/bin/jsonfmt-fs-deno ~/.local/bin/
 
 
 [windows]
-publish:
+publish-jit:
   dotnet publish -r win-x64 -c Release --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true
   @ls -l bin\Release\net8.0\win-x64\publish
 
 [linux]
-publish:
+publish-jit:
   dotnet publish -r linux-x64 -c Release --self-contained -p:PublishSingleFile=true -p:PublishTrimmed=true
 
 
 [windows]
+install-jit: publish-jit
+  cp bin/Release/net8.0/win-x64/publish/json-fmt.exe D:/dev-env/bin/jsonfmt-fs-jit.exe
+
+[linux]
+install-jit: publish-jit
+  cp bin/Release/net8.0/win-x64/publish/json-fmt ~/.local/bin/jsonfmt-fs-jit
+
+
+[windows]
 publish-aot:
-  dotnet publish -r win-x64 -c Release
+  dotnet publish -r win-x64 -c Release /p:PublishAot=true
   ls bin\Release\net8.0\win-x64\publish\
 
 [linux]
 publish-aot:
-  dotnet publish -r linux-x64 -c Release
+  dotnet publish -r linux-x64 -c Release -p:PublishAot=true
+
+[windows]
+install-aot: publish-aot
+  cp bin/Release/net8.0/win-x64/publish/json-fmt.exe D:/dev-env/bin/jsonfmt-fs-aot.exe
+
+[linux]
+install-aot: publish-aot
+  cp bin/Release/net8.0/win-x64/publish/json-fmt ~/.local/bin/jsonfmt-fs-aot
+
 
 fmt:
   dotnet fantomas .
