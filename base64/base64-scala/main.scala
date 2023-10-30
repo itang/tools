@@ -1,6 +1,7 @@
 //> using scala "3.3.1"
 //> using option "-Wunused:all" "-Wvalue-discard"  "-Wnonunit-statement"
-
+//> using nativeGc none
+////> using nativeMode release-fast
 //> using lib "com.funpaas::tang-scala:0.1.2-SNAPSHOT"
 //> using toolkit latest
 

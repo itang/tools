@@ -3,27 +3,27 @@ set shell := ["nu", "-c"]
 default:
   just --list
 
-run input="hello":
+run-online input="hello":
   scala-cli run main.scala -- {{input}}
 
-run-offline input="hello":
+run input="hello":
   scala-cli run --power --offline main.scala -- {{input}}
 
 setup-ide:
   scala-cli setup-ide .
 
-build-native:
+build-native-online:
   scala-cli package --power --force --native . -o dist/main.exe
 
-build-native-offline:
+build-native:
   scala-cli package --power --offline --force --native . -o dist/main.exe
 
 [windows]
-install-offline: build-native-offline
+install: build-native
   cp dist/main.exe D:/dev-env/bin/base64.exe
 
 [linux]
-install-offline: build-native-offline
+install: build-native
   cp dist/main ~/.local/bin/base64
 
 edit: setup-ide
