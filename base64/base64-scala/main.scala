@@ -15,7 +15,7 @@ import scala.language.unsafeNulls
 
 @main def main(input: String): Unit =
   input
-    |>! println
+    //|>! println
     |> (_.getBytes("utf-8"))
     |> Base64.getEncoder.encodeToString
     |> println
