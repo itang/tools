@@ -10,6 +10,7 @@ use std::path::PathBuf;
 
 use jsonfmt::fmt_json_string_pretty;
 
+//TODO: 支持指定json-path输出
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Args {
