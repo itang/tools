@@ -17,7 +17,7 @@ type Options =
             native.Exit(0)
         | "-v"
         | "--version" ->
-            printfn "0.1.0-20231025.1"
+            printfn "0.1.0-20231109.1"
             native.Exit(0)
         | _ -> ()
 
