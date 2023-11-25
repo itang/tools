@@ -16,7 +16,9 @@ import java.util.Base64
 import scala.language.unsafeNulls
 
 object Main:
-    def main(args: Array[String]): Unit =
+    def main(args: Array[String]): Unit = run(args)
+
+    private def run(args: Array[String]): Unit =
         args match
             case Array("--help" | "-h") =>
                 println(
@@ -30,7 +32,7 @@ object Main:
             case Array(input, _*)          => input |> base64 |> println
             case Array()                   => scala.io.StdIn.readLine() |> base64 |> println
         end match
-    end main
+    end run
 
     private def base64(input: String): String =
         input
