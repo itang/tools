@@ -1,32 +1,32 @@
-//> using scala "3.3.0"
+//> using scala "3.3.1"
 //> using option "-Wunused:all" "-Wvalue-discard" "-Yexplicit-nulls"
 
-//> using nativeVersion 0.4.14
+//> using nativeVersion 0.4.16
 //> using nativeGc "none"
 //> using nativeLto "thin"
 //> using nativeMode "release"
 
-val VERSION = "0.1.0-20230627.2"
+val VERSION = "0.1.0-202301128.1"
 
-object Main {
-  def main(args: Array[String]): Unit = {
-    println(s"deps-v$VERSION")
+object Main:
+    def main(args: Array[String]): Unit =
+        println(s"deps-v$VERSION")
 
-    val input =
-      if args.isEmpty then """ "org.scala-sbt" % "sbt" % "1.6.2" """
-      else args.mkString(" ")
-    println(s"input: $input\n")
+        val input =
+            if args.isEmpty then """ "org.scala-sbt" % "sbt" % "1.6.2" """
+            else args.mkString(" ")
+        println(s"input: $input\n")
 
-    given listParser: List[Parser] = List(SbtParser, IvyParser)
+        given listParser: List[Parser] = List(SbtParser, IvyParser)
 
-    Dependency.from(input) match
-      case Some(dependency) =>
-        val s = s"""ivy:
+        Dependency.from(input) match
+            case Some(dependency) =>
+                val s = s"""ivy:
                   |  ${dependency.toIvy}
                   |  import $$ivy.`${dependency.toIvy}`
                   |
                   |scala-cli repl:
-                  |  scala-cli repl -S 3.3.0 --dep ${dependency.toIvy}
+                  |  scala-cli repl -S 3.3.1 --dep ${dependency.toIvy}
                   |
                   |mill:
                   |  override def ivyDeps = Agg(ivy"${dependency.toIvy}")
@@ -37,10 +37,11 @@ object Main {
                   |maven:
                   |${dependency.toMaven.linesIterator.map(it => s"  ${it}").mkString("\n")}
                   """.stripMargin
-        println(s)
+                println(s)
 
-      case None => println("unknown")
+            case None => println("unknown")
+        end match
 
-    println()
-  }
-}
+        println()
+    end main
+end Main
