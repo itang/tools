@@ -8,7 +8,7 @@ ThisBuild / organizationName := "example"
 lazy val root = project.in(file("."))
   .enablePlugins(ScalaNativePlugin)
   .settings(
-    scalaVersion := "3.3.0",
+    scalaVersion := "3.3.1",
     scalacOptions ++= Seq("-Wunused:all", "-Wvalue-discard", "-Yexplicit-nulls"),
     nativeConfig ~= {
       _.withIncrementalCompilation(true)
