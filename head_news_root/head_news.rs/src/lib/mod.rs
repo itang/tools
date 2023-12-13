@@ -8,4 +8,5 @@ mod sina;
 mod types;
 
 pub use sina::Sina;
-pub use types::*;
+
+pub use types::{News, Portal};

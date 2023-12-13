@@ -1,7 +1,7 @@
 use tabled::{Style, TableIteratorExt};
 use tokio::runtime;
 
-use head_news::*;
+use head_news::{Sina, Portal};
 
 // https://stackoverflow.com/questions/66960947/what-is-the-smallest-feature-set-to-enable-polling-a-future-with-tokio
 //#[tokio::main(flavor = "current_thread")]

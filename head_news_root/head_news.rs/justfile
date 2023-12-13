@@ -1,0 +1,14 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+dev:
+  cargo watch -x run
+
+run:
+  cargo run
+
+install:
+  cargo install -f --path .
+
