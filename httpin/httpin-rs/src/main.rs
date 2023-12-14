@@ -8,10 +8,12 @@ use axum::{
     routing::any,
     Router,
 };
-use clap::Parser;
-use http_body_util::BodyExt;
 use std::error::Error;
+
+use http_body_util::BodyExt;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+use httpin_rs::Args;
 
 async fn handler(request: Request) -> Result<String, Response> {
     let first_line = format!("{} {}", request.method(), request.uri());
@@ -34,32 +36,11 @@ async fn handler(request: Request) -> Result<String, Response> {
 
     let request_body = unsafe { String::from_utf8_unchecked(bytes.to_vec()) };
 
-    let html = format!("{first_line}\n\n{headers}\n\n{request_body}");
+    let text = format!("{first_line}\n\n{headers}\n\n{request_body}");
 
-    tracing::debug!(body = ?html);
+    tracing::debug!(body = ?text);
 
-    Ok(html)
-}
-
-#[derive(Debug, Parser)]
-struct Args {
-    ///host
-    #[arg(short = 'H', long)]
-    host: Option<String>,
-
-    #[arg(short, long)]
-    ///port
-    port: Option<u16>,
-}
-
-impl Args {
-    fn address(&self) -> String {
-        format!("{}:{}", self.host.as_deref().unwrap_or("0.0.0.0"), self.port.unwrap_or(3000))
-    }
-
-    fn as_url(&self) -> String {
-        format!("http://localhost:{}", self.port.unwrap_or(3000))
-    }
+    Ok(text)
 }
 
 #[tokio::main]
@@ -69,7 +50,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let args = Args::parse();
+    let args = Args::from_parse();
 
     let app = Router::new().route("/", any(handler)).route("/*all", any(handler));
 
