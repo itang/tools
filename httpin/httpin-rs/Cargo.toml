@@ -18,7 +18,7 @@ tracing = "0.1.40"
 #async-trait = "0.1.74"
 http = "1.0.0"
 http-body-util = "0.1.0"
-#tap = "1.0.1"
+#hex = "0.4.3"
 
 
 [profile.release]
