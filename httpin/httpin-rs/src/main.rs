@@ -14,7 +14,7 @@ use std::error::Error;
 use http_body_util::BodyExt;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use httpin_rs::Args;
+use httpin::Args;
 
 async fn handler(request: Request) -> Result<String, Response> {
     let (parts, body) = request.into_parts();
@@ -50,7 +50,7 @@ async fn handler(request: Request) -> Result<String, Response> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "httpin_rs=debug".into()))
+        .with(tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "httpin=debug".into()))
         .with(tracing_subscriber::fmt::layer())
         .init();
 
