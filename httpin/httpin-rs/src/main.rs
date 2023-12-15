@@ -17,16 +17,16 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use httpin_rs::Args;
 
 async fn handler(request: Request) -> Result<String, Response> {
-    let first_line = format!("{} {}", request.method(), request.uri());
+    let (parts, body) = request.into_parts();
 
-    let headers: String = request
-        .headers()
+    let first_line = format!("{:?}: {} {}", parts.version, parts.method, parts.uri);
+
+    let headers: String = parts
+        .headers
         .iter()
         .map(|(name, value)| format!("{}: {:}", name, value.to_str().unwrap_or_default()))
         .collect::<Vec<String>>()
         .join("\n");
-
-    let (_parts, body) = request.into_parts();
 
     // this wont work if the body is an long running stream
     let bytes = body
@@ -55,6 +55,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init();
 
     let args = Args::from_parse();
+    dbg!(&args);
 
     let app = Router::new().route("/", any(handler)).route("/*all", any(handler));
 
