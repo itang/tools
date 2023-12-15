@@ -8,41 +8,31 @@
 
 use clap::Parser;
 
-///Args
+/// Args
 #[derive(Debug, Parser)]
 pub struct Args {
     ///host
-    #[arg(short = 'H', long)]
-    host: Option<String>,
+    #[arg(short = 'H', long, default_value = "127.0.0.1")]
+    host: String,
 
-    #[arg(short, long)]
+    #[arg(short, long, default_value_t = 3000)]
     ///port
-    port: Option<u16>,
+    port: u16,
 }
 
 impl Args {
-    /// port
-    pub fn port(&self) -> u16 {
-        self.port.unwrap_or(3000)
-    }
-
-    ///host
-    pub fn host(&self) -> &str {
-        self.host.as_deref().unwrap_or("0.0.0.0")
+    ///from parse
+    pub fn from_parse() -> Self {
+        Args::parse()
     }
 
     ///address
     pub fn address(&self) -> String {
-        format!("{}:{}", self.host(), self.port())
+        format!("{}:{}", self.host, self.port)
     }
 
-    /// as url
+    ///as url
     pub fn as_url(&self) -> String {
-        format!("http://localhost:{}", self.port())
-    }
-
-    /// from parse
-    pub fn from_parse() -> Self {
-        Args::parse()
+        format!("http://localhost:{}", self.port)
     }
 }
