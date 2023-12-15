@@ -78,12 +78,12 @@ impl Args {
 }
 
 ///As Url
-pub trait AsUrl {
+pub trait ToLink {
     /// to link
     fn to_link(&self) -> String;
 }
 
-impl<T: Display> AsUrl for (T, u16) {
+impl<T: Display> ToLink for (T, u16) {
     #[inline(always)]
     fn to_link(&self) -> String {
         format!("http://{}:{}", self.0, self.1)
