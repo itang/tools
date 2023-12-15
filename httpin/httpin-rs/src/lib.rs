@@ -6,6 +6,7 @@
 //!
 //! add doc here
 
+use std::fmt::Display;
 use clap::Parser;
 
 /// Args
@@ -40,24 +41,24 @@ impl Args {
         format!("{}:{}", self.host(), self.port)
     }
 
-    ///as url
-    pub fn as_url(&self) -> String {
+    /// to links
+    pub fn to_links(&self) -> String {
         let mut url = String::new();
 
         let host = self.host();
         if host == "0.0.0.0" {
-            url.push_str(&format!("http://127.0.0.1:{}", self.port));
+            url.push_str(&("127.0.0.1", self.port).to_link());
             match local_ip_address::local_ip() {
                 Ok(ip) => {
                     url.push_str(", ");
-                    url.push_str(&format!("http://{}:{}", ip, self.port))
-                },
+                    url.push_str(&(ip, self.port).to_link())
+                }
                 Err(err) => {
                     tracing::warn!("can't get local ip, error: {:?}", err);
-                },
+                }
             }
         } else {
-            url.push_str(&format!("http://{}:{}", host, self.port))
+            url.push_str(&(host, self.port).to_link())
         }
 
         url
@@ -73,5 +74,18 @@ impl Args {
         } else {
             &self.host
         }
+    }
+}
+
+///As Url
+pub trait AsUrl {
+    /// to link
+    fn to_link(&self) -> String;
+}
+
+impl<T: Display> AsUrl for (T, u16) {
+    #[inline(always)]
+    fn to_link(&self) -> String {
+        format!("http://{}:{}", self.0, self.1)
     }
 }

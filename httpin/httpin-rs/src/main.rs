@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let app = Router::new().route("/", any(handler)).route("/*all", any(handler));
 
-    tracing::info!("listen on {}, access [ {} ]", args.address(), args.as_url());
+    tracing::info!("listen on {}, access [ {} ]", args.address(), args.to_links());
 
     let listener = tokio::net::TcpListener::bind(args.address()).await?;
     axum::serve(listener, app).await?;
