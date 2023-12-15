@@ -11,6 +11,7 @@ use clap::Parser;
 
 /// Args
 #[derive(Debug, Parser)]
+#[command(author, version, about, long_about = None)]
 pub struct Args {
     ///listen host
     #[arg(short = 'H', long, default_value = "127.0.0.1")]
