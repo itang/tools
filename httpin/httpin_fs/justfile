@@ -39,11 +39,11 @@ publish:
 
 [windows]
 install: publish
-  cp bin\Release\net8.0\win-x64\publish\httpin_fs.exe D:/dev-env/bin/httpin.exe
+  cp bin\Release\net8.0\win-x64\publish\httpin_fs.exe D:/dev-env/bin/httpin-fs.exe
 
 [linux]
 install: publish
-  cp bin/Release/net8.0/linux-x64/publish/httpin_fs ~/.local/bin/httpin
+  cp bin/Release/net8.0/linux-x64/publish/httpin_fs ~/.local/bin/httpin-fs
 
 fmt:
   dotnet fantomas .
