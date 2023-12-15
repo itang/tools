@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init();
 
     let args = Args::from_parse();
-    dbg!(&args);
+    //dbg!(&args);
 
     let app = Router::new().route("/", any(handler)).route("/*all", any(handler));
 
