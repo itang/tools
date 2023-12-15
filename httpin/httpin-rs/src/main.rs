@@ -61,7 +61,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     tracing::info!("listen on {}, access [ {} ]", args.address(), args.as_url());
 
-    // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(args.address()).await?;
     axum::serve(listener, app).await?;
 
