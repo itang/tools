@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let app = Router::new().route("/", any(handler)).route("/*all", any(handler));
 
-    tracing::info!("listen on {}, {}", args.address(), args.as_url());
+    tracing::info!("listen on {}, access [ {} ]", args.address(), args.as_url());
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind(args.address()).await?;

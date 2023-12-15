@@ -27,7 +27,12 @@ pub struct Args {
 impl Args {
     ///from parse
     pub fn from_parse() -> Self {
-        Args::parse()
+        let args = Args::parse();
+        if args.listen_all() && !args.host.is_empty() {
+            tracing::info!("ignore the `host` args");
+        }
+
+        args
     }
 
     ///address
@@ -37,13 +42,36 @@ impl Args {
 
     ///as url
     pub fn as_url(&self) -> String {
-        format!("http://localhost:{}", self.port)
+        let mut url = String::new();
+
+        let host = self.host();
+        if host == "0.0.0.0" {
+            url.push_str(&format!("http://127.0.0.1:{}", self.port));
+            match local_ip_address::local_ip() {
+                Ok(ip) => {
+                    url.push_str(", ");
+                    url.push_str(&format!("http://{}:{}", ip, self.port))
+                },
+                Err(err) => {
+                    tracing::warn!("can't get local ip, error: {:?}", err);
+                },
+            }
+        } else {
+            url.push_str(&format!("http://{}:{}", host, self.port))
+        }
+
+        url
+    }
+
+    fn listen_all(&self) -> bool {
+        matches!(self.listen_all, Some(None) | Some(Some(true)))
     }
 
     fn host(&self) -> &str {
-        match self.listen_all {
-            Some(None) | Some(Some(true)) => "0.0.0.0",
-            _ => &self.host,
+        if self.listen_all() {
+            "0.0.0.0"
+        } else {
+            &self.host
         }
     }
 }

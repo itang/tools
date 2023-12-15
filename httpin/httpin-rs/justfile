@@ -32,7 +32,7 @@ add_toolkit:
   cargo add tap chrono time fs_extra itertools xshell anyhow thiserror ; cargo add reqwest --features json ; cargo add serde --features derive ; cargo add serde_json
 
 install:
-  cargo install --path .
+  cargo install --path . --locked
 
 add_clap:
   cargo add clap --features derive
