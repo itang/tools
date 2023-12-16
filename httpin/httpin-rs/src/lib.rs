@@ -9,7 +9,7 @@
 use std::fmt::Display;
 use clap::Parser;
 
-/// Args
+/// httpin cli
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
@@ -44,25 +44,25 @@ impl Args {
 
     /// to links
     pub fn to_links(&self) -> String {
-        let mut url = String::new();
+        let mut links = String::new();
 
         let host = self.host();
         if host == "0.0.0.0" {
-            url.push_str(&("127.0.0.1", self.port).to_link());
+            links.push_str(&("127.0.0.1", self.port).to_link());
             match local_ip_address::local_ip() {
                 Ok(ip) => {
-                    url.push_str(", ");
-                    url.push_str(&(ip, self.port).to_link())
+                    links.push_str(", ");
+                    links.push_str(&(ip, self.port).to_link())
                 }
                 Err(err) => {
                     tracing::warn!("can't get local ip, error: {:?}", err);
                 }
             }
         } else {
-            url.push_str(&(host, self.port).to_link())
+            links.push_str(&(host, self.port).to_link())
         }
 
-        url
+        links
     }
 
     fn listen_all(&self) -> bool {

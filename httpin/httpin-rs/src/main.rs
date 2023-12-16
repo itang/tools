@@ -16,7 +16,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use httpin::Args;
 
-async fn handler(request: Request) -> Result<String, Response> {
+async fn inspect_request_handler(request: Request) -> Result<String, Response> {
     let (parts, body) = request.into_parts();
 
     let first_line = format!("{:?}: {} {}", parts.version, parts.method, parts.uri);
@@ -55,9 +55,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init();
 
     let args = Args::from_parse();
-    //dbg!(&args);
 
-    let app = Router::new().route("/", any(handler)).route("/*all", any(handler));
+    let app = Router::new().route("/", any(inspect_request_handler)).route("/*all", any(inspect_request_handler));
 
     tracing::info!("listen on {}, access [ {} ]", args.address(), args.to_links());
 
