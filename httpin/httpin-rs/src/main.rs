@@ -14,7 +14,7 @@ use std::error::Error;
 use http_body_util::BodyExt;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use httpin::Args;
+use httpin::HttpInOptions;
 
 async fn inspect_request_handler(request: Request) -> Result<String, Response> {
     let (parts, body) = request.into_parts();
@@ -54,13 +54,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let args = Args::from_parse();
+    let options = HttpInOptions::from_parse();
 
     let app = Router::new().route("/", any(inspect_request_handler)).route("/*all", any(inspect_request_handler));
 
-    tracing::info!("listen on {}, access [ {} ]", args.address(), args.to_links());
+    tracing::info!("listen on {}, access [ {} ]", options.address(), options.to_links());
 
-    let listener = tokio::net::TcpListener::bind(args.address()).await?;
+    let listener = tokio::net::TcpListener::bind(options.address()).await?;
     axum::serve(listener, app).await?;
 
     Ok(())

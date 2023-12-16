@@ -12,7 +12,7 @@ use clap::Parser;
 /// httpin cli
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
-pub struct Args {
+pub struct HttpInOptions {
     ///listen host
     #[arg(short = 'H', long, default_value = "127.0.0.1")]
     host: String,
@@ -26,10 +26,10 @@ pub struct Args {
     port: u16,
 }
 
-impl Args {
+impl HttpInOptions {
     ///from parse
     pub fn from_parse() -> Self {
-        let args = Args::parse();
+        let args = HttpInOptions::parse();
         if args.listen_all() && !args.host.is_empty() {
             tracing::info!("ignore the `host` args");
         }
@@ -78,7 +78,7 @@ impl Args {
     }
 }
 
-///As Url
+///Self To Link
 pub trait ToLink {
     /// to link
     fn to_link(&self) -> String;
