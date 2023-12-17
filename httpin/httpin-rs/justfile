@@ -17,7 +17,7 @@ dev:
   cargo watch -x run
 
 lint:
-  cargo clippy
+  cargo clippy --no-deps
 
 edit:
   idea64 .
