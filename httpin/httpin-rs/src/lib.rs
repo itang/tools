@@ -6,8 +6,8 @@
 //!
 //! add doc here
 
-use std::fmt::Display;
 use clap::Parser;
+use std::fmt::Display;
 
 /// httpin cli
 #[derive(Debug, Parser)]
@@ -53,10 +53,10 @@ impl HttpInOptions {
                 Ok(ip) => {
                     links.push_str(", ");
                     links.push_str(&(ip, self.port).to_link())
-                }
+                },
                 Err(err) => {
                     tracing::warn!("can't get local ip, error: {:?}", err);
-                }
+                },
             }
         } else {
             links.push_str(&(host, self.port).to_link())
