@@ -27,7 +27,6 @@ enum Action {
     Tip(TipArgs),
 }
 
-
 #[derive(Args, Debug)]
 struct KillArgs {
     /// The glob pattern
@@ -105,18 +104,6 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
 
     display(&pid_list);
 
-    if pid_list.is_empty() {
-        println!("INFO: No Found Java process, just exit.")
-    } else {
-        // println!("{}", "-".repeat(60));
-        // let pids = pid_list.iter().map(|x| x.pid.to_string().green().to_string()).collect::<Vec<String>>().join(", ");
-        // println!("INFO: Java process pid list: [{}]", pids);
-        // println!(
-        //     "INFO: kill cmd, 'kill -f {}'",
-        //     pid_list.iter().map(|x| x.pid.to_string()).collect::<Vec<String>>().join(" ").green()
-        // );
-    }
-
     Ok(())
 }
 
@@ -127,7 +114,8 @@ fn display(procs: &[Proc]) {
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                let jts = java_tools(&p.pid.to_string()).iter().map(|t| format!("\t{t}")).collect::<Vec<String>>().join("\n");
+                let jts =
+                    java_tools(&p.pid.to_string()).iter().map(|t| format!("\t{t}")).collect::<Vec<String>>().join("\n");
                 format!(
                     "{:2}: {:6} {} {}\n\n{}",
                     (i + 1).to_string().yellow(),
@@ -140,19 +128,31 @@ fn display(procs: &[Proc]) {
             .collect::<Vec<String>>()
             .join("\n\n");
         println!("{ps}");
+    } else {
+        println!("INFO: No Found Java process, just exit.");
     }
 }
 
 fn java_tools(pid: &str) -> Vec<String> {
-    let jstack = format!("jstack {pid} | save thread_stack.txt");
-    let jmap_heap0 = format!("jmap -heap {pid}");
-    let jmap_heap1 = format!("jhsdb jmap --heap --pid {pid}");
-    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {pid}");
-    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {pid}");
-    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {pid}");
-    let jstat_gc_live = format!("jstat -gc {pid} 2000");
-    let jstat_gcutil_live = format!("jstat -gcutil {pid} 2000");
-    let kill = format!("kill -f {pid}");
+    let jstack = format!("jstack {} | save thread_stack.txt", pid.green());
+    let jmap_heap0 = format!("jmap -heap {}", pid.green());
+    let jmap_heap1 = format!("jhsdb jmap --heap --pid {}", pid.green());
+    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {}", pid.green());
+    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {}", pid.green());
+    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {}", pid.green());
+    let jstat_gc_live = format!("jstat -gc {} 2000", pid.green());
+    let jstat_gcutil_live = format!("jstat -gcutil {} 2000", pid.green());
+    let kill = format!("kill -f {}", pid.green());
 
-    vec![jstack, jmap_heap0, jmap_heap1, jmap_dump_all0, jmap_dump_all1, jmap_dump_live, jstat_gc_live, jstat_gcutil_live, kill]
+    vec![
+        jstack,
+        jmap_heap0,
+        jmap_heap1,
+        jmap_dump_all0,
+        jmap_dump_all1,
+        jmap_dump_live,
+        jstat_gc_live,
+        jstat_gcutil_live,
+        kill,
+    ]
 }
