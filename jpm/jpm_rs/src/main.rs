@@ -15,9 +15,18 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Action {
+    ///list java process
     List(ListArgs),
+    ///kill java process
     Kill(KillArgs),
+    ///alias list
+    L(ListArgs),
+    ///dump java process
+    Dump(DumpArgs),
+    ///Tips for java process
+    Tip(TipArgs),
 }
+
 
 #[derive(Args, Debug)]
 struct KillArgs {
@@ -38,12 +47,40 @@ struct ListArgs {
     glob: Option<String>,
 }
 
+#[derive(Args, Debug)]
+struct DumpArgs {
+    /// The pid
+    #[arg()]
+    pid: String,
+}
+
+#[derive(Args, Debug)]
+struct TipArgs {
+    /// The pid
+    #[arg()]
+    pid: Option<String>,
+}
+
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     match cli.action {
-        Action::List(args) => handle_list(args)?,
+        Action::List(args) | Action::L(args) => handle_list(args)?,
         Action::Kill(args) => handle_kill(args)?,
+        Action::Dump(args) => handle_dump(args)?,
+        Action::Tip(args) => handle_tip(args)?,
     }
+
+    Ok(())
+}
+
+fn handle_dump(_args: DumpArgs) -> anyhow::Result<()> {
+    todo!()
+}
+
+fn handle_tip(args: TipArgs) -> anyhow::Result<()> {
+    let pid = args.pid.unwrap_or("xxx".to_string());
+    let jts = java_tools(&pid).join("\n");
+    println!("{jts}");
 
     Ok(())
 }
@@ -71,13 +108,13 @@ fn handle_list(args: ListArgs) -> anyhow::Result<()> {
     if pid_list.is_empty() {
         println!("INFO: No Found Java process, just exit.")
     } else {
-        println!("{}", "-".repeat(60));
-        let pids = pid_list.iter().map(|x| x.pid.to_string().green().to_string()).collect::<Vec<String>>().join(", ");
-        println!("INFO: Java process pid list: [{}]", pids);
-        println!(
-            "INFO: kill cmd, 'kill -f {}'",
-            pid_list.iter().map(|x| x.pid.to_string()).collect::<Vec<String>>().join(" ").green()
-        );
+        // println!("{}", "-".repeat(60));
+        // let pids = pid_list.iter().map(|x| x.pid.to_string().green().to_string()).collect::<Vec<String>>().join(", ");
+        // println!("INFO: Java process pid list: [{}]", pids);
+        // println!(
+        //     "INFO: kill cmd, 'kill -f {}'",
+        //     pid_list.iter().map(|x| x.pid.to_string()).collect::<Vec<String>>().join(" ").green()
+        // );
     }
 
     Ok(())
@@ -90,16 +127,32 @@ fn display(procs: &[Proc]) {
             .iter()
             .enumerate()
             .map(|(i, p)| {
+                let jts = java_tools(&p.pid.to_string()).iter().map(|t| format!("\t{t}")).collect::<Vec<String>>().join("\n");
                 format!(
-                    "{:2}: {:6} {} {}",
+                    "{:2}: {:6} {} {}\n\n{}",
                     (i + 1).to_string().yellow(),
                     p.pid.to_string().green(),
                     p.name.blue(),
-                    p.args
+                    p.args,
+                    jts
                 )
             })
             .collect::<Vec<String>>()
             .join("\n\n");
         println!("{ps}");
     }
+}
+
+fn java_tools(pid: &str) -> Vec<String> {
+    let jstack = format!("jstack {pid} | save thread_stack.txt");
+    let jmap_heap0 = format!("jmap -heap {pid}");
+    let jmap_heap1 = format!("jhsdb jmap --heap --pid {pid}");
+    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {pid}");
+    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {pid}");
+    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {pid}");
+    let jstat_gc_live = format!("jstat -gc {pid} 2000");
+    let jstat_gcutil_live = format!("jstat -gcutil {pid} 2000");
+    let kill = format!("kill -f {pid}");
+
+    vec![jstack, jmap_heap0, jmap_heap1, jmap_dump_all0, jmap_dump_all1, jmap_dump_live, jstat_gc_live, jstat_gcutil_live, kill]
 }
