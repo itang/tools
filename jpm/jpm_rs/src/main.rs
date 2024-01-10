@@ -145,6 +145,7 @@ fn java_tools(pid: &str) -> Vec<String> {
     let jmap_histo_live = format!("jmap -histo:live {} #触发fullgc", pid);
     let jstat_gc_live = format!("jstat -gc {} 2000", pid);
     let jstat_gcutil_live = format!("jstat -gcutil {} 2000", pid);
+    let pidstat = format!("pidstat -w 5 -p {}", pid);
     let kill = format!("kill -f {}", pid);
 
     vec![
@@ -158,6 +159,7 @@ fn java_tools(pid: &str) -> Vec<String> {
         jmap_histo_live,
         jstat_gc_live,
         jstat_gcutil_live,
+        pidstat,
         kill,
     ]
 }

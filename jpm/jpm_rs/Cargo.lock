@@ -212,7 +212,7 @@ dependencies = [
 
 [[package]]
 name = "jpm"
-version = "0.3.0-20230625.1"
+version = "0.5.0-20240110.1"
 dependencies = [
  "anyhow",
  "clap",
