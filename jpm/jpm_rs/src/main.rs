@@ -134,15 +134,18 @@ fn display(procs: &[Proc]) {
 }
 
 fn java_tools(pid: &str) -> Vec<String> {
-    let jstack = format!("jstack {} | save thread_stack.txt", pid.green());
-    let jmap_heap0 = format!("jmap -heap {}", pid.green());
-    let jmap_heap1 = format!("jhsdb jmap --heap --pid {}", pid.green());
-    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {}", pid.green());
-    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {}", pid.green());
-    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {}", pid.green());
-    let jstat_gc_live = format!("jstat -gc {} 2000", pid.green());
-    let jstat_gcutil_live = format!("jstat -gcutil {} 2000", pid.green());
-    let kill = format!("kill -f {}", pid.green());
+    let pid = pid.green();
+    let jstack = format!("jstack {} | save thread_stack.txt", pid);
+    let jmap_heap0 = format!("jmap -heap {}", pid);
+    let jmap_heap1 = format!("jhsdb jmap --heap --pid {}", pid);
+    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {}", pid);
+    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {}", pid);
+    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {}", pid);
+    let jmap_dump_gz_live = format!("jmap -dump:live,gz=9,format=b,file=dump.gz.bin {}", pid);
+    let jmap_histo_live = format!("jmap -histo:live {} #触发fullgc", pid);
+    let jstat_gc_live = format!("jstat -gc {} 2000", pid);
+    let jstat_gcutil_live = format!("jstat -gcutil {} 2000", pid);
+    let kill = format!("kill -f {}", pid);
 
     vec![
         jstack,
@@ -151,6 +154,8 @@ fn java_tools(pid: &str) -> Vec<String> {
         jmap_dump_all0,
         jmap_dump_all1,
         jmap_dump_live,
+        jmap_dump_gz_live,
+        jmap_histo_live,
         jstat_gc_live,
         jstat_gcutil_live,
         kill,
