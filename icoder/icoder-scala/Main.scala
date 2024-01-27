@@ -22,20 +22,18 @@ object Main:
 
     private def run(args: Array[String]): Unit =
         args match
-            case Array("--help" | "-h") => printHelp()
+            case Array("--help" | "-h")       => printHelp()
             case Array("--version" | "-v")    => println("v0.2-20240127.1")
             case Array("base64", "-d", input) => TBase64(input).decode() |> println
             case Array("base64", input)       => TBase64(input).encode() |> println
             case Array("base64")              => TBase64(StdIn.readLine()).encode() |> println
             case Array("hex", "-d", input)    => THex(input).decode() |> println
-            case Array("hex", input, _*)      => THex(input).encode() |> println
+            case Array("hex", input)          => THex(input).encode() |> println
             case Array("hex")                 => THex(StdIn.readLine()).encode() |> println
             case Array("i2hex", "-d", input)  => IToHex(input).decode() |> println
-            case Array("i2hex", input, _*)    => IToHex(input).encode() |> println
+            case Array("i2hex", input)        => IToHex(input).encode() |> println
             case Array("i2hex")               => IToHex(StdIn.readLine()).encode() |> println
-            case _                            =>
-                println("Unknown command")
-                printHelp()
+            case _                            => println("Unknown command"); printHelp()
         end match
     end run
 
