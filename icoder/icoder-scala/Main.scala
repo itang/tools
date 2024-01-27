@@ -16,10 +16,12 @@ import java.util.Base64
 import scala.language.unsafeNulls
 import java.nio.charset.StandardCharsets.UTF_8
 import scala.io.StdIn
+import scala.util.Random
 
 object Main:
     def main(args: Array[String]): Unit = run(args)
 
+    // TODO: md5, sha1, sha256, random str
     private def run(args: Array[String]): Unit =
         args match
             case Array("--help" | "-h")       => printHelp()
@@ -33,9 +35,21 @@ object Main:
             case Array("i2hex", "-d", input)  => IToHex(input).decode() |> println
             case Array("i2hex", input)        => IToHex(input).encode() |> println
             case Array("i2hex")               => IToHex(StdIn.readLine()).encode() |> println
-            case _                            => println("Unknown command"); printHelp()
+            // TODO: scala native[error] Not found Top(java.security.SecureRandom)
+            case Array("upcase", input)       => input.toUpperCase() |> println
+            case Array("lowcase", input)      => input.toLowerCase() |> println
+            case Array("random", length*)     => randomString(length.headOption.map(_.toInt).getOrElse(8)) |> println
+            case Array("rand_chars", length*) => randChars(length.headOption.map(_.toInt).getOrElse(8)) |> println
+            case Array("uuid")                => ??? // java.util.UUID.randomUUID().toString |> println
+            case Array(command*)              => handleUnknownCommand(command.headOption.getOrElse(""))
         end match
     end run
+
+    private def handleUnknownCommand(command: String): Unit =
+        println(s"Unknown command '$command'")
+        println("*" * 60)
+        printHelp()
+    end handleUnknownCommand
 
     private def printHelp(): Unit =
         println(
@@ -49,8 +63,19 @@ object Main:
               |  hex    -d <input>  hex decode
               |  i2hex     <input>  10 进制 转 16 进制
               |  i2hex  -d <input>  16 进制 转 10 进制
+              |  uuid               uuid字符串
+              |  upcase    <input>  转大写
+              |  lowcase   <input>  转小写
+              |  random    <length> 随机字符串. length 指定长度, 默认8
               |""".stripMargin
         )
+
+    private def randomString(length: Int): String =
+        Random.nextString(length)
+
+    private def randChars(length: Int): String =
+        (0 until length).map(_ => Random.nextPrintableChar()).mkString("")
+
 end Main
 
 trait Encoder[T]:
