@@ -15,37 +15,44 @@ import tang.|>
 import java.util.Base64
 import scala.language.unsafeNulls
 import java.nio.charset.StandardCharsets.UTF_8
+import scala.io.StdIn
 
 object Main:
     def main(args: Array[String]): Unit = run(args)
 
     private def run(args: Array[String]): Unit =
         args match
-            case Array("--help" | "-h") =>
-                println(
-                  """base64 <input>
-                      |
-                      |  --help, -h      print help
-                      |  --version, -v   print version
-                      |  <input>         base64 encode
-                      |  -d <input>      base64 decode
-                      |  hex -d <input>  hex decode
-                      |  hex <input>     hex encode
-                      |  i2hex -d <input>  16 进制 转 10 进制
-                      |  i2hex <input>     10 进制 转 16 进制
-                      |""".stripMargin
-                )
-            case Array("--version" | "-v")   => println("v0.1-20231124.1")
-            case Array("hex", "-d", input)   => THex(input).decode() |> println
-            case Array("hex", input, _*)     => THex(input).encode() |> println
-            case Array("i2hex", "-d", input) => IToHex(input).decode() |> println
-            case Array("i2hex", input, _*)   => IToHex(input).encode() |> println
-            case Array("-d", input)          => TBase64(input).decode() |> println
-            case Array(input, _*)            => TBase64(input).encode() |> println
-            case Array()                     => scala.io.StdIn.readLine() |> (TBase64(_).encode()) |> println
+            case Array("--help" | "-h") => printHelp()
+            case Array("--version" | "-v")    => println("v0.2-20240127.1")
+            case Array("base64", "-d", input) => TBase64(input).decode() |> println
+            case Array("base64", input)       => TBase64(input).encode() |> println
+            case Array("base64")              => TBase64(StdIn.readLine()).encode() |> println
+            case Array("hex", "-d", input)    => THex(input).decode() |> println
+            case Array("hex", input, _*)      => THex(input).encode() |> println
+            case Array("hex")                 => THex(StdIn.readLine()).encode() |> println
+            case Array("i2hex", "-d", input)  => IToHex(input).decode() |> println
+            case Array("i2hex", input, _*)    => IToHex(input).encode() |> println
+            case Array("i2hex")               => IToHex(StdIn.readLine()).encode() |> println
+            case _                            =>
+                println("Unknown command")
+                printHelp()
         end match
     end run
 
+    private def printHelp(): Unit =
+        println(
+          """icoder [command] <input>
+              |
+              |  --help, -h         print help
+              |  --version, -v      print version
+              |  base64    <input>  base64 encode
+              |  base64 -d <input>  base64 decode
+              |  hex       <input>  hex encode
+              |  hex    -d <input>  hex decode
+              |  i2hex     <input>  10 进制 转 16 进制
+              |  i2hex  -d <input>  16 进制 转 10 进制
+              |""".stripMargin
+        )
 end Main
 
 trait Encoder[T]:
