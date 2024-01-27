@@ -31,14 +31,18 @@ object Main:
                       |  -d <input>      base64 decode
                       |  hex -d <input>  hex decode
                       |  hex <input>     hex encode
+                      |  i2hex -d <input>  16 进制 转 10 进制
+                      |  i2hex <input>     10 进制 转 16 进制
                       |""".stripMargin
                 )
-            case Array("--version" | "-v") => println("v0.1-20231124.1")
-            case Array("hex", "-d", input) => THex(input).decode() |> println
-            case Array("hex", input, _*)   => THex(input).encode() |> println
-            case Array("-d", input)        => TBase64(input).decode() |> println
-            case Array(input, _*)          => TBase64(input).encode() |> println
-            case Array()                   => scala.io.StdIn.readLine() |> (TBase64(_).encode()) |> println
+            case Array("--version" | "-v")   => println("v0.1-20231124.1")
+            case Array("hex", "-d", input)   => THex(input).decode() |> println
+            case Array("hex", input, _*)     => THex(input).encode() |> println
+            case Array("i2hex", "-d", input) => IToHex(input).decode() |> println
+            case Array("i2hex", input, _*)   => IToHex(input).encode() |> println
+            case Array("-d", input)          => TBase64(input).decode() |> println
+            case Array(input, _*)            => TBase64(input).encode() |> println
+            case Array()                     => scala.io.StdIn.readLine() |> (TBase64(_).encode()) |> println
         end match
     end run
 
@@ -76,3 +80,16 @@ given HexEncoder: Encoder[THex] with
 
     end extension
 end HexEncoder
+
+case class IToHex(value: String)
+
+given IToEncoder: Encoder[IToHex] with
+    extension (input: IToHex)
+        def encode(): String =
+            s"0x${input.value.toLong.toHexString}"
+
+        def decode(): String =
+            val v = if input.value.startsWith("0x") then input.value.substring(2) else input.value
+            java.lang.Long.parseLong(v, 16).toString
+    end extension
+end IToEncoder
