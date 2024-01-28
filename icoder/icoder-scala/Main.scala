@@ -79,14 +79,22 @@ object Main:
 end Main
 
 trait Encoder[T]:
+    type EncodeOutput
+
+    type DecodeOutput
+
     extension (t: T)
-        def encode(): String
-        def decode(): String
+        def encode(): EncodeOutput
+        def decode(): DecodeOutput
 end Encoder
 
 case class TBase64(value: String)
 
 given Base64Encoder: Encoder[TBase64] with
+    override type EncodeOutput = String
+
+    override type DecodeOutput = String
+
     extension (input: TBase64)
         def encode(): String =
             input.value |> (_.getBytes(UTF_8)) |> Base64.getEncoder.encodeToString
@@ -100,6 +108,10 @@ end Base64Encoder
 case class THex(value: String)
 
 given HexEncoder: Encoder[THex] with
+    override type EncodeOutput = String
+
+    override type DecodeOutput = String
+
     extension (input: THex)
         def encode(): String =
             input.value.getBytes(UTF_8).map("%02x".format(_)).mkString
@@ -114,6 +126,10 @@ end HexEncoder
 case class IToHex(value: String)
 
 given IToEncoder: Encoder[IToHex] with
+    override type EncodeOutput = String
+
+    override type DecodeOutput = String
+
     extension (input: IToHex)
         def encode(): String =
             s"0x${input.value.toLong.toHexString}"
