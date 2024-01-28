@@ -13,8 +13,8 @@
 import tang.|>
 
 import java.util.Base64
-import scala.language.unsafeNulls
 import java.nio.charset.StandardCharsets.UTF_8
+import scala.language.unsafeNulls
 import scala.io.StdIn
 import scala.util.Random
 
