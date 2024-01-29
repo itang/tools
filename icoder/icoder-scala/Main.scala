@@ -21,28 +21,30 @@ import scala.util.Random
 object Main:
     def main(args: Array[String]): Unit = run(args)
 
-    // TODO: md5, sha1, sha256, random str
+    // TODO: md5, sha1, sha256, ...
     private def run(args: Array[String]): Unit =
-        args match
-            case Array("--help" | "-h")       => printHelp()
-            case Array("--version" | "-v")    => println("v0.2-20240127.1")
-            case Array("base64", "-d", input) => TBase64(input).decode() |> println
-            case Array("base64", input)       => TBase64(input).encode() |> println
-            case Array("base64")              => TBase64(StdIn.readLine()).encode() |> println
-            case Array("hex", "-d", input)    => THex(input).decode() |> println
-            case Array("hex", input)          => THex(input).encode() |> println
-            case Array("hex")                 => THex(StdIn.readLine()).encode() |> println
-            case Array("i2hex", "-d", input)  => IToHex(input).decode() |> println
-            case Array("i2hex", input)        => IToHex(input).encode() |> println
-            case Array("i2hex")               => IToHex(StdIn.readLine()).encode() |> println
-            // TODO: scala native[error] Not found Top(java.security.SecureRandom)
-            case Array("upcase", input)       => input.toUpperCase() |> println
-            case Array("lowcase", input)      => input.toLowerCase() |> println
-            case Array("random", length*)     => randomString(length.headOption.map(_.toInt).getOrElse(8)) |> println
-            case Array("rand_chars", length*) => randChars(length.headOption.map(_.toInt).getOrElse(8)) |> println
-            case Array("uuid")                => ??? // java.util.UUID.randomUUID().toString |> println
-            case Array(command*)              => handleUnknownCommand(command.headOption.getOrElse(""))
-        end match
+        try
+            args match
+                case Array("--help" | "-h")       => printHelp()
+                case Array("--version" | "-v")    => println("v0.2-20240127.1")
+                case Array("base64", "-d", input) => TBase64(input).decode() |> println
+                case Array("base64", input)       => TBase64(input).encode() |> println
+                case Array("base64")              => TBase64(StdIn.readLine()).encode() |> println
+                case Array("hex", "-d", input)    => THex(input).decode() |> println
+                case Array("hex", input)          => THex(input).encode() |> println
+                case Array("hex")                 => THex(StdIn.readLine()).encode() |> println
+                case Array("i2hex", "-d", input)  => IToHex(input).decode() |> println
+                case Array("i2hex", input)        => IToHex(input).encode() |> println
+                case Array("i2hex")               => IToHex(StdIn.readLine()).encode() |> println
+                // TODO: scala native[error] Not found Top(java.security.SecureRandom)
+                case Array("upcase", input)   => input.toUpperCase() |> println
+                case Array("lowcase", input)  => input.toLowerCase() |> println
+                case Array("random", length*) => randomString(length.headOption.map(_.toInt).getOrElse(8)) |> println
+                case Array("rand_chars", length*) => randChars(length.headOption.map(_.toInt).getOrElse(8)) |> println
+                case Array("uuid")                => ??? // java.util.UUID.randomUUID().toString |> println
+                case Array(command*)              => handleUnknownCommand(command.headOption.getOrElse(""))
+            end match
+        catch case e: Throwable => println(s"ERROR: ${e.getMessage}")
     end run
 
     private def handleUnknownCommand(command: String): Unit =
