@@ -1,0 +1,65 @@
+# justfile
+## ref link: https://github.com/casey/just/blob/master/examples/kitchen-sink.just
+
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+
+prepare:
+  dotnet tool restore
+
+
+run *args:
+  dotnet run -- {{args}}
+
+run-no-build *args:
+  dotnet run --no-build -- {{args}}
+
+
+dev *args:
+  dotnet watch run -- {{args}}
+
+
+build mode="Release":
+  dotnet build -tl -c {{mode}}
+
+[windows]
+publish:
+  dotnet publish -tl -r win-x64 -c Release --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true
+  @ls -l bin\Release\net8.0\win-x64\publish
+  
+[linux]
+publish:
+  dotnet publish -tl -r linux-x64 -c Release --self-contained -p:PublishSingleFile=true -p:PublishTrimmed=true
+
+
+[windows]
+publish-aot:
+  dotnet publish -tl -r win-x64 -c Release /p:PublishAot=true
+  @ls -l bin\Release\net8.0\win-x64\publish
+
+[linux]
+publish-aot:
+  dotnet publish -tl -r linux-x64 -c Release -p:PublishAot=true
+
+
+[windows]
+install: publish
+  cp bin\Release\net8.0\win-x64\publish\*.exe D:/dev-env/bin/
+
+[linux]
+install: publish
+  cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
+
+[windows]
+install-aot: publish-aot
+  cp bin\Release\net8.0\win-x64\publish\*.exe D:/dev-env/bin/
+
+[linux]
+install-aot: publish-aot
+  cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
+
+fmt:
+  dotnet fantomas .
