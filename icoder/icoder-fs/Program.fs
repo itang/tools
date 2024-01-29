@@ -11,15 +11,29 @@ let print_help () =
   uuid              UUID
 """
 
+type ICoder =
+    abstract member encode: input: string -> string
+    abstract member decode: input: string -> string
+
+type Base64Coder() =
+    interface ICoder with
+        member _.encode input =
+            input |> Encoding.UTF8.GetBytes |> Convert.ToBase64String
+
+        member _.decode input : string =
+            input |> Convert.FromBase64String |> Encoding.UTF8.GetString
+
 [<EntryPoint>]
 let main argv =
+    let base64Coder = new Base64Coder() :> ICoder
+
     match argv with
     | [| "--help" |]
     | [| "-h" |] -> print_help ()
     | [| "--version" |]
     | [| "-v" |] -> printfn "v0.1-20240129.1"
-    | [| "base64"; input |] -> input |> Encoding.UTF8.GetBytes |> Convert.ToBase64String |> printfn "%s"
-    | [| "base64"; "-d"; input |] -> input |> Convert.FromBase64String |> Encoding.UTF8.GetString |> printfn "%s"
+    | [| "base64"; input |] -> input |> base64Coder.encode |> printfn "%s"
+    | [| "base64"; "-d"; input |] -> input |> base64Coder.decode |> printfn "%s"
     | [| "uuid" |] -> Guid.NewGuid().ToString() |> printfn "%s"
     | _ ->
         let command = argv |> Array.tryHead |> Option.defaultValue ""
