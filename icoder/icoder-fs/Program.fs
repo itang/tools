@@ -1,14 +1,22 @@
 open System
-open System.Text
+
+open Coder
 
 let print_help () =
     printfn
         """icoder-fs [command] <input>
-  --help -v         help
-  --version -v      version
-  base64 <input>    base64 encode
-  base64 -d <input> base64 decode
-  uuid              UUID
+  --help -v             help
+  --version -v          version
+  base64 <input>        base64 encode
+  base64 -d <input>     base64 decode
+  hex       <input>     hex encode
+  hex    -d <input>     hex decode
+  i2hex     <input>     10 进制 转 16 进制
+  i2hex  -d <input>     16 进制 转 10 进制
+  uuid                  uuid字符串
+  upcase    <input>     转大写
+  lowcase   <input>     转小写
+  random    <length>    随机字符串. length 指定长度, 默认8
 """
 
 let handleUnknownCommand argv =
@@ -18,30 +26,47 @@ let handleUnknownCommand argv =
 
     print_help ()
 
-type ICoder =
-    abstract member encode: input: string -> string
-    abstract member decode: input: string -> string
-
-type Base64Coder() =
-    interface ICoder with
-        member _.encode input =
-            input |> Encoding.UTF8.GetBytes |> Convert.ToBase64String
-
-        member _.decode input : string =
-            input |> Convert.FromBase64String |> Encoding.UTF8.GetString
-
 [<EntryPoint>]
 let main argv =
-    let base64Coder = new Base64Coder() :> ICoder
 
-    match argv with
-    | [| "--help" |]
-    | [| "-h" |] -> print_help ()
-    | [| "--version" |]
-    | [| "-v" |] -> printfn "v0.1-20240129.1"
-    | [| "base64"; input |] -> input |> base64Coder.encode |> printfn "%s"
-    | [| "base64"; "-d"; input |] -> input |> base64Coder.decode |> printfn "%s"
-    | [| "uuid" |] -> Guid.NewGuid().ToString() |> printfn "%s"
+    match argv |> List.ofArray with
+    | "--help" :: _tail
+    | "-h" :: _tail -> print_help ()
+    | "--version" :: _tail
+    | "-v" :: _tail -> printfn "v0.1-20240129.1"
+    | "base64" :: tail ->
+        let base64Coder = new Base64Coder() :> ICoder
+
+        match tail with
+        | "-d" :: input :: _tail -> input |> base64Coder.decode |> printfn "%s"
+        | input :: _tail -> input |> base64Coder.encode |> printfn "%s"
+        | [] -> Console.ReadLine() |> base64Coder.encode |> printfn "%s"
+
+    | "hex" :: tail ->
+        let hexCoder = new HexCoder() :> ICoder
+
+        match tail with
+        | "-d" :: input :: _tail -> input |> hexCoder.decode |> printfn "%s"
+        | input :: _tail -> input |> hexCoder.encode |> printfn "%s"
+        | [] -> Console.ReadLine() |> hexCoder.encode |> printfn "%s"
+
+    | "i2hex" :: tail ->
+        let i2hexCoder = new I2HexCoder() :> ICoder
+
+        match tail with
+        | "-d" :: input :: _tail -> input |> i2hexCoder.decode |> printfn "%s"
+        | input :: _tail -> input |> i2hexCoder.encode |> printfn "%s"
+        | [] -> Console.ReadLine() |> i2hexCoder.encode |> printfn "%s"
+
+    | "upcase" :: input :: _tail -> input.ToUpper() |> printfn "%s"
+    | "lowcase" :: input :: _tail -> input.ToLower() |> printfn "%s"
+
+    | "uuid" :: _tail -> Guid.NewGuid().ToString() |> printfn "%s"
+
+    | "random" :: length ->
+        let len = length |> List.tryHead |> Option.map int |> Option.defaultValue 8
+        len |> randomStr |> printfn "%s"
+
     | _ -> handleUnknownCommand argv
 
     0

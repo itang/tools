@@ -1,48 +1,38 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
-        <!--     <TargetFrameworks>net7.0;net8.0</TargetFrameworks> -->
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Include="Program.fs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <!-- <PackageReference Include="FSharp.SystemCommandLine" Version="0.17.0-beta4" /> -->
-        <!-- <PackageReference Include="FSharp.Data" Version="6.2.0" /> -->
-        <PackageReference Include="Tang" Version="1.0.11" />
-    </ItemGroup>
-
-    <PropertyGroup>
-        <!-- Publish Native AOT -->
-        <!-- 使用命令行开启 -->
-        <!-- <PublishAot>true</PublishAot> -->
-
-        <!-- https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/optimizing -->
-        <OptimizationPreference>Speed</OptimizationPreference>
-        <!-- <OptimizationPreference>Size</OptimizationPreference> -->
-
-        <StripSymbols>true</StripSymbols>
-
-        <!-- https://docs.microsoft.com/zh-cn/dotnet/core/deploying/trimming/prepare-libraries-for-trimming -->
-        <IsTrimmable>true</IsTrimmable>
-        <PublishTrimmed>true</PublishTrimmed>
-
-        <!-- Prevent warnings from unused code in dependencies -->
-        <TrimMode>link</TrimMode>
-
-        <!-- https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md -->
-        <InvariantGlobalization>true</InvariantGlobalization>
-        <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
-        <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-
-        <OtherFlags>--strict-indentation+</OtherFlags>
-        <OtherFlags>--test:ParallelIlxGen</OtherFlags>
-        <OtherFlags>--test:ParallelOptimization</OtherFlags>
-        <OtherFlags>--test:GraphBasedChecking</OtherFlags>
-    </PropertyGroup>
-
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <!--     <TargetFrameworks>net7.0;net8.0</TargetFrameworks> -->
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Coder.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- <PackageReference Include="FSharp.SystemCommandLine" Version="0.17.0-beta4" /> -->
+    <!-- <PackageReference Include="FSharp.Data" Version="6.2.0" /> -->
+    <PackageReference Include="Tang" Version="1.0.11" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Publish Native AOT -->
+    <!-- 使用命令行开启 -->
+    <!-- <PublishAot>true</PublishAot> -->
+    <!-- https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/optimizing -->
+    <OptimizationPreference>Speed</OptimizationPreference>
+    <!-- <OptimizationPreference>Size</OptimizationPreference> -->
+    <StripSymbols>true</StripSymbols>
+    <!-- https://docs.microsoft.com/zh-cn/dotnet/core/deploying/trimming/prepare-libraries-for-trimming -->
+    <IsTrimmable>true</IsTrimmable>
+    <PublishTrimmed>true</PublishTrimmed>
+    <!-- Prevent warnings from unused code in dependencies -->
+    <TrimMode>link</TrimMode>
+    <!-- https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/docs/optimizing.md -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+    <OtherFlags>--strict-indentation+</OtherFlags>
+    <OtherFlags>--test:ParallelIlxGen</OtherFlags>
+    <OtherFlags>--test:ParallelOptimization</OtherFlags>
+    <OtherFlags>--test:GraphBasedChecking</OtherFlags>
+  </PropertyGroup>
 </Project>
