@@ -11,6 +11,13 @@ let print_help () =
   uuid              UUID
 """
 
+let handleUnknownCommand argv =
+    let command = argv |> Array.tryHead |> Option.defaultValue ""
+    printfn $"Unknown command '{command}'"
+    "*" |> String.replicate 50 |> printfn "%s"
+
+    print_help ()
+
 type ICoder =
     abstract member encode: input: string -> string
     abstract member decode: input: string -> string
@@ -35,11 +42,6 @@ let main argv =
     | [| "base64"; input |] -> input |> base64Coder.encode |> printfn "%s"
     | [| "base64"; "-d"; input |] -> input |> base64Coder.decode |> printfn "%s"
     | [| "uuid" |] -> Guid.NewGuid().ToString() |> printfn "%s"
-    | _ ->
-        let command = argv |> Array.tryHead |> Option.defaultValue ""
-        printfn $"Unknown command '{command}'"
-        "*" |> String.replicate 50 |> printfn "%s"
-
-        print_help ()
+    | _ -> handleUnknownCommand argv
 
     0
