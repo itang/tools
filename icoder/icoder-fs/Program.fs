@@ -7,7 +7,7 @@ let print_help () =
         """icoder-fs [command] <input>
   --help -v             help
   --version -v          version
-  base64 <input>        base64 encode
+  base64    <input>     base64 encode
   base64 -d <input>     base64 decode
   hex       <input>     hex encode
   hex    -d <input>     hex decode
