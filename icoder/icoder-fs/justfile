@@ -46,11 +46,11 @@ publish-aot:
 
 
 [windows]
-install: publish
+install-jit: publish
   cp bin\Release\net8.0\win-x64\publish\*.exe D:/dev-env/bin/
 
 [linux]
-install: publish
+install-jit: publish
   cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
 
 [windows]
@@ -60,6 +60,8 @@ install-aot: publish-aot
 [linux]
 install-aot: publish-aot
   cp bin/Release/net8.0/linux-x64/publish/* /home/itang/.local/bin/
+
+install: install-aot
 
 fmt:
   dotnet fantomas .
