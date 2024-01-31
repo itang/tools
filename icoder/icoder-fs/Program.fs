@@ -5,8 +5,8 @@ open Coder
 let print_help () =
     printfn
         """icoder-fs [command] <input>
-  --help -v             help
-  --version -v          version
+  -h, --help            help
+  -v, --version         version
   base64    <input>     base64 encode
   base64 -d <input>     base64 decode
   hex       <input>     hex encode
