@@ -28,45 +28,47 @@ let handleUnknownCommand argv =
 
 [<EntryPoint>]
 let main argv =
+    try
+        match argv |> List.ofArray with
+        | "--help" :: _tail
+        | "-h" :: _tail -> print_help ()
+        | "--version" :: _tail
+        | "-v" :: _tail -> printfn "v0.1-20240129.1"
+        | "base64" :: tail ->
+            let base64Coder = new Base64Coder() :> ICoder
 
-    match argv |> List.ofArray with
-    | "--help" :: _tail
-    | "-h" :: _tail -> print_help ()
-    | "--version" :: _tail
-    | "-v" :: _tail -> printfn "v0.1-20240129.1"
-    | "base64" :: tail ->
-        let base64Coder = new Base64Coder() :> ICoder
+            match tail with
+            | "-d" :: input :: _tail -> input |> base64Coder.decode |> printfn "%s"
+            | input :: _tail -> input |> base64Coder.encode |> printfn "%s"
+            | [] -> Console.ReadLine() |> base64Coder.encode |> printfn "%s"
 
-        match tail with
-        | "-d" :: input :: _tail -> input |> base64Coder.decode |> printfn "%s"
-        | input :: _tail -> input |> base64Coder.encode |> printfn "%s"
-        | [] -> Console.ReadLine() |> base64Coder.encode |> printfn "%s"
+        | "hex" :: tail ->
+            let hexCoder = new HexCoder() :> ICoder
 
-    | "hex" :: tail ->
-        let hexCoder = new HexCoder() :> ICoder
+            match tail with
+            | "-d" :: input :: _tail -> input |> hexCoder.decode |> printfn "%s"
+            | input :: _tail -> input |> hexCoder.encode |> printfn "%s"
+            | [] -> Console.ReadLine() |> hexCoder.encode |> printfn "%s"
 
-        match tail with
-        | "-d" :: input :: _tail -> input |> hexCoder.decode |> printfn "%s"
-        | input :: _tail -> input |> hexCoder.encode |> printfn "%s"
-        | [] -> Console.ReadLine() |> hexCoder.encode |> printfn "%s"
+        | "i2hex" :: tail ->
+            let i2hexCoder = new I2HexCoder() :> ICoder
 
-    | "i2hex" :: tail ->
-        let i2hexCoder = new I2HexCoder() :> ICoder
+            match tail with
+            | "-d" :: input :: _tail -> input |> i2hexCoder.decode |> printfn "%s"
+            | input :: _tail -> input |> i2hexCoder.encode |> printfn "%s"
+            | [] -> Console.ReadLine() |> i2hexCoder.encode |> printfn "%s"
 
-        match tail with
-        | "-d" :: input :: _tail -> input |> i2hexCoder.decode |> printfn "%s"
-        | input :: _tail -> input |> i2hexCoder.encode |> printfn "%s"
-        | [] -> Console.ReadLine() |> i2hexCoder.encode |> printfn "%s"
+        | "upcase" :: input :: _tail -> input.ToUpper() |> printfn "%s"
+        | "lowcase" :: input :: _tail -> input.ToLower() |> printfn "%s"
 
-    | "upcase" :: input :: _tail -> input.ToUpper() |> printfn "%s"
-    | "lowcase" :: input :: _tail -> input.ToLower() |> printfn "%s"
+        | "uuid" :: _tail -> Guid.NewGuid().ToString() |> printfn "%s"
 
-    | "uuid" :: _tail -> Guid.NewGuid().ToString() |> printfn "%s"
+        | "random" :: length ->
+            let len = length |> List.tryHead |> Option.map int |> Option.defaultValue 8
+            len |> randomStr |> printfn "%s"
 
-    | "random" :: length ->
-        let len = length |> List.tryHead |> Option.map int |> Option.defaultValue 8
-        len |> randomStr |> printfn "%s"
-
-    | _ -> handleUnknownCommand argv
+        | _ -> handleUnknownCommand argv
+    with 
+    | ex -> eprintfn "ERROR: %s" ex.Message
 
     0
