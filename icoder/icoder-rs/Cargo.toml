@@ -1,0 +1,25 @@
+[package]
+name = "icoder-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+base64 = "0.21.7"
+chrono = "0.4.23"
+clap = { version = "4.2.0", features = ["derive"] }
+faster-hex = "0.9.0"
+uuid = { version = "1.7.0", features = [
+    "v4", # Lets you generate random UUIDs
+    "fast-rng", # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+] }
+
+[profile.release]
+# https://doc.rust-lang.org/cargo/reference/profiles.html
+strip = "debuginfo"
+incremental = true
+#lto = true          # Link Time Optimization (LTO)
+opt-level = 'z'     # Optimize for size
+panic = 'abort'

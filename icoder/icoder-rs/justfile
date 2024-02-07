@@ -1,0 +1,35 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+add_ext:
+  cargo add dirs once_cell humantime url rust_decimal rust_decimal_macros ; cargo add uuid --features v4,fast-rng,macro-diagnostics
+
+run:
+  cargo run
+
+doc:
+  cargo doc --document-private-items --open
+
+add_tokio:
+  cargo add tokio --features full
+
+dev:
+  cargo watch -x run
+
+lint:
+  cargo clippy --no-deps
+
+edit:
+  idea64 .
+
+add_toolkit:
+  cargo add tap chrono time fs_extra itertools xshell anyhow thiserror ; cargo add reqwest --features json ; cargo add serde --features derive ; cargo add serde_json
+
+install:
+  cargo install --path .
+
+add_clap:
+  cargo add clap --features derive
+
