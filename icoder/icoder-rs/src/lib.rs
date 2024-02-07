@@ -8,7 +8,6 @@
 
 use std::error::Error;
 
-
 ///Coder Result
 pub type CoderResult = Result<String, Box<dyn Error>>;
 
@@ -26,8 +25,8 @@ pub trait Coder {
 
 ///base64
 pub mod base64 {
-    use base64::{engine::general_purpose::STANDARD_NO_PAD, Engine};
     use crate::{Coder, CoderResult};
+    use base64::{engine::general_purpose::STANDARD_NO_PAD, Engine};
 
     ///Base64
     pub struct Base64;
@@ -91,7 +90,6 @@ pub mod i2hex {
             Ok(format!("0x{:x}", i))
         }
 
-
         /// decode
         #[inline]
         fn decode(&self, src: impl AsRef<[u8]>) -> CoderResult {
@@ -110,9 +108,5 @@ pub fn uuid() -> String {
 ///random_str
 pub fn random_str(length: usize) -> String {
     use rand::{distributions::Alphanumeric, Rng};
-    rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(length)
-        .map(char::from)
-        .collect()
+    rand::thread_rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
 }

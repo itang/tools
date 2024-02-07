@@ -10,11 +10,11 @@ use icoder_rs::*;
 #[command(author, version, about, long_about = None)]
 struct Cli {
     #[command(subcommand)]
-    actions: Actions,
+    action: Action,
 }
 
 #[derive(Subcommand, Debug, Clone)]
-enum Actions {
+enum Action {
     Base64(CoderOptions),
     Hex(CoderOptions),
     I2hex(CoderOptions),
@@ -32,7 +32,6 @@ struct CoderOptions {
     ///decode
     #[arg(short, long)]
     decode: bool,
-
 }
 
 ///upcase
@@ -58,32 +57,32 @@ struct RandomOptions {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Cli::parse();
-    match args.actions {
-        Actions::Base64(options) => {
+    match args.action {
+        Action::Base64(options) => {
             if options.decode {
                 println!("{}", Base64.decode(input(options.input))?)
             } else {
                 println!("{}", Base64.encode(input(options.input))?)
             }
-        }
-        Actions::Hex(options) => {
+        },
+        Action::Hex(options) => {
             if options.decode {
                 println!("{}", Hex.decode(input(options.input))?)
             } else {
                 println!("{}", Hex.encode(input(options.input))?)
             }
-        }
-        Actions::I2hex(options) => {
+        },
+        Action::I2hex(options) => {
             if options.decode {
                 println!("{}", I2Hex.decode(input(options.input))?)
             } else {
                 println!("{}", I2Hex.encode(input(options.input))?)
             }
-        }
-        Actions::Uuid => println!("{}", uuid()),
-        Actions::Upcase(options) => println!("{}", input(options.input).to_uppercase()),
-        Actions::Lowcase(options) => println!("{}", input(options.input).to_lowercase()),
-        Actions::Random(options) => println!("{}", random_str(options.length.unwrap_or(8)))
+        },
+        Action::Uuid => println!("{}", uuid()),
+        Action::Upcase(options) => println!("{}", input(options.input).to_uppercase()),
+        Action::Lowcase(options) => println!("{}", input(options.input).to_lowercase()),
+        Action::Random(options) => println!("{}", random_str(options.length.unwrap_or(8))),
     }
 
     Ok(())
