@@ -8,6 +8,7 @@
 
 use std::error::Error;
 
+
 ///Coder Result
 pub type CoderResult = Result<String, Box<dyn Error>>;
 
@@ -104,4 +105,14 @@ pub mod i2hex {
 pub fn uuid() -> String {
     let id = uuid::Uuid::new_v4();
     id.to_string()
+}
+
+///random_str
+pub fn random_str(length: usize) -> String {
+    use rand::{distributions::Alphanumeric, Rng};
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(length)
+        .map(char::from)
+        .collect()
 }

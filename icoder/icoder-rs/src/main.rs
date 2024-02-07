@@ -15,57 +15,45 @@ struct Cli {
 
 #[derive(Subcommand, Debug, Clone)]
 enum Actions {
-    Base64(Base64Options),
-    Hex(HexOptions),
-    Uuid,
-    I2hex(I2hexOptions),
+    Base64(CoderOptions),
+    Hex(CoderOptions),
+    I2hex(CoderOptions),
     Upcase(UpcaseOptions),
     Lowcase(LowcaseOptions),
+    Uuid,
+    Random(RandomOptions),
 }
 
-///base64
+///Coder Options
 #[derive(Args, Debug, Clone)]
-struct Base64Options {
+struct CoderOptions {
     ///input
-    input: String,
+    input: Option<String>,
     ///decode
     #[arg(short, long)]
     decode: bool,
 
-}
-
-///hex
-#[derive(Args, Debug, Clone)]
-struct HexOptions {
-    ///input
-    input: String,
-    ///decode
-    #[arg(short, long)]
-    decode: bool,
-}
-
-///I2Hex
-#[derive(Args, Debug, Clone)]
-struct I2hexOptions {
-    ///input
-    input: String,
-    ///decode
-    #[arg(short, long)]
-    decode: bool,
 }
 
 ///upcase
 #[derive(Args, Debug, Clone)]
 struct UpcaseOptions {
     ///input
-    input: String,
+    input: Option<String>,
 }
 
 ///lowcase
 #[derive(Args, Debug, Clone)]
 struct LowcaseOptions {
     ///input
-    input: String,
+    input: Option<String>,
+}
+
+///random
+#[derive(Args, Debug, Clone)]
+struct RandomOptions {
+    ///length
+    length: Option<usize>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -73,29 +61,38 @@ fn main() -> Result<(), Box<dyn Error>> {
     match args.actions {
         Actions::Base64(options) => {
             if options.decode {
-                println!("{}", Base64.decode(options.input)?)
+                println!("{}", Base64.decode(input(options.input))?)
             } else {
-                println!("{}", Base64.encode(options.input)?)
+                println!("{}", Base64.encode(input(options.input))?)
             }
         }
         Actions::Hex(options) => {
             if options.decode {
-                println!("{}", Hex.decode(options.input)?)
+                println!("{}", Hex.decode(input(options.input))?)
             } else {
-                println!("{}", Hex.encode(options.input)?)
+                println!("{}", Hex.encode(input(options.input))?)
             }
         }
         Actions::I2hex(options) => {
             if options.decode {
-                println!("{}", I2Hex.decode(options.input)?)
+                println!("{}", I2Hex.decode(input(options.input))?)
             } else {
-                println!("{}", I2Hex.encode(options.input)?)
+                println!("{}", I2Hex.encode(input(options.input))?)
             }
         }
         Actions::Uuid => println!("{}", uuid()),
-        Actions::Upcase(options) => println!("{}", options.input.to_uppercase()),
-        Actions::Lowcase(options) => println!("{}", options.input.to_lowercase()),
+        Actions::Upcase(options) => println!("{}", input(options.input).to_uppercase()),
+        Actions::Lowcase(options) => println!("{}", input(options.input).to_lowercase()),
+        Actions::Random(options) => println!("{}", random_str(options.length.unwrap_or(8)))
     }
 
     Ok(())
+}
+
+fn input(s: Option<String>) -> String {
+    s.unwrap_or_else(|| {
+        let mut buf = String::new();
+        std::io::stdin().read_line(&mut buf).expect("read line");
+        buf
+    })
 }
