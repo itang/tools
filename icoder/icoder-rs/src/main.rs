@@ -11,33 +11,35 @@ mod cli;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Cli::parse();
-    match args.action {
+    let ret = match args.action {
         Action::Base64(options) => {
             if options.decode {
-                println!("{}", Base64.decode(input(options.input))?)
+                Base64.decode(input(options.input))?
             } else {
-                println!("{}", Base64.encode(input(options.input))?)
+                Base64.encode(input(options.input))?
             }
         }
         Action::Hex(options) => {
             if options.decode {
-                println!("{}", Hex.decode(input(options.input))?)
+                Hex.decode(input(options.input))?
             } else {
-                println!("{}", Hex.encode(input(options.input))?)
+                Hex.encode(input(options.input))?
             }
         }
         Action::I2hex(options) => {
             if options.decode {
-                println!("{}", I2Hex.decode(input(options.input))?)
+                I2Hex.decode(input(options.input))?
             } else {
-                println!("{}", I2Hex.encode(input(options.input))?)
+                I2Hex.encode(input(options.input))?
             }
         }
-        Action::Uuid => println!("{}", uuid()),
-        Action::Upcase(options) => println!("{}", input(options.input).to_uppercase()),
-        Action::Lowcase(options) => println!("{}", input(options.input).to_lowercase()),
-        Action::Random(options) => println!("{}", random_str(options.length.unwrap_or(8))),
-    }
+        Action::Uuid => uuid(),
+        Action::Upcase(options) => input(options.input).to_uppercase(),
+        Action::Lowcase(options) => input(options.input).to_lowercase(),
+        Action::Random(options) => random_str(options.length.unwrap_or(8)),
+    };
+
+    println!("{}", ret);
 
     Ok(())
 }
@@ -46,6 +48,6 @@ fn input(s: Option<String>) -> String {
     s.unwrap_or_else(|| {
         let mut buf = String::new();
         std::io::stdin().read_line(&mut buf).expect("read line");
-        buf
+        buf.trim().to_string()
     })
 }
