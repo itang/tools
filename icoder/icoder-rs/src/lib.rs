@@ -33,11 +33,13 @@ pub mod base64 {
 
     impl Coder for Base64 {
         /// base64 encode.
+        #[inline]
         fn encode(&self, input: impl AsRef<[u8]>) -> CoderResult {
             Ok(STANDARD_NO_PAD.encode(input))
         }
 
         /// base64 decode.
+        #[inline]
         fn decode(&self, input: impl AsRef<[u8]>) -> CoderResult {
             let v = STANDARD_NO_PAD.decode(input)?;
             let v = std::str::from_utf8(&v)?;
