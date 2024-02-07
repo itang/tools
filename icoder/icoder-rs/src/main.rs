@@ -70,7 +70,6 @@ struct LowcaseOptions {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Cli::parse();
-    println!("{:?}", args);
     match args.actions {
         Actions::Base64(options) => {
             if options.decode {
