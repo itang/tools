@@ -4,50 +4,43 @@
 use clap::Parser;
 use std::error::Error;
 
-use icoder_rs::*;
+use icoder::*;
 use cli::*;
 
 mod cli;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Cli::parse();
+
     let ret = match args.action {
         Action::Base64(options) => {
             if options.decode {
-                Base64.decode(input(options.input))?
+                Base64.decode(options.input.or_read_line())?
             } else {
-                Base64.encode(input(options.input))?
+                Base64.encode(options.input.or_read_line())?
             }
         }
         Action::Hex(options) => {
             if options.decode {
-                Hex.decode(input(options.input))?
+                Hex.decode(options.input.or_read_line())?
             } else {
-                Hex.encode(input(options.input))?
+                Hex.encode(options.input.or_read_line())?
             }
         }
         Action::I2hex(options) => {
             if options.decode {
-                I2Hex.decode(input(options.input))?
+                I2Hex.decode(options.input.or_read_line())?
             } else {
-                I2Hex.encode(input(options.input))?
+                I2Hex.encode(options.input.or_read_line())?
             }
         }
         Action::Uuid => uuid(),
-        Action::Upcase(options) => input(options.input).to_uppercase(),
-        Action::Lowcase(options) => input(options.input).to_lowercase(),
+        Action::Upcase(options) => options.input.or_read_line().to_uppercase(),
+        Action::Lowcase(options) => options.input.or_read_line().to_lowercase(),
         Action::Random(options) => random_str(options.length.unwrap_or(8)),
     };
 
     println!("{}", ret);
 
     Ok(())
-}
-
-fn input(s: Option<String>) -> String {
-    s.unwrap_or_else(|| {
-        let mut buf = String::new();
-        std::io::stdin().read_line(&mut buf).expect("read line");
-        buf.trim().to_string()
-    })
 }

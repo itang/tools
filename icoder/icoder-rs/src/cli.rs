@@ -9,16 +9,22 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Action {
+    ///base64
     Base64(CoderOptions),
+    ///hex
     Hex(CoderOptions),
+    ///i2hex
     I2hex(CoderOptions),
+    ///upcase
     Upcase(UpcaseOptions),
+    ///lowcase
     Lowcase(LowcaseOptions),
+    ///uuid
     Uuid,
+    ///random
     Random(RandomOptions),
 }
 
-///Coder Options
 #[derive(Args, Debug, Clone)]
 pub struct CoderOptions {
     ///input
