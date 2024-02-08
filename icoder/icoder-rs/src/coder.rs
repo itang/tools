@@ -1,7 +1,7 @@
+use std::error::Error;
+
 ///Coder Result
 pub type CoderResult = Result<String, Box<dyn Error>>;
-
-use std::error::Error;
 
 ///Coder
 pub trait Coder {
