@@ -20,11 +20,11 @@ build-native:
 
 [windows]
 install: build-native
-  cp dist/main.exe D:/dev-env/bin/icoder.exe
+  cp dist/main.exe D:/dev-env/bin/icoder-scala.exe
 
 [linux]
 install: build-native
-  cp dist/main ~/.local/bin/icoder
+  cp dist/main ~/.local/bin/icoder-scala
 
 edit: setup-ide
    idea64 .
