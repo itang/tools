@@ -6,8 +6,8 @@
 //!
 //! add doc here
 
-pub use coder::{CoderResult, Coder, hex::Hex, i2hex::I2Hex, base64::Base64, uuid, random_str};
-pub use read_line::{ReadLine};
+pub use coder::{base64::Base64, hex::Hex, i2hex::I2Hex, random_str, uuid, Coder, CoderResult};
+pub use read_line::ReadLine;
 
 mod coder;
 mod read_line;
