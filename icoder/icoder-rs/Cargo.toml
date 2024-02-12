@@ -15,6 +15,7 @@ uuid = { version = "1.7.0", features = [
     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
 ] }
 rand = "0.8.5"
+chrono = "0.4.34"
 
 [profile.release]
 # https://doc.rust-lang.org/cargo/reference/profiles.html

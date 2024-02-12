@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Action::Upcase(options) => options.input.or_read_line().to_uppercase(),
         Action::Lowcase(options) => options.input.or_read_line().to_lowercase(),
         Action::Random(options) => random_str(options.length.unwrap_or(8)),
+        Action::Now => now("%Y-%m-%d %H:%M:%S"),
     };
 
     println!("{}", ret);

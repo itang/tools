@@ -23,6 +23,8 @@ pub enum Action {
     Uuid,
     ///random
     Random(RandomOptions),
+    ///now
+    Now
 }
 
 #[derive(Args, Debug, Clone)]

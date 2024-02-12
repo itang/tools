@@ -100,3 +100,19 @@ pub fn random_str(length: usize) -> String {
     use rand::{distributions::Alphanumeric, Rng};
     rand::thread_rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
 }
+
+///now
+pub fn now(fmt: &str) -> String {
+    use chrono::{Datelike, Weekday};
+    let now = chrono::offset::Local::now();
+    let week = match now.weekday() {
+        Weekday::Mon => "星期一",
+        Weekday::Tue => "星期二",
+        Weekday::Wed => "星期三",
+        Weekday::Thu => "星期四",
+        Weekday::Fri => "星期五",
+        Weekday::Sat => "星期六",
+        Weekday::Sun => "星期天",
+    };
+    format!("{} {}", now.format(fmt), week)
+}
