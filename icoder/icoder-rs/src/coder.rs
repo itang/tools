@@ -90,9 +90,20 @@ pub mod i2hex {
 }
 
 ///uuid
-pub fn uuid() -> String {
+pub fn uuid(upcase: bool, no_underline: bool) -> String {
     let id = uuid::Uuid::new_v4();
-    id.to_string()
+    let mut ret = id.to_string();
+    if upcase {
+        ret = ret.to_uppercase();
+    } else {
+        ret = ret.to_lowercase();
+    }
+
+    if no_underline {
+        ret = ret.replace('-', "");
+    }
+
+    ret
 }
 
 ///random_str

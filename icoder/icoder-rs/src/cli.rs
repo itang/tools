@@ -20,11 +20,11 @@ pub enum Action {
     ///lowcase
     Lowcase(LowcaseOptions),
     ///uuid
-    Uuid,
+    Uuid(UuidOptions),
     ///random
     Random(RandomOptions),
     ///now
-    Now
+    Now,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -55,4 +55,14 @@ pub struct LowcaseOptions {
 pub struct RandomOptions {
     ///length
     pub length: Option<usize>,
+}
+
+///uuid options
+#[derive(Args, Debug, Clone)]
+pub struct UuidOptions {
+    ///upcase
+    #[arg(short, long)]
+    pub upcase: bool,
+    #[arg(short, long)]
+    pub no_underline: bool,
 }
