@@ -19,21 +19,28 @@ fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 Base64.encode(options.input.or_read_line())?
             }
-        },
+        }
         Action::Hex(options) => {
             if options.decode {
                 Hex.decode(options.input.or_read_line())?
             } else {
                 Hex.encode(options.input.or_read_line())?
             }
-        },
+        }
         Action::I2hex(options) => {
             if options.decode {
                 I2Hex.decode(options.input.or_read_line())?
             } else {
                 I2Hex.encode(options.input.or_read_line())?
             }
-        },
+        }
+        Action::I2binary(options) => {
+            if options.decode {
+                I2Binary.decode(options.input.or_read_line())?
+            } else {
+                I2Binary.encode(options.input.or_read_line())?
+            }
+        }
         Action::Uuid(options) => uuid(options.upcase, options.no_underline),
 
         Action::Upcase(options) => options.input.or_read_line().to_uppercase(),

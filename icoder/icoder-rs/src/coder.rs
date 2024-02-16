@@ -84,7 +84,35 @@ pub mod i2hex {
         #[inline]
         fn decode(&self, src: impl AsRef<[u8]>) -> CoderResult {
             let src = std::str::from_utf8(src.as_ref())?;
+            let src = src.strip_prefix("0x").unwrap_or(src);
             Ok(i64::from_str_radix(src, 16)?.to_string())
+        }
+    }
+}
+
+
+///i to binary
+pub mod i2binary {
+    use super::{Coder, CoderResult};
+
+    ///Hex
+    pub struct I2Binary;
+
+    impl Coder for I2Binary {
+        ///encode
+        #[inline]
+        fn encode(&self, src: impl AsRef<[u8]>) -> CoderResult {
+            let src = std::str::from_utf8(src.as_ref())?.to_string();
+            let i: i64 = src.parse()?;
+            Ok(format!("0b{:b}", i))
+        }
+
+        /// decode
+        #[inline]
+        fn decode(&self, src: impl AsRef<[u8]>) -> CoderResult {
+            let src = std::str::from_utf8(src.as_ref())?;
+            let src = src.strip_prefix("0b").unwrap_or(src);
+            Ok(i64::from_str_radix(src, 2)?.to_string())
         }
     }
 }

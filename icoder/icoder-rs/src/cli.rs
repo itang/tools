@@ -15,6 +15,8 @@ pub enum Action {
     Hex(CoderOptions),
     ///i2hex
     I2hex(CoderOptions),
+    ///i2binary
+    I2binary(CoderOptions),
     ///upcase
     Upcase(UpcaseOptions),
     ///lowcase
@@ -27,6 +29,7 @@ pub enum Action {
     Now,
 }
 
+///i2binary
 #[derive(Args, Debug, Clone)]
 pub struct CoderOptions {
     ///input
