@@ -5,6 +5,7 @@ mod args;
 mod service;
 mod types;
 
+use crate::service::StatApiOptions;
 use clap::Parser;
 
 use self::args::Args;
@@ -16,7 +17,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("args:{:?}", args);
     println!("{}", "*".repeat(80));
 
-    let result = stat_api(args.access_log_file, args.api_name, args.debug)?;
+    let result = stat_api(
+        args.access_log_file,
+        args.api_name,
+        StatApiOptions { debug: args.debug, ..StatApiOptions::default() },
+    )?;
     display_for_cli(result);
 
     Ok(())

@@ -2,11 +2,18 @@ use crate::types::{IndicesResult, IndicesValues, Pair, StatResult};
 use std::error::Error;
 use std::path::PathBuf;
 
-pub fn stat_api(access_log_file: PathBuf, api_name: String, debug: bool) -> Result<StatResult, Box<dyn Error>> {
+#[derive(Default)]
+pub struct StatApiOptions {
+    pub debug: bool,
+}
+
+pub fn stat_api(
+    access_log_file: PathBuf, api_name: String, options: StatApiOptions,
+) -> Result<StatResult, Box<dyn Error>> {
     let content = std::fs::read_to_string(access_log_file)?;
     let lines: Vec<&str> = content.lines().filter(|line| line.contains(&api_name)).collect();
 
-    if debug {
+    if options.debug {
         for line in &lines {
             println!("{}", line)
         }
