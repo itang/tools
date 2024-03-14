@@ -6,7 +6,7 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long, default_value = "access.log-20240304(1")]
+    #[arg(short, long, default_value = "access.log-20240304")]
     file: PathBuf,
     #[arg(long, default_value = "/getClient")]
     api_name: String,
