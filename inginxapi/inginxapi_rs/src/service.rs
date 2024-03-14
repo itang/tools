@@ -45,15 +45,14 @@ pub fn stat_api(access_log_file: PathBuf, api_name: String, debug: bool) -> Resu
 
 pub fn display_for_cli(result: StatResult) {
     println!("count: {}", result.count);
-
     for item in result.indices_items {
         println!("{}", item.name);
-        println!("\tavg  : {:.3}", item.avg);
-        println!("\tmax  : {}", item.max);
+        println!("\t{:-5}: {:.3}", "avg", item.avg);
+        println!("\t{:-5}: {}", "max", item.max);
         for kv in item.percent_list {
             println!("\t{:-5}: {}", kv.name, kv.value);
         }
-        println!("\tmin  : {}", item.min);
+        println!("\t{:-5}: {}", "min", item.min);
         println!();
     }
 }
@@ -66,8 +65,8 @@ fn indices_result<T: Fn(&IndicesValues) -> f64>(
     Ok(IndicesResult {
         name,
         avg: values.iter().sum::<f64>() / items.len() as f64,
-        max: values.iter().max_by(|a, b| a.partial_cmp(b).expect("Tried to compare a NaN")).unwrap().to_owned(),
-        min: values.iter().min_by(|a, b| a.partial_cmp(b).expect("Tried to compare a NaN")).unwrap().to_owned(),
+        max: values.iter().max_by(|a, b| a.partial_cmp(b).expect("Tried to compare a NaN")).expect("max").to_owned(),
+        min: values.iter().min_by(|a, b| a.partial_cmp(b).expect("Tried to compare a NaN")).expect("min").to_owned(),
         percent_list: pv_list
             .iter()
             .map(|pv| Pair { name: format!("p{}", (pv * 1000.0) / 10.0), value: percent(&values, *pv) })
@@ -77,17 +76,15 @@ fn indices_result<T: Fn(&IndicesValues) -> f64>(
 
 fn percent(list: &[f64], value: f64) -> f64 {
     let mut list_sorted = list.to_owned();
-    list_sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    list_sorted.sort_by(|a, b| a.partial_cmp(b).expect("sort by"));
 
-    let index = {
-        let it = (list.len() as f64 * value) as isize - 1;
-        if it < 0 {
-            0
-        } else if it as usize >= list.len() {
-            list.len()
-        } else {
-            it as usize
-        }
+    let index = (list.len() as f64 * value) as usize;
+    let index = if index == 0 {
+        0
+    } else if index >= list.len() {
+        list.len() - 1
+    } else {
+        index
     };
 
     list_sorted[index]

@@ -1,14 +1,14 @@
 #![forbid(unsafe_code)]
+#![deny(clippy::unwrap_used)]
 
 mod args;
 mod service;
 mod types;
 
-use crate::service::display_for_cli;
 use clap::Parser;
 
 use self::args::Args;
-use self::service::stat_api;
+use self::service::{display_for_cli, stat_api};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
