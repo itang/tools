@@ -5,11 +5,10 @@ mod args;
 mod service;
 mod types;
 
-use crate::service::StatApiOptions;
 use clap::Parser;
 
 use self::args::Args;
-use self::service::{display_for_cli, stat_api};
+use self::service::{display_for_cli, stat_api, StatApiOptions};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -22,6 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         args.api_name,
         StatApiOptions { debug: args.debug, ..StatApiOptions::default() },
     )?;
+
     display_for_cli(result);
 
     Ok(())
