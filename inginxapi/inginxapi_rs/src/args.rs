@@ -5,8 +5,8 @@ use std::path::PathBuf;
 #[command(author, version, about, long_about = None)]
 pub struct Args {
     /// The access log file path
-    #[arg(short, long, default_value = "access.log-20240304")]
-    pub file: PathBuf,
+    #[arg(short = 'f', long, default_value = "access.log-20240304")]
+    pub access_log_file: PathBuf,
 
     /// The api pattern
     #[arg(short = 'a', long, default_value = "/getClient")]

@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("args:{:?}", args);
     println!("{}", "*".repeat(80));
 
-    let result = stat_api(args.file, args.api_name, args.debug)?;
+    let result = stat_api(args.access_log_file, args.api_name, args.debug)?;
     display_for_cli(result);
 
     Ok(())
