@@ -55,11 +55,11 @@ pub fn display_for_cli(result: StatResult) {
     for item in result.indices_items {
         println!("{}", item.name);
         println!("\t{:-5}: {:.3}", "avg", item.avg);
-        println!("\t{:-5}: {}", "max", item.max);
+        println!("\t{:-5}: {:.3}", "max", item.max);
         for kv in item.percent_list {
-            println!("\t{:-5}: {}", kv.name, kv.value);
+            println!("\t{:-5}: {:.3}", kv.name, kv.value);
         }
-        println!("\t{:-5}: {}", "min", item.min);
+        println!("\t{:-5}: {:.3}", "min", item.min);
         println!();
     }
 }
