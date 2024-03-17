@@ -13,11 +13,6 @@ impl Default for StatApiOptions {
         Self { debug: false, pv_list: vec![0.995, 0.99, 0.98, 0.97, 0.96, 0.95, 0.90, 0.75, 0.50] }
     }
 }
-// impl StatApiOptions {
-//     pub fn new_with_debug() -> Self {
-//         Self { debug: true, ..Self::default() }
-//     }
-// }
 
 pub fn stat_api(
     access_log_file: PathBuf, api_name: String, options: StatApiOptions,
