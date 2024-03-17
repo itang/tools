@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let result = stat_api(
         args.access_log_file,
         args.api_name,
-        StatApiOptions { debug: args.debug, ..StatApiOptions::default() },
+        StatApiOptions { debug: args.debug, pv_list: args.pv_list, ..StatApiOptions::default() },
     )?;
 
     display_for_cli(result);

@@ -2,10 +2,22 @@ use crate::types::{IndicesResult, IndicesValues, Pair, StatResult};
 use std::error::Error;
 use std::path::PathBuf;
 
-#[derive(Default)]
+//#[derive(Default)]
 pub struct StatApiOptions {
     pub debug: bool,
+    pub pv_list: Vec<f64>,
 }
+
+impl Default for StatApiOptions {
+    fn default() -> Self {
+        Self { debug: false, pv_list: vec![0.995, 0.99, 0.98, 0.97, 0.96, 0.95, 0.90, 0.75, 0.50] }
+    }
+}
+// impl StatApiOptions {
+//     pub fn new_with_debug() -> Self {
+//         Self { debug: true, ..Self::default() }
+//     }
+// }
 
 pub fn stat_api(
     access_log_file: PathBuf, api_name: String, options: StatApiOptions,
@@ -44,8 +56,8 @@ pub fn stat_api(
     Ok(StatResult {
         count: items.len() as u64,
         indices_items: vec![
-            indices_result("request time".to_string(), |item| item.request_time, &items)?,
-            indices_result("response time".to_string(), |item| item.response_time, &items)?,
+            indices_result("request time".to_string(), |item| item.request_time, &items, &options.pv_list)?,
+            indices_result("response time".to_string(), |item| item.response_time, &items, &options.pv_list)?,
         ],
     })
 }
@@ -65,9 +77,9 @@ pub fn display_for_cli(result: StatResult) {
 }
 
 fn indices_result<T: Fn(&IndicesValues) -> f64>(
-    name: String, value_fn: T, items: &[IndicesValues],
+    name: String, value_fn: T, items: &[IndicesValues], pv_list: &[f64],
 ) -> Result<IndicesResult, Box<dyn Error>> {
-    let pv_list: Vec<f64> = vec![0.995, 0.99, 0.98, 0.97, 0.96, 0.95, 0.90, 0.75, 0.50];
+    //let pv_list: Vec<f64> = vec![0.995, 0.99, 0.98, 0.97, 0.96, 0.95, 0.90, 0.75, 0.50];
     let values: Vec<f64> = items.iter().map(value_fn).collect();
     Ok(IndicesResult {
         name,
