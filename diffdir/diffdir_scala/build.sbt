@@ -18,6 +18,7 @@ lazy val root = project.in(file("."))
       // "com.lihaoyi" %% "ujson" % "2.0.0",
       // "com.novocode" % "junit-interface" % "0.11" % Test
       "org.scala-lang" %% "toolkit" % "0.2.1",
+      "com.lihaoyi" %% "mainargs"   % "0.6.2",
       "org.scala-lang" %% "toolkit-test" % "0.2.1" % Test,
       "com.funpaas" %% "tang-scala" % TANG_VERSION,
       "org.scalameta" %% "munit" % MUNIT_VERSION % Test

@@ -19,17 +19,16 @@ extension (f: File)
 
 case class FileSize(file: File, root: File, children: Array[FileSize]):
 
-    private val totalSize: Long = if file.isDirectory then children.map(_.totalSize).sum else file.length()
-
+    private val totalSize: Long     = if file.isDirectory then children.map(_.totalSize).sum else file.length()
     private val totalSizeKB: Double = totalSize / 1024.0
     private val totalSizeMB: Double = totalSize / 1024.0 / 1024.0
     private val totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
 
     val totalSizeHuman: String =
-        if totalSize > 1024 * 1024 * 1024 then f"${totalSizeGB}%-10.3fGB"
-        else if totalSize > 1024 * 1024 then f"${totalSizeMB}%-10.3fMB"
-        else if totalSize > 1024 then f"${totalSizeKB}%-10.3fKB"
-        else f"${totalSize}%-10dB"
+        if totalSize > 1024 * 1024 * 1024 then f"$totalSizeGB%.3fGB"
+        else if totalSize > 1024 * 1024 then f"$totalSizeMB%.3fMB"
+        else if totalSize > 1024 then f"$totalSizeKB%.3fKB"
+        else s"${totalSize}B"
     end totalSizeHuman
 
     val relatePath: String = file.getAbsolutePath.substring(root.getAbsolutePath.length)
@@ -37,15 +36,16 @@ case class FileSize(file: File, root: File, children: Array[FileSize]):
     def toStringWithLevel(level: Int): String =
         val path   = if level == 0 then file.getAbsolutePath else file.getName
         val prefix = f"""${" " * level * 2}${file.asFileDisplay} $path"""
-        f"$prefix%-130s $totalSizeHuman"
+        f"$prefix%-80s $totalSizeHuman%10s"
     end toStringWithLevel
 
     def findByRelatePath(relatePath: String): Option[FileSize] =
         find { file => file.relatePath == relatePath }
 
-    type WalkFn[T] = (FileSize, Int) => T
+    private type WalkFn[T] = (FileSize, Int) => T
 
-    def find(fn: FileSize => Boolean): Option[FileSize] =
+    // TODO: 树搜索性能优化
+    private def find(fn: FileSize => Boolean): Option[FileSize] =
         def _find(fileSize: FileSize, fn: FileSize => Boolean): Option[FileSize] =
             if fn(fileSize) then Some(fileSize)
             else
@@ -118,23 +118,21 @@ class DiffImpl extends Diff:
         _walk(root)
     end walkFile
 
-    // TODO: 优化性能
+    // TODO: 树比较输出结构和优化性能
     private def diffTheFiles(left: FileSize, right: FileSize): List[Item] =
         var list: List[Item] = Nil
-        left.walk() { (file, _level) =>
+        left.walk(): (file, _) =>
             val leftPath = file.relatePath
             list = Item(Some(file), right.findByRelatePath(leftPath)) :: list
-        }
 
-        right.walk() { (file, _level) =>
+        right.walk(): (file, _) =>
             val rightPath    = file.relatePath
             val leftFileSize = left.findByRelatePath(rightPath)
             leftFileSize match
                 case None => list = Item(None, Some(file)) :: list
-                case _ =>
-        }
+                case _    =>
 
-        list
+        list.reverse
 
     end diffTheFiles
 
