@@ -13,10 +13,10 @@ compile-sbt:
   sbt compile
 
 run:
-  mill run --left-file D:\downloads\a\cloudpivot --right-file D:\downloads\b\cloudpivot
+  mill run diff --left-file D:\downloads\a\cloudpivot --right-file D:\downloads\b\cloudpivot
 
 dev:
-  mill --watch run --left-file D:\downloads\a\cloudpivot --right-file D:\downloads\b\cloudpivot
+  mill --watch run diff --left-file D:\downloads\a\cloudpivot --right-file D:\downloads\b\cloudpivot
 
 build:
   sbt 'show graalvm-native-image:packageBin'

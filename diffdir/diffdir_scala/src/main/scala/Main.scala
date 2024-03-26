@@ -1,18 +1,12 @@
 import language.unsafeNulls
-
 import java.io.File
-
-import mainargs.{/*Flag, Leftover, */ ParserForMethods, arg, main}
-
+import mainargs.{Leftover, ParserForMethods, arg, main}
 import tang.*
-
 import diff.{Diff, DiffImpl, DiffResult, FileSize, Side}
 
-object Main:
-    def main(args: Array[String]): Unit = ParserForMethods(this).runOrExit(args).ignore()
-
+object Cli:
     @main
-    def run(
+    def diff(
         @arg(short = 'l', doc = "left file")
         leftFile: String,
         @arg(short = 'r', doc = "right file")
@@ -23,19 +17,30 @@ object Main:
 
         val diff: Diff = DiffImpl()
 
-        for side <- List(leftSide, rightSide) do
-            println(side)
-
-            val fileSize = side.rootFile |> diff.walkFile
-            fileSize.walk(): (file: FileSize, level: Int) =>
-                println(file.toStringWithLevel(level))
-
-            println()
-        end for
-
         diff.diff(leftSide, rightSide) |> printTheResult
 
     }.ignore()
+
+    @main
+    def walk(
+        @arg(short = 'm', doc = "max level")
+        maxLevel: Option[Int],
+        @arg(doc = "files")
+        files: Leftover[String]
+    ): Unit =
+        println(s"DEBUG: $maxLevel $files")
+        val diff: Diff = DiffImpl()
+        for fileSize <- files.value.map(File(_) |> diff.walkFile) do
+            fileSize.walk(): (file: FileSize, level: Int) =>
+                maxLevel match
+                    case Some(v) if level <= v =>
+                        println(file.toStringWithLevel(level))
+                    case None =>
+                        println(file.toStringWithLevel(level))
+                    case _ =>
+            println()
+        end for
+    end walk
 
     private def printTheResult(result: DiffResult): Unit =
         for item <- result.items do
@@ -52,5 +57,7 @@ object Main:
 
         end for
     end printTheResult
+end Cli
 
-end Main
+object Main:
+    def main(args: Array[String]): Unit = ParserForMethods(Cli).runOrExit(args).ignore()
