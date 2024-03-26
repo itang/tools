@@ -1,0 +1,78 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+test:
+  mill test
+
+test-sbt:
+  sbt test
+
+compile-sbt:
+  sbt compile
+
+run:
+  mill run D:\downloads\a\cloudpivot D:\downloads\b\cloudpivot
+
+build:
+  sbt 'show graalvm-native-image:packageBin'
+
+[windows]
+install: build
+  cp target/graalvm-native-image/diffdir_scala.exe D:/dev-env/bin/
+
+build-mill:
+  mill nativeImage
+
+[windows]
+install-mill: build-mill
+  cp out/nativeImage.dest/diffdir_scala.exe D:/dev-env/bin/
+
+idea:
+  mill mill.scalalib.GenIdea/idea
+
+run-sbt:
+  sbt run
+
+re-edit-bsp:
+  deno task edit:clean ; deno task edit:bsp
+
+compile:
+  mill compile
+
+deps-update:
+  scala-update
+
+reset:
+  sbt clean ; sbt shutdownall ; bloop exit
+
+edit:
+  deno task idea ; idea64 .
+
+dist:
+  sbt stage
+
+dev:
+  mill --watch run D:\downloads\a\cloudpivot D:\downloads\b\cloudpivot
+
+edit-bsp:
+  deno task bsp ; idea64 .
+
+dev-sbt:
+  sbt '~reStart --- -Dfile.encoding=utf-8'
+
+edit-clean:
+  rm -rf .bsp .idea
+
+re-edit:
+  deno task edit:clean ; deno task edit
+
+console:
+  mill -i console
+
+fatjar:
+  sbt assembly
+
+run-fatjar: fatjar
+  java -DSOME_KEY=1 -jar target/scala-3.4.0/diffdir_scala-assembly-0.1.0-SNAPSHOT.jar
