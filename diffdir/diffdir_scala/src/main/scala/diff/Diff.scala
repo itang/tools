@@ -84,7 +84,25 @@ case class Item(left: Option[FileSize], right: Option[FileSize]):
         case _                  => None
 end Item
 
-case class DiffResult(items: List[Item])
+case class DiffResult(items: List[Item]):
+
+    def outputToConsole(): Unit =
+        for item <- items do
+            val line = (item.left, item.right) match
+                case (Some(l), Some(r)) =>
+                    f"${l.relatePath}%-80s, 两边都在 size:eq: ${item.isSizeEq}, left:size: ${l.totalSizeHuman}, right:size: ${r.totalSizeHuman}"
+                case (Some(l), None) =>
+                    f"${l.relatePath}%-80s, 只在左边 size:eq: ${item.isSizeEq}, left:size: ${l.totalSizeHuman}"
+                case (None, Some(r)) =>
+                    f"${r.relatePath}%-80s, 只在右边 size:eq: ${item.isSizeEq}, right:size: ${r.totalSizeHuman}"
+                case _ => throw IllegalStateException("illegal state")
+
+            println(line)
+
+        end for
+    end outputToConsole
+    
+end DiffResult
 
 trait Walk:
     def walkFile(file: File): FileSize

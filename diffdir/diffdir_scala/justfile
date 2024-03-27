@@ -22,7 +22,7 @@ build:
   sbt 'show graalvm-native-image:packageBin'
 
 [windows]
-install: build
+install-sbt: build
   cp target/graalvm-native-image/diffdir_scala.exe D:/dev-env/bin/
 
 build-mill:
