@@ -2,20 +2,10 @@ package diff
 
 import java.io.File
 
-import diff.FType.{FDir, FFile}
-
+/// 文件目录对比方
 case class Side(name: String, rootFile: File)
 
-enum FType:
-    case FFile, FDir
-    def name: String = this match
-        case FFile => "文件"
-        case FDir  => "目录"
-end FType
-
-extension (f: File)
-    def asFileDisplay: String = if f.isDirectory then "+" else "-"
-
+/// 带层级的文件结构
 case class FileSize(file: File, root: File, children: Array[FileSize]):
 
     private val totalSize: Long     = if file.isDirectory then children.map(_.totalSize).sum else file.length()
@@ -33,6 +23,8 @@ case class FileSize(file: File, root: File, children: Array[FileSize]):
     val relatePath: String =
         import language.unsafeNulls
         file.getAbsolutePath.substring(root.getAbsolutePath.length)
+
+    extension (f: File) private def asFileDisplay: String = if f.isDirectory then "+" else "-"
 
     def toStringWithLevel(level: Int): String =
         val path   = if level == 0 then file.getAbsolutePath else file.getName
@@ -79,12 +71,14 @@ case class FileSize(file: File, root: File, children: Array[FileSize]):
 
 end FileSize
 
+/// 差异化对比项
 case class Item(left: Option[FileSize], right: Option[FileSize]):
     def isSizeEq: Option[Boolean] = (left, right) match
         case (Some(l), Some(r)) => Some(l.file.length() == r.file.length())
         case _                  => None
 end Item
 
+/// 对比结果表达对象
 case class DiffResult(items: List[Item]):
 
     def outputToConsole(): Unit =
@@ -105,12 +99,15 @@ case class DiffResult(items: List[Item]):
 
 end DiffResult
 
+/// 遍历文件特质
 trait Walk:
     def walkFile(file: File): FileSize
 
+/// 差异化对比特质
 trait Diff extends Walk:
     def diff(leftSide: Side, rightSide: Side): DiffResult
 
+/// 差异化对比实现
 class DiffImpl extends Diff:
     override def diff(leftSide: Side, rightSide: Side): DiffResult =
         val leftFiles = loadFileSize(leftSide)

@@ -7,6 +7,7 @@ import tang.{time, ignore}
 
 import diff.{Diff, DiffImpl, FileSize, Side}
 
+/// 命令行界面
 object Cli:
     private lazy val diff: Diff = DiffImpl()
 
