@@ -3,7 +3,7 @@ package cli
 import java.io.File
 
 import mainargs.{Leftover, arg, main}
-import tang.{time, ignore, |>}
+import tang.{time, ignore}
 
 import diff.{Diff, DiffImpl, FileSize, Side}
 
@@ -34,7 +34,8 @@ object Cli:
     ): Unit = time {
         println(s"DEBUG: $maxLevel $files")
 
-        for fileSize <- files.value.map(File(_) |> diff.walkFile) do
+        val fileSizes = files.value.map(File(_)).map(diff.walkFile)
+        for fileSize <- fileSizes do
             fileSize.walk(): (file: FileSize, level: Int) =>
                 maxLevel match
                     case Some(v) if level <= v =>
