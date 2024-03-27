@@ -1,9 +1,8 @@
 package diff
 
-import diff.FType.{FDir, FFile}
-
-import language.unsafeNulls
 import java.io.File
+
+import diff.FType.{FDir, FFile}
 
 case class Side(name: String, rootFile: File)
 
@@ -31,7 +30,9 @@ case class FileSize(file: File, root: File, children: Array[FileSize]):
         else s"${totalSize}B"
     end totalSizeHuman
 
-    val relatePath: String = file.getAbsolutePath.substring(root.getAbsolutePath.length)
+    val relatePath: String =
+        import language.unsafeNulls
+        file.getAbsolutePath.substring(root.getAbsolutePath.length)
 
     def toStringWithLevel(level: Int): String =
         val path   = if level == 0 then file.getAbsolutePath else file.getName
@@ -101,7 +102,7 @@ case class DiffResult(items: List[Item]):
 
         end for
     end outputToConsole
-    
+
 end DiffResult
 
 trait Walk:
@@ -127,6 +128,7 @@ class DiffImpl extends Diff:
         // @rec
         def _walk(file: File): FileSize =
             if file.isDirectory then
+                import language.unsafeNulls
                 val children = file.listFiles().map(_walk)
                 FileSize(file, root, children)
             else
