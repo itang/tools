@@ -13,10 +13,10 @@ compile-sbt:
   sbt compile
 
 run:
-  mill run diff --left-file D:\downloads\a\cloudpivot --right-file D:\downloads\b\cloudpivot
+  mill run diff --left-file D:\downloads\a --right-file D:\downloads\b
 
 dev:
-  mill --watch run diff --left-file D:\downloads\a\cloudpivot --right-file D:\downloads\b\cloudpivot
+  mill --watch run diff --left-file D:\downloads\a --right-file D:\downloads\b
 
 build:
   sbt 'show graalvm-native-image:packageBin'
@@ -27,10 +27,6 @@ install: build
 
 build-mill:
   mill nativeImage
-
-[windows]
-install-mill: build-mill
-  cp out/nativeImage.dest/diffdir_scala.exe D:/dev-env/bin/
 
 idea:
   mill mill.scalalib.GenIdea/idea
@@ -57,8 +53,20 @@ dist:
   sbt stage
 
 
-edit-bsp:
-  deno task bsp ; idea64 .
+[windows]
+install-mill: build-mill
+  cp out/nativeImage.dest/diffdir_scala.exe D:/dev-env/bin/
+
+
+target_dir := "D:/dev-env/diffdir_scala"
+
+[windows]
+install2: dist
+    rm -rf {{target_dir}}
+    mkdir {{target_dir}}
+    cp -rf target/universal/stage/* {{target_dir}}
+    cp {{target_dir}}/bin/diffdir_scala.bat {{target_dir}}/bin/idir.bat
+
 
 dev-sbt:
   sbt '~reStart --- -Dfile.encoding=utf-8'
