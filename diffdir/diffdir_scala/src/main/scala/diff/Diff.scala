@@ -20,9 +20,9 @@ extension (f: File)
 case class FileSize(file: File, root: File, children: Array[FileSize]):
 
     private val totalSize: Long     = if file.isDirectory then children.map(_.totalSize).sum else file.length()
-    private val totalSizeKB: Double = totalSize / 1024.0
-    private val totalSizeMB: Double = totalSize / 1024.0 / 1024.0
-    private val totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
+    private def totalSizeKB: Double = totalSize / 1024.0
+    private def totalSizeMB: Double = totalSize / 1024.0 / 1024.0
+    private def totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
 
     val totalSizeHuman: String =
         if totalSize > 1024 * 1024 * 1024 then f"$totalSizeGB%.3fGB"
@@ -88,7 +88,6 @@ case class DiffResult(items: List[Item])
 
 trait Walk:
     def walkFile(file: File): FileSize
-end Walk
 
 trait Diff extends Walk:
     def diff(leftSide: Side, rightSide: Side): DiffResult
