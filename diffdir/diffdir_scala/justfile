@@ -28,8 +28,6 @@ install: build
 build-mill:
   mill nativeImage
 
-idea:
-  mill mill.scalalib.GenIdea/idea
 
 run-sbt:
   sbt run
@@ -40,18 +38,8 @@ re-edit-bsp:
 compile:
   mill compile
 
-deps-update:
-  scala-update
-
-reset:
-  sbt clean ; sbt shutdownall ; bloop exit
-
-edit:
-  deno task idea ; idea64 .
-
 dist:
   sbt stage
-
 
 [windows]
 install-mill: build-mill
@@ -61,7 +49,7 @@ install-mill: build-mill
 target_dir := "D:/dev-env/diffdir_scala"
 
 [windows]
-install2: dist
+install: dist
     rm -rf {{target_dir}}
     mkdir {{target_dir}}
     cp -rf target/universal/stage/* {{target_dir}}
@@ -71,11 +59,6 @@ install2: dist
 dev-sbt:
   sbt '~reStart --- -Dfile.encoding=utf-8'
 
-edit-clean:
-  rm -rf .bsp .idea
-
-re-edit:
-  deno task edit:clean ; deno task edit
 
 console:
   mill -i console
