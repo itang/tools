@@ -72,14 +72,14 @@ case class FileSize(file: File, root: File, children: Array[FileSize]):
 end FileSize
 
 /// 差异化对比项
-case class Item(left: Option[FileSize], right: Option[FileSize]):
+case class DiffItem(left: Option[FileSize], right: Option[FileSize]):
     def isSizeEq: Option[Boolean] = (left, right) match
         case (Some(l), Some(r)) => Some(l.file.length() == r.file.length())
         case _                  => None
-end Item
+end DiffItem
 
 /// 对比结果表达对象
-case class DiffResult(items: List[Item]):
+case class DiffResult(items: List[DiffItem]):
 
     def outputToConsole(): Unit =
         for item <- items do
@@ -100,11 +100,11 @@ case class DiffResult(items: List[Item]):
 end DiffResult
 
 /// 遍历文件特质
-trait Walk:
+trait Walkable:
     def walkFile(file: File): FileSize
 
 /// 差异化对比特质
-trait Diff extends Walk:
+trait Diff extends Walkable:
     def diff(leftSide: Side, rightSide: Side): DiffResult
 
 /// 差异化对比实现
@@ -135,17 +135,17 @@ class DiffImpl extends Diff:
     end walkFile
 
     // TODO: 树比较输出结构和优化性能
-    private def diffTheFiles(left: FileSize, right: FileSize): List[Item] =
-        var list: List[Item] = Nil
+    private def diffTheFiles(left: FileSize, right: FileSize): List[DiffItem] =
+        var list: List[DiffItem] = Nil
         left.walk(): (file, _) =>
             val leftPath = file.relatePath
-            list = Item(Some(file), right.findByRelatePath(leftPath)) :: list
+            list = DiffItem(Some(file), right.findByRelatePath(leftPath)) :: list
 
         right.walk(): (file, _) =>
             val rightPath    = file.relatePath
             val leftFileSize = left.findByRelatePath(rightPath)
             leftFileSize match
-                case None => list = Item(None, Some(file)) :: list
+                case None => list = DiffItem(None, Some(file)) :: list
                 case _    =>
 
         list.reverse
