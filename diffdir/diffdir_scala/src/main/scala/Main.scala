@@ -42,7 +42,7 @@ object Cli:
                     case _ =>
             println()
         end for
-    }
+    }.ignore()
 
 end Cli
 
