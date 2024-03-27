@@ -1,11 +1,10 @@
 package cli
 
 import java.io.File
-
 import mainargs.{Leftover, arg, main}
-import tang.{time, ignore}
-
-import diff.{Diff, DiffImpl, FileSize, Side}
+import tang.{ignore, time}
+import diff.api.{Diff, Side, FileTree}
+import diff.impl.DiffImpl
 
 /// 命令行界面
 object Cli:
@@ -35,9 +34,9 @@ object Cli:
     ): Unit = time {
         println(s"DEBUG: $maxLevel $files")
 
-        val fileSizes = files.value.map(File(_)).map(diff.walkFile)
+        val fileSizes = files.value.map(File(_)).map(diff.loadFileTree)
         for fileSize <- fileSizes do
-            fileSize.walk(): (file: FileSize, level: Int) =>
+            fileSize.walk(): (file: FileTree, level: Int) =>
                 maxLevel match
                     case Some(v) if level <= v =>
                         println(file.toStringWithLevel(level))
