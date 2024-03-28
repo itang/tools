@@ -1,15 +1,24 @@
 package diff.api
 
-
 import java.io.File
 
 /// 文件目录对比方
 case class Side(name: String, rootFile: File)
 
-/// 带层级的文件树结构
-case class FileTree(file: File, root: File, children: Array[FileTree]):
+/// 树形结构
+trait TreeNode[N, T <: TreeNode[N, T]]:
+    /// 当前节点
+    val node: N
+    /// 顶点
+    val root: N
+    /// 子集
+    val children: Array[T]
+end TreeNode
 
-    private val totalSize: Long     = if file.isDirectory then children.map(_.totalSize).sum else file.length()
+/// 带层级的文件树结构
+case class FileTree(node: File, root: File, children: Array[FileTree]) extends TreeNode[File, FileTree]:
+
+    private val totalSize: Long     = if node.isDirectory then children.map(_.totalSize).sum else node.length()
     private def totalSizeKB: Double = totalSize / 1024.0
     private def totalSizeMB: Double = totalSize / 1024.0 / 1024.0
     private def totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
@@ -23,14 +32,14 @@ case class FileTree(file: File, root: File, children: Array[FileTree]):
 
     val relatePath: String =
         import language.unsafeNulls
-        file.getAbsolutePath.substring(root.getAbsolutePath.length)
+        node.getAbsolutePath.substring(root.getAbsolutePath.length)
 
     extension (f: File) private def asFileDisplay: String = if f.isDirectory then "+" else "-"
 
     // TODO: 此方法移走，放到特定的“formatter”
     def toStringWithLevel(level: Int): String =
-        val path   = if level == 0 then file.getAbsolutePath else file.getName
-        val prefix = f"""${" " * level * 2}${file.asFileDisplay} $path"""
+        val path   = if level == 0 then node.getAbsolutePath else node.getName
+        val prefix = f"""${" " * level * 2}${node.asFileDisplay} $path"""
         f"$prefix%-80s $totalSizeHuman%10s"
     end toStringWithLevel
 
@@ -76,7 +85,7 @@ end FileTree
 /// 差异化对比项
 case class DiffItem(left: Option[FileTree], right: Option[FileTree]):
     def isSizeEq: Option[Boolean] = (left, right) match
-        case (Some(l), Some(r)) => Some(l.file.length() == r.file.length())
+        case (Some(l), Some(r)) => Some(l.node.length() == r.node.length())
         case _                  => None
 end DiffItem
 
