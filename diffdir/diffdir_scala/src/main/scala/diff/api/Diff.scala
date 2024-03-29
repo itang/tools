@@ -39,7 +39,7 @@ case class FileTree(node: File, root: File, children: Array[FileTree]) extends T
     // TODO: 此方法移走，放到特定的“formatter”
     def toStringWithLevel(level: Int): String =
         val path   = if level == 0 then node.getAbsolutePath else node.getName
-        val prefix = f"""${" " * level * 2}${node.asFileDisplay} $path"""
+        val prefix = s"""${" " * level * 2}${node.asFileDisplay} $path"""
         f"$prefix%-80s $totalSizeHuman%10s"
     end toStringWithLevel
 
