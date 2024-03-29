@@ -19,9 +19,9 @@ end TreeNode
 case class FileTree(node: File, root: File, children: Array[FileTree]) extends TreeNode[File, FileTree]:
 
     private val totalSize: Long     = if node.isDirectory then children.map(_.totalSize).sum else node.length()
-    private def totalSizeKB: Double = totalSize / 1024.0
-    private def totalSizeMB: Double = totalSize / 1024.0 / 1024.0
-    private def totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
+    private inline def totalSizeKB: Double = totalSize / 1024.0
+    private inline def totalSizeMB: Double = totalSize / 1024.0 / 1024.0
+    private inline def totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
 
     val totalSizeHuman: String =
         if totalSize > 1024 * 1024 * 1024 then f"$totalSizeGB%.3fGB"
