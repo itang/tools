@@ -2,9 +2,9 @@ package cli
 
 import java.io.File
 import mainargs.{Leftover, arg, main}
-import tang.{ignore, time}
-import diff.api.{Diff, Side, FileTree}
-import diff.impl.DiffImpl
+import tang.{ignore, time, |>}
+import diff.api.{Diff, FileTree, Side}
+import diff.impl.{DiffImpl, diffResultConsoleFormatter, fileTreeConsoleFormatter}
 
 /// 命令行界面
 object Cli:
@@ -20,8 +20,7 @@ object Cli:
         val leftSide  = Side("left", File(leftFile))
         val rightSide = Side("right", File(rightFile))
 
-        diff.diff(leftSide, rightSide)
-            .outputToConsole()
+        diff.diff(leftSide, rightSide).formatForConsole() |> println
 
     }.ignore()
 
@@ -39,9 +38,9 @@ object Cli:
             fileSize.walk(): (file: FileTree, level: Int) =>
                 maxLevel match
                     case Some(v) if level <= v =>
-                        println(file.toStringWithLevel(level))
+                        file.formatForConsole(level) |> println
                     case None =>
-                        println(file.toStringWithLevel(level))
+                        file.formatForConsole(level) |> println
                     case _ =>
             println()
         end for

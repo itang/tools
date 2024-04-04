@@ -35,15 +35,6 @@ case class FileTree(node: File, root: File, children: Array[FileTree]) extends T
         import language.unsafeNulls
         node.getAbsolutePath.substring(root.getAbsolutePath.length)
 
-    extension (f: File) private def asFileDisplay: String = if f.isDirectory then "+" else "-"
-
-    // TODO: 此方法移走，放到特定的“formatter”
-    def toStringWithLevel(level: Int): String =
-        val path   = if level == 0 then node.getAbsolutePath else node.getName
-        val prefix = s"""${" " * level * 2}${node.asFileDisplay} $path"""
-        f"$prefix%-80s $totalSizeHuman%10s"
-    end toStringWithLevel
-
     def findByRelatePath(relatePath: String): Option[FileTree] =
         find { file => file.relatePath == relatePath }
 
@@ -91,29 +82,14 @@ case class DiffItem(left: Option[FileTree], right: Option[FileTree]):
 end DiffItem
 
 /// 对比结果表达对象
-case class DiffResult(items: List[DiffItem]):
-
-    // TODO: 此方法移走，放到特定的“formatter”
-    def outputToConsole(): Unit =
-        for item <- items do
-            val line = (item.left, item.right) match
-                case (Some(l), Some(r)) =>
-                    f"${l.relatePath}%-80s, 两边都在 size:eq: ${item.isSizeEq}, left:size: ${l.totalSizeHuman}, right:size: ${r.totalSizeHuman}"
-                case (Some(l), None) =>
-                    f"${l.relatePath}%-80s, 只在左边 size:eq: ${item.isSizeEq}, left:size: ${l.totalSizeHuman}"
-                case (None, Some(r)) =>
-                    f"${r.relatePath}%-80s, 只在右边 size:eq: ${item.isSizeEq}, right:size: ${r.totalSizeHuman}"
-                case _ => throw IllegalStateException("illegal state")
-
-            println(line)
-
-        end for
-    end outputToConsole
-
-end DiffResult
+case class DiffResult(items: List[DiffItem])
 
 /// 差异化对比特质
 trait Diff:
     def loadFileTree(file: File): FileTree
 
     def diff(left: Side, right: Side): DiffResult
+
+trait Formatter[T]:
+    extension (t: T)
+        def formatForConsole(level: Int = 0): String
