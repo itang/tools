@@ -3,8 +3,8 @@ package cli
 import java.io.File
 import mainargs.{Leftover, arg, main}
 import tang.{ignore, time, |>}
-import diff.api.{Diff, FileTree, Side}
-import diff.impl.{DiffImpl, diffResultConsoleFormatter, fileTreeConsoleFormatter}
+import diff.api.{Diff, FileTree}
+import diff.impl.{DiffImpl, given}
 
 /// 命令行界面
 object Cli:
@@ -17,10 +17,10 @@ object Cli:
         @arg(short = 'r', doc = "right file")
         rightFile: String
     ): Unit = time {
-        val leftSide  = Side("left", File(leftFile))
-        val rightSide = Side("right", File(rightFile))
+        val left  = leftFile |> (File(_)) |> diff.loadFileTree
+        val right = rightFile |> (File(_)) |> diff.loadFileTree
 
-        diff.diff(leftSide, rightSide).formatForConsole() |> println
+        diff.diff(left, right).formatForConsole() |> println
 
     }.ignore()
 

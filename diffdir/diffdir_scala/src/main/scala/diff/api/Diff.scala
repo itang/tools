@@ -2,9 +2,6 @@ package diff.api
 
 import java.io.File
 
-/// 文件目录对比方
-case class Side(name: String, rootFile: File)
-
 /// 树形结构
 trait TreeNode[N, T <: TreeNode[N, T]]:
     /// 当前节点
@@ -18,8 +15,8 @@ end TreeNode
 /// 带层级的文件树结构
 case class FileTree(node: File, root: File, children: Array[FileTree]) extends TreeNode[File, FileTree]:
 
-    //NOTICE: 需确保children的totalSize先计算好
-    private val totalSize: Long     = if node.isDirectory then children.map(_.totalSize).sum else node.length()
+    // NOTICE: 需确保children的totalSize先计算好
+    private val totalSize: Long            = if node.isDirectory then children.map(_.totalSize).sum else node.length()
     private inline def totalSizeKB: Double = totalSize / 1024.0
     private inline def totalSizeMB: Double = totalSize / 1024.0 / 1024.0
     private inline def totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
@@ -88,7 +85,7 @@ case class DiffResult(items: List[DiffItem])
 trait Diff:
     def loadFileTree(file: File): FileTree
 
-    def diff(left: Side, right: Side): DiffResult
+    def diff(left: FileTree, right: FileTree): DiffResult
 
 trait Formatter[T]:
     extension (t: T)

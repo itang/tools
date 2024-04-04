@@ -1,16 +1,12 @@
 package diff.impl
 
 import java.io.File
-import diff.api.{Diff, DiffItem, DiffResult, FileTree, Formatter, Side}
+import diff.api.{Diff, DiffItem, DiffResult, FileTree, Formatter}
 
 /// 差异化对比实现
 class DiffImpl extends Diff:
-    override def diff(left: Side, right: Side): DiffResult =
-        val leftFileTree = loadFileTree(left.rootFile)
-
-        val rightFileTree = loadFileTree(right.rootFile)
-
-        val items = diffFileTree(leftFileTree, rightFileTree)
+    override def diff(left: FileTree, right: FileTree): DiffResult =
+        val items = diffFileTree(left, right)
 
         DiffResult(items)
     end diff
