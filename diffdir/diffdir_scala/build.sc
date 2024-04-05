@@ -1,9 +1,9 @@
 import mill._, scalalib._
-import $ivy.`io.github.alexarchambault.mill::mill-native-image::0.1.25`
+import $ivy.`io.github.alexarchambault.mill::mill-native-image::0.1.26`
 import io.github.alexarchambault.millnativeimage.NativeImage
 
 object Versions {
-  val tangVersion = "0.1.2-SNAPSHOT"
+  val tangVersion = "0.1.3-SNAPSHOT"
   object Tests {
     val MOCKITO_CORE_VERSION = "5.3.1"
     val MUNIT_VERSION        = "1.0.0-M7"
@@ -14,11 +14,11 @@ import Versions.Tests
 
 
 object Main extends RootModule with SbtModule with ScalaModule with NativeImage {
-  def scalaVersion = "3.4.0"
+  def scalaVersion = "3.4.1"
 
   override def ivyDeps = Agg(
     //ivy"org.scala-lang::toolkit:0.2.0",
-    ivy"com.lihaoyi::mainargs::0.6.2",
+    ivy"com.lihaoyi::mainargs::0.6.3",
     ivy"com.funpaas::tang-scala:$tangVersion"
   )
 

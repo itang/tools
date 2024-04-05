@@ -23,7 +23,7 @@ build:
 
 [windows]
 install-sbt: build
-  cp target/graalvm-native-image/diffdir_scala.exe D:/dev-env/bin/
+  cp target/graalvm-native-image/diffdir_scala.exe D:/dev-env/bin/idir.exe
 
 build-mill:
   mill nativeImage

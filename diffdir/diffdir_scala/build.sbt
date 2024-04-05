@@ -1,9 +1,9 @@
-ThisBuild / scalaVersion := "3.4.0"
+ThisBuild / scalaVersion := "3.4.1"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.example"
 ThisBuild / organizationName := "example"
 
-val TANG_VERSION = "0.1.2-SNAPSHOT"
+val TANG_VERSION = "0.1.3-SNAPSHOT"
 val MUNIT_VERSION = "1.0.0-M7"
 
 lazy val root = project.in(file("."))
@@ -18,7 +18,7 @@ lazy val root = project.in(file("."))
       // "com.lihaoyi" %% "ujson" % "2.0.0",
       // "com.novocode" % "junit-interface" % "0.11" % Test
      //"org.scala-lang" %% "toolkit" % "0.2.1",
-      "com.lihaoyi" %% "mainargs"   % "0.6.2",
+      "com.lihaoyi" %% "mainargs"   % "0.6.3",
       "org.scala-lang" %% "toolkit-test" % "0.2.1" % Test,
       "com.funpaas" %% "tang-scala" % TANG_VERSION,
       "org.scalameta" %% "munit" % MUNIT_VERSION % Test
