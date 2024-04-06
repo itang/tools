@@ -4,12 +4,12 @@ import java.io.File
 import mainargs.{Leftover, arg, main}
 import tang.{ignore, time, |>}
 import diff.api.{Diff, DiffResult, FileTree, Loader}
-import diff.impl.{DiffImpl, FileTreeLoader, given}
+import diff.impl.{FileTreeDiffImpl, FileTreeLoader, given}
 
 /// 命令行界面
 object Cli:
     private lazy val loader: Loader[File, FileTree]   = FileTreeLoader()
-    private lazy val diff: Diff[FileTree, DiffResult] = DiffImpl()
+    private lazy val diff: Diff[FileTree, DiffResult] = FileTreeDiffImpl()
 
     @main
     def diff(

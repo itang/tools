@@ -1,10 +1,18 @@
 package diff.impl
 
 import java.io.File
-import diff.api.{Diff, DiffItem, DiffResult, FileTree, Formatter, Loader}
+import diff.api.{
+    AbstractFileTreeDiff,
+    AbstractFileTreeLoader,
+    DiffItem,
+    DiffResult,
+    DiffResultFormatter,
+    FileTree,
+    FileTreeFormatter
+}
 
 /// Loader
-class FileTreeLoader extends Loader[File, FileTree]:
+class FileTreeLoader extends AbstractFileTreeLoader:
     override def load(root: File): FileTree =
         // @rec
         def _walk(file: File): FileTree =
@@ -20,7 +28,7 @@ class FileTreeLoader extends Loader[File, FileTree]:
 end FileTreeLoader
 
 /// 差异化对比实现
-class DiffImpl extends Diff[FileTree, DiffResult]:
+class FileTreeDiffImpl extends AbstractFileTreeDiff:
     override def diff(left: FileTree, right: FileTree): DiffResult =
         val items = diffFileTree(left, right)
 
@@ -45,9 +53,9 @@ class DiffImpl extends Diff[FileTree, DiffResult]:
 
     end diffFileTree
 
-end DiffImpl
+end FileTreeDiffImpl
 
-given fileTreeConsoleFormatter: Formatter[FileTree] with
+given fileTreeConsoleFormatter: FileTreeFormatter with
     extension (f: FileTree)
         override def formatForConsole(level: Int): String =
             extension (f: File) private def asFileDisplay: String = if f.isDirectory then "+" else "-"
@@ -59,7 +67,7 @@ given fileTreeConsoleFormatter: Formatter[FileTree] with
 
 end fileTreeConsoleFormatter
 
-given diffResultConsoleFormatter: Formatter[DiffResult] with
+given diffResultConsoleFormatter: DiffResultFormatter with
     extension (t: DiffResult)
         override def formatForConsole(_level: Int = 0): String =
             t.items.map: item =>
