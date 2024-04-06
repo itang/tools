@@ -80,14 +80,3 @@ end DiffItem
 
 /// 对比结果表达对象
 case class DiffResult(items: List[DiffItem])
-
-/// 差异化对比特质
-trait Diff:
-    def loadFileTree(file: File): FileTree
-
-    def diff(left: FileTree, right: FileTree): DiffResult
-
-/// 格式化 type class
-trait Formatter[T]:
-    extension (t: T)
-        def formatForConsole(level: Int = 0): String

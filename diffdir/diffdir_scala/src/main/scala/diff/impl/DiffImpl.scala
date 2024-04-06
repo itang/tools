@@ -1,17 +1,11 @@
 package diff.impl
 
 import java.io.File
-import diff.api.{Diff, DiffItem, DiffResult, FileTree, Formatter}
+import diff.api.{Diff, DiffItem, DiffResult, FileTree, Formatter, Loader}
 
-/// 差异化对比实现
-class DiffImpl extends Diff:
-    override def diff(left: FileTree, right: FileTree): DiffResult =
-        val items = diffFileTree(left, right)
-
-        DiffResult(items)
-    end diff
-
-    override def loadFileTree(root: File): FileTree =
+/// Loader
+class FileTreeLoader extends Loader[File, FileTree]:
+    override def load(root: File): FileTree =
         // @rec
         def _walk(file: File): FileTree =
             if file.isDirectory then
@@ -22,7 +16,16 @@ class DiffImpl extends Diff:
                 FileTree(file, root, Array.empty)
 
         _walk(root)
-    end loadFileTree
+    end load
+end FileTreeLoader
+
+/// 差异化对比实现
+class DiffImpl extends Diff[FileTree, DiffResult]:
+    override def diff(left: FileTree, right: FileTree): DiffResult =
+        val items = diffFileTree(left, right)
+
+        DiffResult(items)
+    end diff
 
     // TODO: 树比较输出结构和优化性能
     private def diffFileTree(left: FileTree, right: FileTree): List[DiffItem] =
