@@ -87,6 +87,7 @@ trait Diff:
 
     def diff(left: FileTree, right: FileTree): DiffResult
 
+/// 格式化 type class
 trait Formatter[T]:
     extension (t: T)
         def formatForConsole(level: Int = 0): String
