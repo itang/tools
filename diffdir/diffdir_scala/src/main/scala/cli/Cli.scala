@@ -3,13 +3,14 @@ package cli
 import java.io.File
 import mainargs.{Leftover, arg, main}
 import tang.{ignore, time, |>}
-import diff.api.{Diff, DiffResult, FileTree, Loader}
+
+import diff.api.{AbstractFileTreeDiff, AbstractFileTreeLoader, DiffResult}
 import diff.impl.{FileTreeDiffImpl, FileTreeLoader, given}
 
 /// 命令行界面
 object Cli:
-    private lazy val loader: Loader[File, FileTree]   = FileTreeLoader()
-    private lazy val diff: Diff[FileTree, DiffResult] = FileTreeDiffImpl()
+    private lazy val loader: AbstractFileTreeLoader = FileTreeLoader()
+    private lazy val diff: AbstractFileTreeDiff     = FileTreeDiffImpl()
 
     @main
     def diff(
@@ -36,7 +37,7 @@ object Cli:
 
         val fileSizes = files.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
-            fileSize.walk(): (file: FileTree, level: Int) =>
+            fileSize.walk(): (file, level) =>
                 maxLevel match
                     case Some(v) if level <= v =>
                         file.formatForConsole(level) |> println
