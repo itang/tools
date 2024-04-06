@@ -58,7 +58,8 @@ end FileTreeDiffImpl
 given fileTreeConsoleFormatter: FileTreeFormatter with
     extension (f: FileTree)
         override def formatForConsole(level: Int): String =
-            extension (f: File) private def asFileDisplay: String = if f.isDirectory then "+" else "-"
+            extension (f: File)
+                private inline def asFileDisplay: String = if f.isDirectory then "+" else "-"
 
             val path   = if level == 0 then f.node.getAbsolutePath else f.node.getName
             val prefix = s"""${" " * level * 2}${f.node.asFileDisplay} $path"""
