@@ -15,9 +15,9 @@ trait Formatter[T]:
     extension (t: T)
         def formatForConsole(level: Int = 0): String
 
-abstract class AbstractFileTreeLoader extends Loader[File, FileTree]
+trait AbstractFileTreeLoader extends Loader[File, FileTree]
 
-abstract class AbstractFileTreeDiff extends Diff[FileTree, DiffResult]
+trait AbstractFileTreeDiff extends Diff[FileTree, DiffResult]
 
 trait FileTreeFormatter extends Formatter[FileTree]
 
