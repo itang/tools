@@ -2,8 +2,8 @@ package diff.impl
 
 import java.io.File
 import diff.api.{
-    AbstractFileTreeDiff,
-    AbstractFileTreeLoader,
+    FileTreeDiff,
+    FileTreeLoader,
     DiffItem,
     DiffResult,
     DiffResultFormatter,
@@ -12,7 +12,7 @@ import diff.api.{
 }
 
 /// Loader
-class FileTreeLoader extends AbstractFileTreeLoader:
+class FileTreeLoaderImpl extends FileTreeLoader:
     override def load(root: File): FileTree =
         // @rec
         def _walk(file: File): FileTree =
@@ -25,10 +25,10 @@ class FileTreeLoader extends AbstractFileTreeLoader:
 
         _walk(root)
     end load
-end FileTreeLoader
+end FileTreeLoaderImpl
 
 /// 差异化对比实现
-class FileTreeDiffImpl extends AbstractFileTreeDiff:
+class FileTreeDiffImpl extends FileTreeDiff:
     override def diff(left: FileTree, right: FileTree): DiffResult =
         val items = diffFileTree(left, right)
 
