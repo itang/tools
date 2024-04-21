@@ -1,6 +1,4 @@
-package diff.api
-
-import diff.api.FileTree.{_1024, _1024d}
+package diff.api.types
 
 import java.io.File
 
@@ -20,6 +18,8 @@ object FileTree:
 
 /// 带层级的文件树结构
 case class FileTree(node: File, root: File, children: Array[FileTree]) extends TreeNode[File, FileTree]:
+
+    import FileTree.{_1024d, _1024}
 
     // NOTICE: 需确保children的totalSize先计算好
     private val totalSize: Long            = if node.isDirectory then children.map(_.totalSize).sum else node.length()
@@ -76,13 +76,3 @@ case class FileTree(node: File, root: File, children: Array[FileTree]) extends T
     end walk
 
 end FileTree
-
-/// 差异化对比项
-case class DiffItem(left: Option[FileTree], right: Option[FileTree]):
-    def isSizeEq: Option[Boolean] = (left, right) match
-        case (Some(l), Some(r)) => Some(l.node.length() == r.node.length())
-        case _                  => None
-end DiffItem
-
-/// 对比结果表达对象
-case class DiffResult(items: List[DiffItem])

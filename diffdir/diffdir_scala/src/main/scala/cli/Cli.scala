@@ -4,7 +4,8 @@ import java.io.File
 import mainargs.{Leftover, arg, main}
 import tang.{ignore, time, |>}
 
-import diff.api.{FileTreeDiff, FileTreeLoader, DiffResult}
+import diff.api.types.DiffResult
+import diff.api.{FileTreeDiff, FileTreeLoader}
 import diff.impl.{FileTreeDiffImpl, FileTreeLoaderImpl, given}
 
 /// 命令行界面
