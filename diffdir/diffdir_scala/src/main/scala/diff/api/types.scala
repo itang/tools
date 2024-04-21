@@ -1,5 +1,7 @@
 package diff.api
 
+import diff.api.FileTree.{_1024, _1024d}
+
 import java.io.File
 
 /// 树形结构
@@ -12,19 +14,23 @@ trait TreeNode[N, T <: TreeNode[N, T]]:
     val children: Array[T]
 end TreeNode
 
+object FileTree:
+    private val _1024: Int     = 1024
+    private val _1024d: Double = _1024.toDouble
+
 /// 带层级的文件树结构
 case class FileTree(node: File, root: File, children: Array[FileTree]) extends TreeNode[File, FileTree]:
 
     // NOTICE: 需确保children的totalSize先计算好
     private val totalSize: Long            = if node.isDirectory then children.map(_.totalSize).sum else node.length()
-    private inline def totalSizeKB: Double = totalSize / 1024.0
-    private inline def totalSizeMB: Double = totalSize / 1024.0 / 1024.0
-    private inline def totalSizeGB: Double = totalSize / 1024.0 / 1024.0 / 1024.0
+    private inline def totalSizeKB: Double = totalSize / _1024d
+    private inline def totalSizeMB: Double = totalSize / _1024d / _1024d
+    private inline def totalSizeGB: Double = totalSize / _1024d / _1024d / _1024d
 
     val totalSizeHuman: String =
-        if totalSize > 1024 * 1024 * 1024 then f"$totalSizeGB%.3fGB"
-        else if totalSize > 1024 * 1024 then f"$totalSizeMB%.3fMB"
-        else if totalSize > 1024 then f"$totalSizeKB%.3fKB"
+        if totalSize > _1024 * _1024 * _1024 then f"$totalSizeGB%.3fGB"
+        else if totalSize > _1024 * _1024 then f"$totalSizeMB%.3fMB"
+        else if totalSize > _1024 then f"$totalSizeKB%.3fKB"
         else s"${totalSize}B"
     end totalSizeHuman
 
