@@ -36,6 +36,8 @@ object Cli:
     ): Unit = time {
         println(s"DEBUG: $maxLevel $files")
 
+        doCheckFiles(files)
+
         val fileSizes = files.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
             fileSize.walk(): (file, level) =>
@@ -48,5 +50,11 @@ object Cli:
             println()
         end for
     }.ignore()
+
+    private def doCheckFiles(files: Leftover[String]): Unit =
+        if files.value.isEmpty then
+            println(s"INFO: please input the files.")
+
+            System.exit(1)
 
 end Cli

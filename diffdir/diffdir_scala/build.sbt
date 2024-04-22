@@ -37,7 +37,7 @@ lazy val root = project.in(file("."))
 
 lazy val projectNativeImageOptions = Seq(
   //"-H:CompilerBackend=llvm", // gu install llvm-toolchain
-  "-Ob", // to speed up builds during development
+  //"-Ob", // to speed up builds during development
   "--no-fallback",
   "--report-unsupported-elements-at-runtime",
   "-H:+ReportExceptionStackTraces",

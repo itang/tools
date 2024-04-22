@@ -3,61 +3,70 @@ set shell := ["nu", "-c"]
 default:
   just --list
 
-test:
-  mill test
-
-test-sbt:
-  sbt test
 
 compile-sbt:
   sbt compile
 
-run:
+compile-mill:
+  mill compile
+
+alias compile := compile-mill
+
+run-mill:
   mill run diff --left-file D:\downloads\a --right-file D:\downloads\b
-
-dev:
-  mill --watch run diff --left-file D:\downloads\a --right-file D:\downloads\b
-
-build:
-  sbt 'show graalvm-native-image:packageBin'
-
-[windows]
-install-sbt: build
-  cp target/graalvm-native-image/diffdir_scala.exe D:/dev-env/bin/idir.exe
-
-build-mill:
-  mill nativeImage
-
 
 run-sbt:
   sbt run
 
+alias run := run-mill
+
+
+dev-mill:
+  mill --watch run diff --left-file D:\downloads\a --right-file D:\downloads\b
+
+dev-sbt:
+  sbt '~reStart --- -Dfile.encoding=utf-8'
+
+alias dev := dev-mill
+
+
+build-sbt:
+  sbt 'show graalvm-native-image:packageBin'
+
+build-mill:
+  mill nativeImage
+
+alias build := build-sbt
+
+
 re-edit-bsp:
   deno task edit:clean ; deno task edit:bsp
 
-compile:
-  mill compile
-
-dist:
+dist-sbt:
   sbt stage
+
+alias dist := dist-sbt
+
+
+
+[windows]
+install-sbt: build-sbt
+  cp target/graalvm-native-image/diffdir_scala.exe D:/dev-env/bin/idir.exe
 
 [windows]
 install-mill: build-mill
   cp out/nativeImage.dest/diffdir_scala.exe D:/dev-env/bin/
 
-
 target_dir := "D:/dev-env/diffdir_scala"
 
 [windows]
-install: dist
+install-jit: dist-sbt
     rm -rf {{target_dir}}
     mkdir {{target_dir}}
     cp -rf target/universal/stage/* {{target_dir}}
     cp {{target_dir}}/bin/diffdir_scala.bat {{target_dir}}/bin/idir.bat
 
-
-dev-sbt:
-  sbt '~reStart --- -Dfile.encoding=utf-8'
+alias install := install-sbt
 
 
 console:
@@ -68,3 +77,10 @@ fatjar:
 
 run-fatjar: fatjar
   java -DSOME_KEY=1 -jar target/scala-3.4.0/diffdir_scala-assembly-0.1.0-SNAPSHOT.jar
+
+
+test:
+  mill test
+
+test-sbt:
+  sbt test
