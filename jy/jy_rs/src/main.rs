@@ -12,7 +12,7 @@ use std::fs;
 use anyhow::{Error, Result};
 
 use jy::{
-    self, browser,
+    browser, config,
     opt::{self, IConfigPath, Opt},
 };
 
@@ -30,7 +30,7 @@ fn handle_jy(opt: Opt) -> Result<()> {
     let config = match opt.get_config_path() {
         Ok(path) => {
             println!("INFO: 配置路径:{:?}", path);
-            match jy::get_config(&path) {
+            match config::get_config(&path) {
                 Ok(content) => content,
                 Err(e) => panic!("WARN: 尝试从配置路径加载文件失败 {:?}, error: {}", path, e),
             }
@@ -42,7 +42,7 @@ fn handle_jy(opt: Opt) -> Result<()> {
             let home_config_path = home_config_dir.join(opt::DEFAULT_FILE_NAME);
             if home_config_path.exists() {
                 println!("INFO: 默认配置文件存在 {:?}", home_config_path);
-                jy::get_config(home_config_path)?
+                config::get_config(home_config_path)?
             } else {
                 fs::create_dir(home_config_dir).expect("create dir");
                 println!("WARN: 默认配置文件不存在, 使用默认配置列表创建{:?}...", home_config_path);
@@ -52,7 +52,7 @@ fn handle_jy(opt: Opt) -> Result<()> {
         },
     };
 
-    let urls = jy::urls(config);
+    let urls = config::get_urls(config);
 
     browser::browser_batch(urls, opt.dry_run)
 }
