@@ -53,7 +53,7 @@ fn handle_jy(opt: Opt) -> Result<()> {
 
     let urls = jy::urls(config);
 
-    browser::browser_batch(urls)
+    browser::browser_batch(urls, opt.dry_run)
 }
 
 fn handle_show_info() -> Result<(), Error> {

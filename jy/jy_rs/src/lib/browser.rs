@@ -3,10 +3,12 @@
 use anyhow::Result;
 
 /// browser batch urls
-pub fn browser_batch(urls: Vec<String>) -> Result<()> {
+pub fn browser_batch(urls: Vec<String>, dry_run: bool) -> Result<()> {
     for (index, url) in urls.iter().enumerate() {
         println!("{index:4}: open {url}", index = index + 1);
-        browser_single_url(url)?;
+        if !dry_run {
+            browser_single_url(url)?;
+        }
     }
 
     Ok(())

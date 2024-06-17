@@ -22,11 +22,11 @@ pub struct Opt {
     config: Option<PathBuf>,
 
     /// Dry run mode
-    #[arg(short, long)]
+    #[arg(long)]
     pub dry_run: bool,
 
     /// Show info
-    #[arg(short, long)]
+    #[arg(long)]
     pub show_info: bool,
 }
 

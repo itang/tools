@@ -7,12 +7,12 @@
 //! jy lib.
 //!
 
+pub mod browser;
+pub mod opt;
+
 use anyhow::Result;
 use std::{fs, path::Path};
 use toml::Value;
-
-pub mod browser;
-pub mod opt;
 
 /// get content from path
 pub fn get_config<P>(config_path: P) -> Result<Value>

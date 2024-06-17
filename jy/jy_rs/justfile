@@ -1,0 +1,17 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+fmt:
+  cargo fmt
+
+lint:
+  cargo clippy
+
+run:
+  cargo run
+
+install:
+  cargo install --locked --path .
+

@@ -1,8 +1,0 @@
-{
-  "tasks": {
-    "fmt": "cargo fmt",
-    "lint": "cargo clippy",
-    "run": "cargo run",
-    "install": "cargo install --locked --path ."
-  }
-}
