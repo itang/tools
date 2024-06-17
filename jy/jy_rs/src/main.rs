@@ -38,6 +38,7 @@ fn handle_jy(opt: Opt) -> Result<()> {
         Err(_) => {
             let home_config_dir = dirs::home_dir().expect("get home dir").join(".jy");
             println!("INFO: 未指定要加载配置文件, 尝试从{:?}加载", home_config_dir);
+
             let home_config_path = home_config_dir.join(opt::DEFAULT_FILE_NAME);
             if home_config_path.exists() {
                 println!("INFO: 默认配置文件存在 {:?}", home_config_path);

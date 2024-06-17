@@ -10,8 +10,9 @@
 pub mod browser;
 pub mod opt;
 
-use anyhow::Result;
 use std::{fs, path::Path};
+
+use anyhow::Result;
 use toml::Value;
 
 /// get content from path
