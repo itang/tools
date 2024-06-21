@@ -30,13 +30,6 @@ pub struct Opt {
     pub show_info: bool,
 }
 
-// impl Opt {
-//     /// parse from args
-//     pub fn get() -> Self {
-//         Self::parse()
-//     }
-// }
-
 impl IConfigPath for Opt {
     fn get_config_path(&self) -> Result<PathBuf> {
         match &self.config {
