@@ -17,12 +17,20 @@ where
     Ok(result?)
 }
 
-/// get urls from toml config
-pub fn get_urls(config: Value) -> Vec<String> {
-    let urls = config["urls"]
-        .as_array()
-        .into_iter()
-        .flat_map(|x| x.iter().flat_map(|y| y.as_str().into_iter()))
-        .map(|x| x.to_string());
-    urls.collect()
+///Urls
+pub trait Urls {
+    ///get urls
+    fn urls(&self) -> Vec<String>;
+}
+
+impl Urls for Value {
+    /// get urls from toml config
+    fn urls(&self) -> Vec<String> {
+        let urls = self["urls"]
+            .as_array()
+            .into_iter()
+            .flat_map(|x| x.iter().flat_map(|y| y.as_str().into_iter()))
+            .map(|x| x.to_string());
+        urls.collect()
+    }
 }

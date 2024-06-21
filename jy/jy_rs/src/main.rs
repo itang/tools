@@ -10,23 +10,23 @@
 use std::fs;
 
 use anyhow::{Error, Result};
+use clap::Parser;
 
-use jy::{
-    browser, config,
-    opt::{self, IConfigPath, Opt},
-};
+use jy::browser;
+use jy::config::{self, Urls};
+use jy::opt::{self, IConfigPath, Opt};
 
 fn main() -> Result<()> {
-    let opt = Opt::get();
+    let opt = Opt::parse();
     println!("{opt:?}");
 
     match opt {
-        Opt { show_info: true, .. } => handle_show_info(),
-        _ => handle_jy(opt),
+        Opt { show_info: true, .. } => show_info(),
+        _ => run_jy(opt),
     }
 }
 
-fn handle_jy(opt: Opt) -> Result<()> {
+fn run_jy(opt: Opt) -> Result<()> {
     let config = match opt.get_config_path() {
         Ok(path) => {
             println!("INFO: 配置路径:{:?}", path);
@@ -52,12 +52,12 @@ fn handle_jy(opt: Opt) -> Result<()> {
         },
     };
 
-    let urls = config::get_urls(config);
+    let urls = config.urls();
 
     browser::browser_batch(urls, opt.dry_run)
 }
 
-fn handle_show_info() -> Result<(), Error> {
+fn show_info() -> Result<(), Error> {
     println!("CONFIG_PATH_ENV_KEY: {}", opt::CONFIG_PATH_ENV_KEY);
     println!("ENV {} VALUE: {:?}", opt::CONFIG_PATH_ENV_KEY, std::env::var(opt::CONFIG_PATH_ENV_KEY));
     println!("DEFAULT FILE NAME: {}", opt::DEFAULT_FILE_NAME);

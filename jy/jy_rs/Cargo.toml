@@ -1,6 +1,6 @@
 [package]
 name = "jy"
-version = "0.3.7-20240617.1"
+version = "0.3.8-20240621.1"
 authors = ["itang <live.tang@gmail.com>"]
 edition = "2021"
 
