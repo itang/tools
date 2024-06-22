@@ -19,16 +19,16 @@ impl Browser for BrowserImpl {
 pub struct ConfigProviderImpl {}
 
 impl ConfigProvider for ConfigProviderImpl {
-    fn get_config(&self, path: anyhow::Result<PathBuf>) -> anyhow::Result<Value> {
+    fn get_config(&self, path: Option<PathBuf>) -> anyhow::Result<Value> {
         let config = match path {
-            Ok(path) => {
+            Some(path) => {
                 println!("INFO: 配置路径:{:?}", path);
                 match get_config(&path) {
                     Ok(content) => content,
                     Err(e) => panic!("WARN: 尝试从配置路径加载文件失败 {:?}, error: {}", path, e),
                 }
             },
-            Err(_) => {
+            None => {
                 let home_config_dir = dirs::home_dir().expect("get home dir").join(".jy");
                 println!("INFO: 未指定要加载配置文件, 尝试从{:?}加载", home_config_dir);
 

@@ -15,7 +15,7 @@ pub struct JiayouList {
 
 impl JiayouList {
     /// parse
-    pub fn parse(config_path: anyhow::Result<PathBuf>, cp: impl ConfigProvider) -> anyhow::Result<Self> {
+    pub fn parse(config_path: Option<PathBuf>, cp: impl ConfigProvider) -> anyhow::Result<Self> {
         let config = cp.get_config(config_path)?;
         let urls: Vec<String> = config.urls();
         let urls: Vec<Url> = urls.into_iter().map(Url).collect();
@@ -39,7 +39,7 @@ impl JiayouList {
 /// Config Provider
 pub trait ConfigProvider {
     ///get config
-    fn get_config(&self, path: anyhow::Result<PathBuf>) -> anyhow::Result<Value>;
+    fn get_config(&self, path: Option<PathBuf>) -> anyhow::Result<Value>;
 }
 
 ///Browser
