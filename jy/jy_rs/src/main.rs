@@ -6,62 +6,20 @@
 //!
 //! jy cli rust version.
 //!
+mod args;
 
-use std::fs;
-
-use anyhow::{Error, Result};
 use clap::Parser;
 
-use jy::browser;
-use jy::config::{self, Urls};
-use jy::opt::{self, IConfigPath, Opt};
+use jy::{self, RunOptions};
 
-fn main() -> Result<()> {
-    let opt = Opt::parse();
-    println!("{opt:?}");
+use self::args::Args;
 
-    match opt {
-        Opt { show_info: true, .. } => show_info(),
-        _ => run_jy(opt),
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+    println!("{args:?}");
+
+    match args {
+        Args { show_info: true, .. } => jy::show_info(),
+        Args { config, dry_run, .. } => jy::run(RunOptions { config, dry_run }),
     }
-}
-
-fn run_jy(opt: Opt) -> Result<()> {
-    let config = match opt.get_config_path() {
-        Ok(path) => {
-            println!("INFO: 配置路径:{:?}", path);
-            match config::get_config(&path) {
-                Ok(content) => content,
-                Err(e) => panic!("WARN: 尝试从配置路径加载文件失败 {:?}, error: {}", path, e),
-            }
-        },
-        Err(_) => {
-            let home_config_dir = dirs::home_dir().expect("get home dir").join(".jy");
-            println!("INFO: 未指定要加载配置文件, 尝试从{:?}加载", home_config_dir);
-
-            let home_config_path = home_config_dir.join(opt::DEFAULT_FILE_NAME);
-            if home_config_path.exists() {
-                println!("INFO: 默认配置文件存在 {:?}", home_config_path);
-                config::get_config(home_config_path)?
-            } else {
-                fs::create_dir(home_config_dir).expect("create dir");
-                println!("WARN: 默认配置文件不存在, 使用默认配置列表创建{:?}...", home_config_path);
-                fs::write(home_config_path, opt::DEFAULT_CONFIG).expect("write file");
-                opt::DEFAULT_CONFIG.into()
-            }
-        },
-    };
-
-    let urls = config.urls();
-
-    browser::browser_batch(urls, opt.dry_run)
-}
-
-fn show_info() -> Result<(), Error> {
-    println!("CONFIG_PATH_ENV_KEY: {}", opt::CONFIG_PATH_ENV_KEY);
-    println!("ENV {} VALUE: {:?}", opt::CONFIG_PATH_ENV_KEY, std::env::var(opt::CONFIG_PATH_ENV_KEY));
-    println!("DEFAULT FILE NAME: {}", opt::DEFAULT_FILE_NAME);
-    println!("DEFAULT CONFIG CONTENT:\n{}", opt::DEFAULT_CONFIG);
-
-    Ok(())
 }

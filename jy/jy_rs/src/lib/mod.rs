@@ -7,6 +7,9 @@
 //! jy lib.
 //!
 
-pub mod browser;
-pub mod config;
-pub mod opt;
+mod app;
+mod browser;
+mod config;
+mod constants;
+
+pub use self::app::{run, show_info, RunOptions};
