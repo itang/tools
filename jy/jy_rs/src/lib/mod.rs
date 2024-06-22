@@ -8,8 +8,9 @@
 //!
 
 mod app;
-mod browser;
-mod config;
 mod constants;
+
+mod domain;
+mod infrastructure;
 
 pub use self::app::{run, show_info, RunOptions};
