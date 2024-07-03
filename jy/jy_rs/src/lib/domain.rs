@@ -1,11 +1,11 @@
 //! domain
 
+mod url;
+
+pub use self::url::Url;
+
 use std::path::PathBuf;
 use toml::Value;
-
-///Url
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Url(pub String);
 
 ///jiayou list
 #[derive(Debug)]
