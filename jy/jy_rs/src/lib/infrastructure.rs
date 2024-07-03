@@ -12,7 +12,7 @@ pub struct BrowserImpl;
 
 impl Browser for BrowserImpl {
     fn browser_single_url(&self, url: &Url) -> anyhow::Result<()> {
-        Ok(webbrowser::open(&url.0)?)
+        Ok(webbrowser::open(url)?) //AsRef<str>
     }
 }
 
