@@ -1,11 +1,8 @@
-//! domain
-
-mod url;
-
-pub use self::url::Url;
-
 use std::path::PathBuf;
 use toml::Value;
+
+use crate::domain::gateway::{Browser, ConfigProvider};
+use crate::domain::Url;
 
 ///jiayou list
 #[derive(Debug)]
@@ -34,18 +31,6 @@ impl JiayouList {
 
         Ok(())
     }
-}
-
-/// Config Provider
-pub trait ConfigProvider {
-    ///get config
-    fn get_config(&self, path: Option<PathBuf>) -> anyhow::Result<Value>;
-}
-
-///Browser
-pub trait Browser {
-    /// browser single url
-    fn browser_single_url(&self, url: &Url) -> anyhow::Result<()>;
 }
 
 ///Urls

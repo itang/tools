@@ -7,10 +7,8 @@
 //! jy lib.
 //!
 
-mod app;
-mod constants;
-
+mod application;
 mod domain;
 mod infrastructure;
 
-pub use self::app::{run, show_info, RunOptions};
+pub use self::application::{run, show_info, RunOptions};

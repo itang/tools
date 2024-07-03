@@ -1,26 +1,11 @@
-//!infrastructure
-
 use std::fs;
 use std::path::{Path, PathBuf};
-
 use toml::Value;
 
-use crate::constants;
-use crate::domain::{Browser, ConfigProvider, Url};
+use crate::domain::constants;
+use crate::domain::gateway::ConfigProvider;
 
-pub struct BrowserImpl;
-
-impl Browser for BrowserImpl {
-    fn browser_single_url(&self, url: &Url) -> anyhow::Result<()> {
-        Ok(webbrowser::open(url)?) // Deref coercion
-        //If T implements Deref<Target = U>, and v is a value of type T, then:
-        //    In immutable contexts, *v (where T is neither a reference nor a raw pointer) is equivalent to *Deref::deref(&v).
-        //    Values of type &T are coerced to values of type &U
-        //    T implicitly implements all the methods of the type U which take the &self receiver.
-    }
-}
-
-pub struct ConfigProviderImpl {}
+pub(crate) struct ConfigProviderImpl {}
 
 impl ConfigProvider for ConfigProviderImpl {
     fn get_config(&self, path: Option<PathBuf>) -> anyhow::Result<Value> {

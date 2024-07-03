@@ -1,4 +1,4 @@
-//! app
+//! application
 //!
 
 use std::env;
@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Error;
 
-use crate::constants;
+use crate::domain::constants;
 use crate::domain::JiayouList;
 use crate::infrastructure::{BrowserImpl, ConfigProviderImpl};
 

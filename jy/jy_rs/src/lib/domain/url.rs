@@ -10,12 +10,6 @@ impl From<String> for Url {
     }
 }
 
-impl Url {
-    pub fn into_string(self) -> String {
-        self.0
-    }
-}
-
 impl AsRef<str> for Url {
     fn as_ref(&self) -> &str {
         &self.0
@@ -29,3 +23,9 @@ impl Deref for Url {
         &self.0
     }
 }
+
+// impl Url {
+//     pub fn into_string(self) -> String {
+//         self.0
+//     }
+// }
