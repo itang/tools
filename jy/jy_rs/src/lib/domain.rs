@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use toml::Value;
 
 ///Url
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Url(pub String);
 
 ///jiayou list
@@ -49,12 +49,12 @@ pub trait Browser {
 }
 
 ///Urls
-trait Urls {
+trait GetUrls {
     ///get urls
     fn urls(&self) -> Vec<String>;
 }
 
-impl Urls for Value {
+impl GetUrls for Value {
     /// get urls from toml config
     fn urls(&self) -> Vec<String> {
         let urls = self["urls"]
