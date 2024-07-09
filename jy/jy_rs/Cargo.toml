@@ -1,13 +1,13 @@
 [package]
 name = "jy"
-version = "0.3.8-20240621.1"
+version = "0.3.9-20240707.1"
 authors = ["itang <live.tang@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "jy"
-path = "src/lib/mod.rs"
+path = "src/lib/lib.rs"
 
 [dependencies]
 anyhow = "1.0.86"
