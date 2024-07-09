@@ -1,5 +1,7 @@
 //! types module.
-use async_trait::async_trait;
+use std::future::Future;
+//use async_trait::async_trait;
+
 use tabled::Tabled;
 
 /// News.
@@ -12,8 +14,12 @@ pub struct News {
 }
 
 /// Portal trait.
-#[async_trait]
+//#[async_trait]
 pub trait Portal {
+    //async fn get_news() -> Result<Vec<News>, Box<dyn std::error::Error>>;
+
     /// Returns news.
-    async fn get_news() -> Result<Vec<News>, Box<dyn std::error::Error>>;
+    ///TODO: https://blog.rust-lang.org/inside-rust/2022/11/17/async-fn-in-trait-nightly.html
+
+    fn get_news() -> impl Future<Output = Result<Vec<News>, Box<dyn std::error::Error>>> + Send;
 }

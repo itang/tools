@@ -1,5 +1,5 @@
 //! sina module.
-use async_trait::async_trait;
+//use async_trait::async_trait;
 use scraper::Html;
 use scraper::Selector;
 
@@ -8,7 +8,7 @@ use crate::types::*;
 /// Sina.
 pub struct Sina;
 
-#[async_trait]
+//#[async_trait]
 impl Portal for Sina {
     async fn get_news() -> Result<Vec<News>, Box<dyn std::error::Error>> {
         let content = reqwest::get("https://news.sina.com.cn/")
@@ -24,7 +24,12 @@ impl Portal for Sina {
             .select(&selector)
             .map(|element| News {
                 title: element.text().collect::<String>().trim().to_string(),
-                href: element.value().attr("href").expect("get href").trim().to_string(),
+                href: element
+                    .value()
+                    .attr("href")
+                    .expect("get href")
+                    .trim()
+                    .to_string(),
             })
             .collect();
 
