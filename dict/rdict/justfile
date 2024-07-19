@@ -6,3 +6,5 @@ default:
 install:
   cargo install --path .
 
+fmt:
+  cargo fmt

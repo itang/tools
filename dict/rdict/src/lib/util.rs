@@ -2,7 +2,7 @@ use std::error::Error;
 
 // use serde::ser::Serialize;
 
-pub async fn http_get_as_string(url: &str) -> Result<String, Box<dyn Error>> {
+pub(crate) async fn http_get_as_string(url: &str) -> Result<String, Box<dyn Error>> {
     Ok(reqwest::get(url).await?.text().await?)
 }
 

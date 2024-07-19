@@ -11,6 +11,7 @@ use clap::Parser;
 //use serde::Deserialize;
 
 // use rdict::TransResult;
+use rdict::dict;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, name = "rdict", about = "rdict usage.", long_about = None)]
@@ -46,7 +47,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn process_word(word: &str) {
     println!("{}:", Colour::Green.paint(word));
 
-    match rdict::dict(word).await {
+    match dict(word).await {
         Ok(trans) => {
             println!("\t->: {}", Colour::Blue.paint(trans));
             //post_to_cloud(word, trans)

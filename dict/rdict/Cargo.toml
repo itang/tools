@@ -4,6 +4,8 @@ name = "rdict"
 version = "0.5.0-20240719.1"
 edition = "2021"
 
+[lib]
+path = "src/lib/lib.rs"
 
 [dependencies]
 toml = "0.8.15"

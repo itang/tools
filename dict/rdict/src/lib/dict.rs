@@ -1,15 +1,3 @@
-//! rdict lib
-//!
-#![deny(clippy::unwrap_used)]
-#![forbid(unsafe_code)]
-#![deny(missing_docs)]
-
-use std::error::Error;
-
-// use serde::{Deserialize, Serialize};
-
-mod util;
-
 // ///Translate Result
 // #[derive(Serialize, Deserialize, Debug)]
 // pub struct TransResult {
@@ -18,6 +6,10 @@ mod util;
 //     ///from
 //     pub from: String,
 // }
+
+use std::error::Error;
+
+use crate::util;
 
 /// dict
 pub async fn dict(word: &str) -> Result<String, Box<dyn Error>> {
