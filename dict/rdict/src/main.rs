@@ -1,58 +1,64 @@
-use serde_derive::Deserialize;
+#![deny(clippy::unwrap_used)]
+#![forbid(unsafe_code)]
 
-use std::fs;
+use std::error::Error;
+// use std::fs;
 use std::io::{self, Write};
-use std::path::PathBuf;
+// use std::path::PathBuf;
 
 use ansi_term::Colour;
-use structopt::StructOpt;
+use clap::Parser;
+//use serde::Deserialize;
 
-use rdict::TransResult;
+// use rdict::TransResult;
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "rdict", about = "rdict usage.")]
+#[derive(Parser, Debug)]
+#[clap(author, version, name = "rdict", about = "rdict usage.", long_about = None)]
 struct Opt {
-    #[structopt(help = "Input words")]
+    #[clap(help = "Input words")]
     words: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
-struct Config {
-    upstream_url: Option<String>,
-}
+// #[derive(Debug, Deserialize)]
+// struct Config {
+//     upstream_url: Option<String>,
+// }
 
-const DICT_LOG_URL: &str = "http://dict.godocking.com/api/dict/logs";
+// const DICT_LOG_URL: &str = "http://dict.godocking.com/api/dict/logs";
 
-fn main() {
-    let opt = Opt::from_args();
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let opt = Opt::parse();
 
     if opt.words.is_empty() {
         print!("{}", Colour::Red.paint("Please input the word: "));
-        io::stdout().flush().unwrap();
-        process_from_input();
+        io::stdout().flush()?;
+        process_from_input().await;
     } else {
         for word in opt.words.iter() {
-            process_word(word);
+            process_word(word).await;
         }
     }
+
+    Ok(())
 }
 
-fn process_word(word: &str) {
+async fn process_word(word: &str) {
     println!("{}:", Colour::Green.paint(word));
 
-    match rdict::dict(word) {
-        Ok(ref trans) => {
-            println!("\t->: {}", Colour::Blue.paint(trans.to_string()));
+    match rdict::dict(word).await {
+        Ok(trans) => {
+            println!("\t->: {}", Colour::Blue.paint(trans));
             //post_to_cloud(word, trans)
-        }
+        },
         Err(err) => println!("\terror: {}", err),
     }
 }
 
-fn process_from_input() {
+async fn process_from_input() {
     match word_from_input() {
         Some(ref v) if *v == ":quit" || *v == ":q" => println!("Bye."),
-        Some(ref v) => process_word(v),
+        Some(ref v) => process_word(v).await,
         None => println!("Error: {}", Colour::Red.paint("Please input word.")),
     }
 }
@@ -67,42 +73,36 @@ fn word_from_input() -> Option<String> {
     None
 }
 
-fn post_to_cloud(from: &str, to: &str) {
-    println!("\ntry post to cloud...");
+// fn post_to_cloud(from: &str, to: &str) {
+//     println!("\ntry post to cloud...");
+//
+//     let upstream_url = match get_upstream_url_from_config() {
+//         Ok(Some(url)) => url,
+//         Ok(None) => DICT_LOG_URL.to_string(),
+//         Err(e) => {
+//             println!("WARN: {}", e);
+//             DICT_LOG_URL.to_string()
+//         },
+//     };
+//     println!("post to {}", upstream_url);
+//     match rdict::post_to_cloud(&upstream_url, &TransResult { to: to.to_string(), from: from.to_string() }) {
+//         Ok(resp) => println!("\t->: {}", resp),
+//         Err(err) => println!("error: {}", err),
+//     }
+// }
 
-    let upstream_url = match get_upstream_url_from_config() {
-        Ok(Some(url)) => url,
-        Ok(None) => DICT_LOG_URL.to_string(),
-        Err(e) => {
-            println!("WARN: {}", e);
-            DICT_LOG_URL.to_string()
-        }
-    };
-    println!("post to {}", upstream_url);
-    match rdict::post_to_cloud(
-        &upstream_url,
-        &TransResult {
-            to: to.to_string(),
-            from: from.to_string(),
-        },
-    ) {
-        Ok(resp) => println!("\t->: {}", resp),
-        Err(err) => println!("error: {}", err),
-    }
-}
+// fn get_upstream_url_from_config() -> Result<Option<String>, io::Error> {
+//     let mut path: PathBuf = get_app_dir();
+//     path.push(".rdict/config");
+//     path.set_extension("toml");
+//
+//     let content = fs::read_to_string(path)?;
+//
+//     let config: Config = toml::from_str(&content).expect("toml parse error");
+//
+//     Ok(config.upstream_url)
+// }
 
-fn get_upstream_url_from_config() -> Result<Option<String>, io::Error> {
-    let mut path: PathBuf = get_app_dir();
-    path.push(".rdict/config");
-    path.set_extension("toml");
-
-    let content = fs::read_to_string(path)?;
-
-    let config: Config = toml::from_str(&content).expect("toml parse error");
-
-    Ok(config.upstream_url)
-}
-
-fn get_app_dir() -> PathBuf {
-    dirs::home_dir().unwrap_or_else(|| PathBuf::from(""))
-}
+// fn get_app_dir() -> PathBuf {
+//     dirs::home_dir().unwrap_or_else(|| PathBuf::from(""))
+// }
