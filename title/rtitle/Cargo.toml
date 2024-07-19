@@ -5,8 +5,9 @@ version = "0.3.1-20220203"
 edition = "2021"
 
 [dependencies]
-chrono = "0.4.19"
-reqwest = { version = "0.11", features = ["blocking", "json"] }
+chrono = "0.4.38"
+reqwest = { version = "0.12.5", features = ["json"] }
+tokio = { version = "1.38.1", features = ["rt", "macros"] }
 
 [profile.release]
 strip = "debuginfo"

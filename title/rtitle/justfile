@@ -1,0 +1,7 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+install:
+  cargo install --path .

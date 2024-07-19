@@ -1,4 +1,7 @@
-use chrono::*;
+#![deny(clippy::unwrap_used)]
+#![forbid(unsafe_code)]
+
+use chrono::{DateTime, Local};
 use std::env;
 
 struct Item {
@@ -8,22 +11,27 @@ struct Item {
 
 impl Item {
     fn new(url: String, title: String) -> Self {
-        Item { url, title }
+        Self { url, title }
     }
 }
 
-const VERSION: &str = "0.3.1-20220203";
+const VERSION: &str = "0.3.2-20240719.01";
 
-fn main() {
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
     match &args[..] {
         [] => {
             println!("Please input the url.");
             print_help();
-        }
+        },
         [head, ..] if head == "-h" || head == "--help" => print_help(),
         [head, ..] if head == "-v" || head == "--version" => print_version(),
-        [url, ..] => rtitle(url),
+        urls => {
+            for url in urls {
+                print_title(url).await;
+            }
+        },
     }
 }
 
@@ -35,31 +43,22 @@ fn print_help() {
     println!("e.g.\n  rtitle <url>")
 }
 
-fn rtitle(url: &str) {
-    let ret = title(url);
+async fn print_title(url: &str) {
+    let ret = title(url).await;
     match ret {
         Ok(Item { url, title }) => {
             let local: DateTime<Local> = Local::now();
             let now = local.format("%Y-%m-%d %H:%M");
 
-            println!(
-                "\nrs << Read.new \"{url}\",\n  title: \"{title}\",\n  created_at: \"{now}\"\n"
-            );
-        }
+            println!("\nrs << Read.new \"{url}\",\n  title: \"{title}\",\n  created_at: \"{now}\"\n");
+        },
         Err(e) => println!("\t{}", e),
     }
 }
 
-/*
-fn url_from_args() -> Result<String, String> {
-    env::args()
-        .nth(1)
-        .ok_or_else(|| "Please input the url.".to_string())
-}*/
-
-fn title(url: &str) -> Result<Item, String> {
-    fn http_get_as_string(url: &str) -> reqwest::Result<String> {
-        reqwest::blocking::get(url)?.text()
+async fn title(url: &str) -> Result<Item, String> {
+    async fn http_get_as_string(url: &str) -> reqwest::Result<String> {
+        reqwest::get(url).await?.text().await
     }
 
     fn extract_ret(mut content: String) -> Result<String, String> {
@@ -79,16 +78,15 @@ fn title(url: &str) -> Result<Item, String> {
     }
 
     http_get_as_string(url)
+        .await
         .map_err(|err| format!("error: {:?}", err))
         .and_then(extract_ret)
         .map(|title| Item::new(url.to_string(), title))
 }
 
 /// ////////////////////////////////////////////////////////////////////////////
-#[test]
-fn test_title() {
-    assert_eq!(
-        title("http://www.baidu.com").unwrap().title,
-        "百度一下，你就知道".to_string()
-    );
+#[tokio::test]
+async fn test_title() {
+    let r = title("http://www.baidu.com").await.expect("title");
+    assert_eq!(r.title, "百度一下，你就知道");
 }
