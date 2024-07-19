@@ -26,7 +26,7 @@ struct Opt {
 
 // const DICT_LOG_URL: &str = "http://dict.godocking.com/api/dict/logs";
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::parse();
 
