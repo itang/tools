@@ -1,9 +1,6 @@
 //! rtitle crate
 //!
-#[forbid(unsafe_code)]
 
+pub use title::{Title, ExtractError};
 
-pub use rtitle::print_title;
-
-
-mod rtitle;
+mod title;
