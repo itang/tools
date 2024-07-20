@@ -1,12 +1,3 @@
-// ///Translate Result
-// #[derive(Serialize, Deserialize, Debug)]
-// pub struct TransResult {
-//     ///to
-//     pub to: String,
-//     ///from
-//     pub from: String,
-// }
-
 use std::error::Error;
 
 use crate::util;
@@ -33,18 +24,6 @@ pub async fn dict(word: &str) -> Result<String, Box<dyn Error>> {
         .await
         .and_then(|content| extract_result(content).ok_or_else(|| From::from("无法解析获取翻译内容")))
 }
-
-//const MAX_TO_CHARS: usize = 100;
-
-// pub fn post_to_cloud(upstream_url: &str, tr: &TransResult) -> Result<String, Box<dyn Error>> {
-//     if tr.to.len() > MAX_TO_CHARS {
-//         let msg = format!("Too large content({} chars), ignore to post!", tr.to.len());
-//         println!("INFO: {}", msg);
-//         Err(From::from(msg))
-//     } else {
-//         util::http_post_as_string(upstream_url, tr)
-//     }
-// }
 
 /// ////////////////////////////////////////////////////////////////////////////
 #[tokio::test]
