@@ -1,9 +1,9 @@
 #![deny(clippy::unwrap_used)]
 #![forbid(unsafe_code)]
 
-use crate::app::{Args, Router};
-
 use anyhow::Result;
+
+use crate::app::{Args, Router};
 
 mod app;
 

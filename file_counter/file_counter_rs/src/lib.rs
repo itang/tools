@@ -6,8 +6,9 @@
 //!
 //!
 
-use anyhow::Result;
 use std::path::{Path, PathBuf};
+
+use anyhow::Result;
 
 /// get all files in some dir with predicate
 pub fn files(root_dir: impl AsRef<Path>, predicate: Box<dyn Fn(&Path) -> bool>) -> Result<Vec<PathBuf>> {
@@ -18,7 +19,6 @@ pub fn files(root_dir: impl AsRef<Path>, predicate: Box<dyn Fn(&Path) -> bool>) 
             let path = entry.path();
             if path.is_file() {
                 if pred(path.as_path()) {
-                    //处理文件
                     res.push(path);
                 }
             } else if path.is_dir() {
