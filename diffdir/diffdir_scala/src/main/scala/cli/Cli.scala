@@ -36,9 +36,9 @@ object Cli:
     ): Unit = time {
         println(s"DEBUG: $maxLevel $files")
 
-        doCheckFiles(files)
+        val filesP =doCheckAndPreprocessingFiles(files)
 
-        val fileSizes = files.value.map(File(_)).map(loader.load)
+        val fileSizes = filesP.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
             fileSize.walk(): (file, level) =>
                 maxLevel match
@@ -51,10 +51,11 @@ object Cli:
         end for
     }.ignore()
 
-    private def doCheckFiles(files: Leftover[String]): Unit =
+    private def doCheckAndPreprocessingFiles(files: Leftover[String]): Leftover[String] =
         if files.value.isEmpty then
-            println(s"INFO: please input the files.")
+            println(s"INFO: Unspecified directory, use the current work directory")
+            Leftover(".")
 
-            System.exit(1)
+        else files
 
 end Cli
