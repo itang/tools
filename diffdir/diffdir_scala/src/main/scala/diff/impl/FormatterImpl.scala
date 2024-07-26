@@ -18,17 +18,18 @@ given fileTreeConsoleFormatter: FileTreeFormatter with
 
 end fileTreeConsoleFormatter
 
+//TODO: 使用tabled样式输出
 given diffResultConsoleFormatter: DiffResultFormatter with
     extension (t: DiffResult)
         override def formatForConsole(_level: Int = 0): String =
             t.items.map: item =>
                 (item.left, item.right) match
                     case (Some(l), Some(r)) =>
-                        f"${l.relatePath}%-100s => on both, size:eq: ${item.isSizeEqToString}%-5s, left:size: ${l.totalSizeHuman}%-10s, right:size: ${r.totalSizeHuman}%-10s"
+                        f"${l.relatePath}%-100s => on both side, size:eq: ${item.isSizeEqToString}%-5s, left:size: ${l.totalSizeHuman}%-10s, right:size: ${r.totalSizeHuman}%-10s"
                     case (Some(l), None) =>
-                        f"${l.relatePath}%-100s => just on left, left:size: ${l.totalSizeHuman}%-10s"
+                        f"${l.relatePath}%-100s => just on left side, left:size: ${l.totalSizeHuman}%-10s"
                     case (None, Some(r)) =>
-                        f"${r.relatePath}%-100s => just on right, right:size: ${r.totalSizeHuman}%-10s"
+                        f"${r.relatePath}%-100s => just on right side, right:size: ${r.totalSizeHuman}%-10s"
                     case _ => throw IllegalStateException("illegal state")
             .mkString("\n")
 
