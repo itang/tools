@@ -24,11 +24,11 @@ given diffResultConsoleFormatter: DiffResultFormatter with
             t.items.map: item =>
                 (item.left, item.right) match
                     case (Some(l), Some(r)) =>
-                        f"${l.relatePath}%-80s, 两边都在 size:eq: ${item.isSizeEq}, left:size: ${l.totalSizeHuman}, right:size: ${r.totalSizeHuman}"
+                        f"${l.relatePath}%-100s => on both, size:eq: ${item.isSizeEqToString}%-5s, left:size: ${l.totalSizeHuman}%-10s, right:size: ${r.totalSizeHuman}%-10s"
                     case (Some(l), None) =>
-                        f"${l.relatePath}%-80s, 只在左边 size:eq: ${item.isSizeEq}, left:size: ${l.totalSizeHuman}"
+                        f"${l.relatePath}%-100s => just on left, left:size: ${l.totalSizeHuman}%-10s"
                     case (None, Some(r)) =>
-                        f"${r.relatePath}%-80s, 只在右边 size:eq: ${item.isSizeEq}, right:size: ${r.totalSizeHuman}"
+                        f"${r.relatePath}%-100s => just on right, right:size: ${r.totalSizeHuman}%-10s"
                     case _ => throw IllegalStateException("illegal state")
             .mkString("\n")
 
