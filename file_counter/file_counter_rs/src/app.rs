@@ -70,13 +70,7 @@ mod handlers {
 
     fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
         move |p| match &ext_name {
-            Some(ext_name) => {
-                if let Some(ext) = p.extension() {
-                    ext.to_str().expect("") == trim(ext_name)
-                } else {
-                    false
-                }
-            },
+            Some(ext_name) => p.extension().is_some_and(|ext| ext.to_str().expect("to_str") == trim(ext_name)),
             None => true,
         }
     }
