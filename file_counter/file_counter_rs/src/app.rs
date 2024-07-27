@@ -31,7 +31,7 @@ impl Router {
     }
 
     pub fn run(self) -> Result<()> {
-        println!("INFO: args: {:?}", self.args);
+        println!("DEBUG: args: {:?}", self.args);
         handlers::do_files(self.args)
     }
 }
@@ -42,31 +42,17 @@ mod handlers {
     use std::path::Path;
 
     pub(super) fn do_files(args: Args) -> Result<()> {
-        fn trim(ext_name: &str) -> &str {
-            ext_name.strip_prefix(".").unwrap_or(ext_name)
-        }
-
-        fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
-            move |p| match &ext_name {
-                Some(ext_name) => {
-                    if let Some(ext) = p.extension() {
-                        ext.to_str().expect("") == trim(ext_name)
-                    } else {
-                        false
-                    }
-                },
-                None => true,
-            }
-        }
-
         let files = ifile_counter::files(args.dir, Box::new(build_predicate_fn(args.ext_name.clone())))?;
 
-        for (index, f) in files.iter().enumerate() {
-            println!("{:4}: {}", index + 1, f.to_str().expect(""));
-        }
-
         if !files.is_empty() {
-            println!("\n");
+            println!("INFO: matched files");
+            for (index, f) in files.iter().enumerate() {
+                println!("{:4}: {}", index + 1, f.to_str().expect(""));
+            }
+
+            if !files.is_empty() {
+                println!("\n");
+            }
         }
 
         println!(
@@ -76,5 +62,22 @@ mod handlers {
         );
 
         Ok(())
+    }
+
+    fn trim(ext_name: &str) -> &str {
+        ext_name.strip_prefix(".").unwrap_or(ext_name)
+    }
+
+    fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
+        move |p| match &ext_name {
+            Some(ext_name) => {
+                if let Some(ext) = p.extension() {
+                    ext.to_str().expect("") == trim(ext_name)
+                } else {
+                    false
+                }
+            },
+            None => true,
+        }
     }
 }
