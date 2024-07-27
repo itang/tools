@@ -39,11 +39,17 @@ impl Router {
 mod handlers {
     use super::Args;
     use anyhow::Result;
-    use std::path::Path;
+    use std::path::{Path, PathBuf};
 
     pub(super) fn do_files(args: Args) -> Result<()> {
-        let files = ifile_counter::files(args.dir, Box::new(build_predicate_fn(args.ext_name.clone())))?;
+        let files = ifile_counter::files(args.dir.clone(), Box::new(build_predicate_fn(args.ext_name.clone())))?;
 
+        output_format(args, files);
+
+        Ok(())
+    }
+
+    fn output_format(args: Args, files: Vec<PathBuf>) {
         if !files.is_empty() {
             println!("INFO: matched files");
 
@@ -59,8 +65,6 @@ mod handlers {
             args.ext_name.unwrap_or_default(),
             files.len()
         );
-
-        Ok(())
     }
 
     fn trim(ext_name: &str) -> &str {
