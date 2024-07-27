@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
@@ -32,39 +32,49 @@ impl Router {
 
     pub fn run(self) -> Result<()> {
         println!("INFO: args: {:?}", self.args);
-        do_files(self.args)
+        handlers::do_files(self.args)
     }
 }
 
-fn do_files(args: Args) -> Result<()> {
-    fn trim(ext_name: &str) -> &str {
-        ext_name.strip_prefix(".").unwrap_or(ext_name)
-    }
+mod handlers {
+    use super::Args;
+    use anyhow::Result;
+    use std::path::Path;
 
-    fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
-        move |p| match &ext_name {
-            Some(ext_name) => {
-                if let Some(ext) = p.extension() {
-                    ext.to_str().expect("") == trim(ext_name)
-                } else {
-                    false
-                }
-            },
-            None => true,
+    pub(super) fn do_files(args: Args) -> Result<()> {
+        fn trim(ext_name: &str) -> &str {
+            ext_name.strip_prefix(".").unwrap_or(ext_name)
         }
+
+        fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
+            move |p| match &ext_name {
+                Some(ext_name) => {
+                    if let Some(ext) = p.extension() {
+                        ext.to_str().expect("") == trim(ext_name)
+                    } else {
+                        false
+                    }
+                },
+                None => true,
+            }
+        }
+
+        let files = ifile_counter::files(args.dir, Box::new(build_predicate_fn(args.ext_name.clone())))?;
+
+        for (index, f) in files.iter().enumerate() {
+            println!("{:4}: {}", index + 1, f.to_str().expect(""));
+        }
+
+        if !files.is_empty() {
+            println!("\n");
+        }
+
+        println!(
+            "INFO: file total number that matches extension '{}': {}",
+            args.ext_name.unwrap_or_default(),
+            files.len()
+        );
+
+        Ok(())
     }
-
-    let files = ifile_counter::files(args.dir, Box::new(build_predicate_fn(args.ext_name.clone())))?;
-
-    for (index, f) in files.iter().enumerate() {
-        println!("{:4}: {}", index + 1, f.to_str().expect(""));
-    }
-
-    if !files.is_empty() {
-        println!("\n");
-    }
-
-    println!("INFO: file total number that matches extension '{}': {}", args.ext_name.unwrap_or_default(), files.len());
-
-    Ok(())
 }
