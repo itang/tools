@@ -46,13 +46,12 @@ mod handlers {
 
         if !files.is_empty() {
             println!("INFO: matched files");
+
             for (index, f) in files.iter().enumerate() {
                 println!("{:4}: {}", index + 1, f.to_str().expect(""));
             }
 
-            if !files.is_empty() {
-                println!("\n");
-            }
+            println!("\n");
         }
 
         println!(
