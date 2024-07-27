@@ -9,6 +9,9 @@ edition = "2021"
 name = "ifile"
 path = "src/main.rs"
 
+[lib]
+path = "src/lib/lib.rs"
+
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.2.0", features = ["derive"] }
