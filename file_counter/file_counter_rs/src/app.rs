@@ -49,16 +49,50 @@ mod handlers {
     type FnP = Box<dyn Fn(&Path) -> bool>;
 
     pub(super) fn do_files(args: Args) -> Result<()> {
-        let ps: Vec<FnP> = vec![
-            Box::new(build_predicate_fn(args.ext_name.clone())),
-            Box::new(build_contains_fn(args.contains.clone())),
-        ];
-
-        let p = combine_fns(ps);
-        let files = ifile_counter::files(args.dir.clone(), Box::new(p))?;
+        let files = ifile_counter::files(args.dir.clone(), Box::new(build_predicate_fn(args.clone())))?;
         output_format(args, files);
 
         Ok(())
+    }
+
+    fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
+        let mut ps: Vec<FnP> = Vec::new();
+
+        if let Some(ext_name) = args.ext_name {
+            ps.push(Box::new(build_predicate_ext_fn(ext_name)));
+        }
+
+        if let Some(contains) = args.contains {
+            ps.push(Box::new(build_predicate_contains_fn(contains)))
+        }
+
+        move |path| {
+            for f in ps.iter() {
+                if !f(path) {
+                    return false;
+                }
+            }
+
+            true
+        }
+    }
+
+    fn build_predicate_ext_fn(ext_name: String) -> impl Fn(&Path) -> bool {
+        move |p| p.extension().is_some_and(|ext| ext.to_str().expect("to_str") == trim(&ext_name))
+    }
+
+    fn build_predicate_contains_fn(contains: String) -> impl Fn(&Path) -> bool {
+        move |p| {
+            if let Ok(content) = std::fs::read_to_string(p) {
+                content.contains(&contains)
+            } else {
+                false
+            }
+        }
+    }
+
+    fn trim(ext_name: &str) -> &str {
+        ext_name.strip_prefix(".").unwrap_or(ext_name)
     }
 
     fn output_format(args: Args, files: Vec<PathBuf>) {
@@ -77,41 +111,5 @@ mod handlers {
             args.ext_name.unwrap_or_default(),
             files.len()
         );
-    }
-
-    fn trim(ext_name: &str) -> &str {
-        ext_name.strip_prefix(".").unwrap_or(ext_name)
-    }
-
-    fn combine_fns(fns: Vec<FnP>) -> impl Fn(&Path) -> bool {
-        move |p| {
-            for f in fns.iter() {
-                if !f(p) {
-                    return false;
-                }
-            }
-
-            true
-        }
-    }
-
-    fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
-        move |p| match &ext_name {
-            Some(ext_name) => p.extension().is_some_and(|ext| ext.to_str().expect("to_str") == trim(ext_name)),
-            None => true,
-        }
-    }
-
-    fn build_contains_fn(contains: Option<String>) -> impl Fn(&Path) -> bool {
-        move |p| match &contains {
-            Some(contains) => {
-                if let Ok(content) = std::fs::read_to_string(p) {
-                    content.contains(contains)
-                } else {
-                    false
-                }
-            },
-            None => true,
-        }
     }
 }
