@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use anyhow::Result;
 use clap::Parser;
 
 #[derive(Parser, Debug, Clone)]
@@ -8,7 +7,7 @@ use clap::Parser;
 pub struct Args {
     /// Days
     #[arg(short, long)]
-    ext_name: Option<String>,
+    ext_name: Option<Vec<String>>,
 
     /// Contains
     #[arg(long)]
@@ -35,28 +34,27 @@ impl Router {
         Self { args }
     }
 
-    pub fn run(self) -> Result<()> {
+    pub fn run(self) -> anyhow::Result<()> {
         println!("DEBUG: args: {:?}", self.args);
         handlers::do_files(self.args)
     }
 }
 
 mod handlers {
-    use super::Args;
-    use anyhow::Result;
     use std::path::{Path, PathBuf};
 
-    type FnP = Box<dyn Fn(&Path) -> bool>;
+    use super::Args;
+    use ifile_counter::{build_predicate_contains_fn, build_predicate_ext_fn, PredicatePathFn};
 
-    pub(super) fn do_files(args: Args) -> Result<()> {
+    pub(super) fn do_files(args: Args) -> anyhow::Result<()> {
         let files = ifile_counter::files(args.dir.clone(), Box::new(build_predicate_fn(args.clone())))?;
-        output_format(args, files);
+        output_format(files);
 
         Ok(())
     }
 
     fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
-        let mut ps: Vec<FnP> = Vec::new();
+        let mut ps: Vec<Box<PredicatePathFn>> = Vec::new();
 
         if let Some(ext_name) = args.ext_name {
             ps.push(Box::new(build_predicate_ext_fn(ext_name)));
@@ -77,25 +75,7 @@ mod handlers {
         }
     }
 
-    fn build_predicate_ext_fn(ext_name: String) -> impl Fn(&Path) -> bool {
-        move |p| p.extension().is_some_and(|ext| ext.to_str().expect("to_str") == trim(&ext_name))
-    }
-
-    fn build_predicate_contains_fn(contains: Vec<String>) -> impl Fn(&Path) -> bool {
-        move |p| {
-            if let Ok(content) = std::fs::read_to_string(p) {
-                contains.iter().all(|c| content.contains(c))
-            } else {
-                false
-            }
-        }
-    }
-
-    fn trim(ext_name: &str) -> &str {
-        ext_name.strip_prefix(".").unwrap_or(ext_name)
-    }
-
-    fn output_format(args: Args, files: Vec<PathBuf>) {
+    fn output_format(files: Vec<PathBuf>) {
         if !files.is_empty() {
             println!("INFO: matched files");
 
@@ -106,11 +86,6 @@ mod handlers {
             println!("\n");
         }
 
-        println!(
-            "INFO: file total number that matches extension '{}' and contains '{:?}': {}",
-            args.ext_name.unwrap_or_default(),
-            args.contains.unwrap_or_default(),
-            files.len()
-        );
+        println!("INFO: The total number of matched files is {}", files.len());
     }
 }

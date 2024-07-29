@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 
-type PredicatePathFn = dyn Fn(&Path) -> bool;
+use crate::types::PredicatePathFn;
 
 /// get all files in some dir with predicate
 pub fn files<P>(root_dir: P, predicate: Box<PredicatePathFn>) -> Result<Vec<PathBuf>>
