@@ -48,7 +48,7 @@ mod handlers {
 
     pub(super) fn do_files(args: Args) -> anyhow::Result<()> {
         let files = ifile_counter::files(args.dir.clone(), Box::new(build_predicate_fn(args.clone())))?;
-        output_format(files);
+        output_format(&files);
 
         Ok(())
     }
@@ -75,9 +75,9 @@ mod handlers {
         }
     }
 
-    fn output_format(files: Vec<PathBuf>) {
+    fn output_format(files: &[PathBuf]) {
         if !files.is_empty() {
-            println!("INFO: The matched files");
+            println!("INFO: matched files");
 
             for (index, f) in files.iter().enumerate() {
                 println!("{:4}: {}", index + 1, f.to_str().expect(""));
