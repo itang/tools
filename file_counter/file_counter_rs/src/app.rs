@@ -5,12 +5,12 @@ use clap::Parser;
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    /// Days
+    /// Extension name for match
     #[arg(short, long)]
     ext_name: Option<Vec<String>>,
 
-    /// Contains
-    #[arg(long)]
+    /// Contains for match
+    #[arg(short, long)]
     contains: Option<Vec<String>>,
 
     ///The dir
@@ -77,7 +77,7 @@ mod handlers {
 
     fn output_format(files: Vec<PathBuf>) {
         if !files.is_empty() {
-            println!("INFO: matched files");
+            println!("INFO: The matched files");
 
             for (index, f) in files.iter().enumerate() {
                 println!("{:4}: {}", index + 1, f.to_str().expect(""));
