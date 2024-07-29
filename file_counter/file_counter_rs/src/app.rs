@@ -10,6 +10,11 @@ pub struct Args {
     #[arg(short, long)]
     ext_name: Option<String>,
 
+    /// Contains
+    #[arg(long)]
+    contains: Option<String>,
+
+    ///The dir
     #[arg(short, long, default_value = ".")]
     dir: PathBuf,
 }
@@ -41,9 +46,16 @@ mod handlers {
     use anyhow::Result;
     use std::path::{Path, PathBuf};
 
-    pub(super) fn do_files(args: Args) -> Result<()> {
-        let files = ifile_counter::files(args.dir.clone(), Box::new(build_predicate_fn(args.ext_name.clone())))?;
+    type FnP = Box<dyn Fn(&Path) -> bool>;
 
+    pub(super) fn do_files(args: Args) -> Result<()> {
+        let ps: Vec<FnP> = vec![
+            Box::new(build_predicate_fn(args.ext_name.clone())),
+            Box::new(build_contains_fn(args.contains.clone())),
+        ];
+
+        let p = combine_fns(ps);
+        let files = ifile_counter::files(args.dir.clone(), Box::new(p))?;
         output_format(args, files);
 
         Ok(())
@@ -71,9 +83,34 @@ mod handlers {
         ext_name.strip_prefix(".").unwrap_or(ext_name)
     }
 
+    fn combine_fns(fns: Vec<FnP>) -> impl Fn(&Path) -> bool {
+        move |p| {
+            for f in fns.iter() {
+                if !f(p) {
+                    return false;
+                }
+            }
+
+            true
+        }
+    }
+
     fn build_predicate_fn(ext_name: Option<String>) -> impl Fn(&Path) -> bool {
         move |p| match &ext_name {
             Some(ext_name) => p.extension().is_some_and(|ext| ext.to_str().expect("to_str") == trim(ext_name)),
+            None => true,
+        }
+    }
+
+    fn build_contains_fn(contains: Option<String>) -> impl Fn(&Path) -> bool {
+        move |p| match &contains {
+            Some(contains) => {
+                if let Ok(content) = std::fs::read_to_string(p) {
+                    content.contains(contains)
+                } else {
+                    false
+                }
+            },
             None => true,
         }
     }
