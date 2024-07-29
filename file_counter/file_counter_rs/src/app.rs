@@ -107,8 +107,9 @@ mod handlers {
         }
 
         println!(
-            "INFO: file total number that matches extension '{}': {}",
+            "INFO: file total number that matches extension '{}' and contains '{}': {}",
             args.ext_name.unwrap_or_default(),
+            args.contains.unwrap_or_default(),
             files.len()
         );
     }
