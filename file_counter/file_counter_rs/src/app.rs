@@ -12,7 +12,7 @@ pub struct Args {
 
     /// Contains
     #[arg(long)]
-    contains: Option<String>,
+    contains: Option<Vec<String>>,
 
     ///The dir
     #[arg(short, long, default_value = ".")]
@@ -81,10 +81,10 @@ mod handlers {
         move |p| p.extension().is_some_and(|ext| ext.to_str().expect("to_str") == trim(&ext_name))
     }
 
-    fn build_predicate_contains_fn(contains: String) -> impl Fn(&Path) -> bool {
+    fn build_predicate_contains_fn(contains: Vec<String>) -> impl Fn(&Path) -> bool {
         move |p| {
             if let Ok(content) = std::fs::read_to_string(p) {
-                content.contains(&contains)
+                contains.iter().all(|c| content.contains(c))
             } else {
                 false
             }
@@ -107,7 +107,7 @@ mod handlers {
         }
 
         println!(
-            "INFO: file total number that matches extension '{}' and contains '{}': {}",
+            "INFO: file total number that matches extension '{}' and contains '{:?}': {}",
             args.ext_name.unwrap_or_default(),
             args.contains.unwrap_or_default(),
             files.len()
