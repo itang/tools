@@ -21,6 +21,9 @@ pub struct Args {
 
     #[arg(long)]
     exported_dir: Option<PathBuf>,
+
+    #[arg(long, default_value_t = false)]
+    show_same_name_files: bool,
 }
 
 impl Args {

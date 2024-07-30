@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
@@ -14,6 +15,10 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
     if let Some(exported_dir) = &args.exported_dir {
         println!("INFO : export matched files to directory {:?}", exported_dir);
         export(&files, exported_dir)?
+    }
+
+    if args.show_same_name_files {
+        output_same_name_files(&files)?;
     }
 
     Ok(())
@@ -75,7 +80,7 @@ fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
 
 fn output_format(files: &[PathBuf]) {
     if !files.is_empty() {
-        println!("INFO : matched files");
+        println!("\nINFO : matched files");
 
         for (index, f) in files.iter().enumerate() {
             println!("{:4}: {}", index + 1, f.to_str().expect(""));
@@ -85,4 +90,33 @@ fn output_format(files: &[PathBuf]) {
     }
 
     println!("INFO : The total number of matched files is {}", files.len());
+}
+
+fn output_same_name_files(files: &[PathBuf]) -> anyhow::Result<()> {
+    let files: Vec<(&PathBuf, &str)> =
+        files.iter().map(|f| (f, f.file_name().expect("").to_str().expect(""))).collect();
+
+    let mut map = HashMap::new();
+
+    for item in files.iter() {
+        map.entry(item.1).or_insert_with(Vec::new).push(item);
+    }
+
+    let duplicated: HashMap<&str, Vec<&(&PathBuf, &str)>> =
+        map.iter().filter(|(_, value)| value.len() > 1).map(|(&key, value)| (key, value.clone())).collect();
+
+    println!("\nINFO : duplicated name files");
+
+    for (index, (key, value)) in duplicated.iter().enumerate() {
+        println!("{:4}: {:}", index + 1, key);
+        for it in value {
+            println!("\t{:?}", it.0);
+        }
+    }
+
+    println!("INFO : The total number of duplicated name files is {}", duplicated.len());
+
+    println!("\n");
+
+    Ok(())
 }
