@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 use anyhow::anyhow;
 
@@ -14,7 +14,7 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
 
     if let Some(exported_dir) = &args.exported_dir {
         println!("INFO : export matched files to directory {:?}", exported_dir);
-        export(&files, exported_dir)?
+        export(&files, exported_dir, &args.strip_prefix_before_dir)?
     }
 
     if args.show_same_name_files {
@@ -24,7 +24,7 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn export(files: &[PathBuf], exported_dir: &PathBuf) -> anyhow::Result<()> {
+fn export(files: &[PathBuf], exported_dir: &PathBuf, strip_prefix_before_dir: &Option<PathBuf>) -> anyhow::Result<()> {
     if exported_dir.exists() {
         return Err(anyhow!("{:?} already exists", exported_dir));
     } else {
@@ -33,26 +33,61 @@ fn export(files: &[PathBuf], exported_dir: &PathBuf) -> anyhow::Result<()> {
 
     for file in files {
         let mut new_file = PathBuf::from(exported_dir);
-        let relative_path = get_relative_path(exported_dir, file)?;
+        let relative_path = get_relative_path(exported_dir, strip_prefix_before_dir, file)?;
+        dbg!(&relative_path);
 
-        new_file.push(relative_path);
+        if let Some(relative_path) = relative_path {
+            new_file.push(relative_path);
 
-        if let Some(p) = new_file.parent() {
-            if !p.exists() {
-                std::fs::create_dir_all(p)?;
+            if let Some(p) = new_file.parent() {
+                if !p.exists() {
+                    std::fs::create_dir_all(p)?;
+                }
             }
-        }
 
-        std::fs::copy(file, &new_file)?;
-        println!("DEBUG: copy {:?}", &new_file);
+            std::fs::copy(file, &new_file)?;
+            println!("DEBUG: copy {:?}", &new_file);
+        } else {
+            println!("DEBUG: ignore {:?}", file);
+        }
     }
 
     Ok(())
 }
 
 //TODO: Review
-fn get_relative_path(_dir: &Path, file: &Path) -> anyhow::Result<PathBuf> {
-    Ok(file.to_path_buf())
+fn get_relative_path(
+    _dir: &Path, strip_prefix_before_dir: &Option<PathBuf>, file: &Path,
+) -> anyhow::Result<Option<PathBuf>> {
+    match strip_prefix_before_dir {
+        Some(dir) => {
+            let buf = file.to_path_buf();
+
+            let components = buf.components();
+
+            let mut ret = PathBuf::new();
+
+            let mut push = false;
+            for comp in components {
+                //dbg!(&comp);
+                let x = comp.as_os_str();
+                if x == dir.as_os_str() {
+                    push = true;
+                }
+
+                if push {
+                    ret.push(comp);
+                }
+            }
+            if push {
+                Ok(Some(ret))
+            } else {
+                Ok(None)
+            }
+        },
+        None => Ok(Some(file.to_path_buf())),
+    }
+
     //Ok(file.strip_prefix(std::env::current_dir()?)?.to_path_buf())
 }
 
