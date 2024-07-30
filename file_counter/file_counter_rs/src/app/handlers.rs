@@ -97,19 +97,18 @@ fn output_same_name_files(files: &[PathBuf]) -> anyhow::Result<()> {
         files.iter().map(|f| (f, f.file_name().expect("").to_str().expect(""))).collect();
 
     let mut map = HashMap::new();
-
     for item in files.iter() {
         map.entry(item.1).or_insert_with(Vec::new).push(item);
     }
 
-    let duplicated: HashMap<&str, Vec<&(&PathBuf, &str)>> =
-        map.iter().filter(|(_, value)| value.len() > 1).map(|(&key, value)| (key, value.clone())).collect();
+    let duplicated: HashMap<&str, &Vec<&(&PathBuf, &str)>> =
+        map.iter().filter(|(_, value)| value.len() > 1).map(|(&key, value)| (key, value)).collect();
 
     println!("\nINFO : duplicated name files");
 
-    for (index, (key, value)) in duplicated.iter().enumerate() {
+    for (index, (&key, &value)) in duplicated.iter().enumerate() {
         println!("{:4}: {:}", index + 1, key);
-        for it in value {
+        for it in value.iter() {
             println!("\t{:?}", it.0);
         }
     }
