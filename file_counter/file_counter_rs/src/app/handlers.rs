@@ -12,7 +12,7 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
     output_format(&files);
 
     if let Some(exported_dir) = &args.exported_dir {
-        println!("INFO: export matched files to directory {:?}", exported_dir);
+        println!("INFO : export matched files to directory {:?}", exported_dir);
         export(&files, exported_dir)?
     }
 
@@ -75,7 +75,7 @@ fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
 
 fn output_format(files: &[PathBuf]) {
     if !files.is_empty() {
-        println!("INFO: matched files");
+        println!("INFO : matched files");
 
         for (index, f) in files.iter().enumerate() {
             println!("{:4}: {}", index + 1, f.to_str().expect(""));
@@ -84,5 +84,5 @@ fn output_format(files: &[PathBuf]) {
         println!("\n");
     }
 
-    println!("INFO: The total number of matched files is {}", files.len());
+    println!("INFO : The total number of matched files is {}", files.len());
 }
