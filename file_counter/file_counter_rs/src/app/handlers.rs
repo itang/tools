@@ -12,13 +12,14 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
 
     output_format(&files);
 
-    if let Some(exported_dir) = &args.exported_dir {
-        println!("INFO : export matched files to directory {:?}", exported_dir);
-        export(&files, exported_dir, &args.strip_prefix_before_dir)?
-    }
 
     if args.show_same_name_files {
         output_same_name_files(&files)?;
+    }
+
+    if let Some(exported_dir) = &args.exported_dir {
+        println!("INFO : export matched files to directory {:?}", exported_dir);
+        export(&files, exported_dir, &args.strip_prefix_before_dir)?
     }
 
     Ok(())

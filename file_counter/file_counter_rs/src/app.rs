@@ -19,6 +19,9 @@ pub struct Args {
     #[arg(short, long, default_value = ".")]
     dir: PathBuf,
 
+    #[arg(long, default_value_t = false)]
+    show_same_name_files: bool,
+
     /// The exported dir
     #[arg(long)]
     exported_dir: Option<PathBuf>,
@@ -26,9 +29,6 @@ pub struct Args {
     /// The strip prefix before dir. e.g. /src
     #[arg(long)]
     strip_prefix_before_dir: Option<PathBuf>,
-
-    #[arg(long, default_value_t = false)]
-    show_same_name_files: bool,
 }
 
 impl Args {
