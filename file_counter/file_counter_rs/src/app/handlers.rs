@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
 
-use ifile_counter::{build_predicate_contains_fn, build_predicate_ext_fn, PredicatePathFn};
+use ifile_counter::{build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn, PredicatePathFn};
 
 use super::Args;
 
@@ -96,6 +96,10 @@ fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
 
     if let Some(ext_name) = args.ext_name {
         ps.push(Box::new(build_predicate_ext_fn(ext_name)));
+    }
+
+    if let Some(glob) = args.glob {
+        ps.push(Box::new(build_glob_match_fn(glob)))
     }
 
     if let Some(contains) = args.contains {

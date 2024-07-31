@@ -1,5 +1,8 @@
 use std::path::Path;
 
+use glob_match::glob_match;
+use path_slash::PathExt;
+
 /// build predicate ext fn
 pub fn build_predicate_ext_fn(ext_names: Vec<String>) -> impl Fn(&Path) -> bool {
     move |p| {
@@ -17,6 +20,20 @@ pub fn build_predicate_contains_fn(contains: Vec<String>) -> impl Fn(&Path) -> b
         } else {
             false
         }
+    }
+}
+
+/// build glob match fn
+//TODO: review
+pub fn build_glob_match_fn(glob: String) -> impl Fn(&Path) -> bool {
+    move |p| {
+        #[cfg(target_os = "windows")]
+        let p = p.to_slash().expect("to_slash").to_string();
+
+        #[cfg(not(target_os = "windows"))]
+        let p = p.display().to_string();
+
+        glob_match(&glob, &p)
     }
 }
 

@@ -10,6 +10,10 @@ pub struct Args {
     /// Extension name for match
     #[arg(short, long)]
     ext_name: Option<Vec<String>>,
+    
+    /// Glob match
+    #[arg(long)]
+    glob: Option<String>,
 
     /// Contains for match
     #[arg(short, long)]

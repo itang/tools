@@ -15,6 +15,8 @@ path = "src/lib/lib.rs"
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.2.0", features = ["derive"] }
+glob-match = "0.2.1"
+path-slash = "0.2.1"
 
 [profile.release]
 # https://doc.rust-lang.org/cargo/reference/profiles.html

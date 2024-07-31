@@ -7,7 +7,7 @@
 //!
 
 pub use files::files;
-pub use predicates::{build_predicate_contains_fn, build_predicate_ext_fn};
+pub use predicates::{build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn};
 pub use types::PredicatePathFn;
 
 mod files;
