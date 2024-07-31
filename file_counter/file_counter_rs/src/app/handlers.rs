@@ -143,8 +143,8 @@ fn output_same_name_files(files: &[PathBuf]) -> anyhow::Result<()> {
 
     for (index, (&key, &value)) in duplicate.iter().enumerate() {
         println!("{:4}: {:}", index + 1, key);
-        for it in value.iter() {
-            println!("\t{}", it.0.as_path().display());
+        for (index2, it) in value.iter().enumerate() {
+            println!("\t{:3}: {}", index2 + 1, it.0.as_path().display());
         }
     }
 
