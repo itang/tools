@@ -15,19 +15,20 @@ pub struct Args {
     #[arg(short, long)]
     contains: Option<Vec<String>>,
 
-    ///The source dir
+    /// The source dir
     #[arg(short, long, default_value = ".")]
     dir: PathBuf,
 
-    #[arg(long, default_value_t = false)]
+    /// Grouped by file name and show
+    #[arg(short = 'g', long, default_value_t = false)]
     show_same_name_files: bool,
 
     /// The exported dir
-    #[arg(long)]
+    #[arg(short = 't', long)]
     exported_dir: Option<PathBuf>,
 
     /// The strip prefix before dir. e.g. /src
-    #[arg(long)]
+    #[arg(short = 's', long)]
     strip_prefix_before_dir: Option<PathBuf>,
 }
 
