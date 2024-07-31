@@ -12,7 +12,6 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
 
     output_format(&files);
 
-
     if args.show_same_name_files {
         output_same_name_files(&files)?;
     }
@@ -137,19 +136,19 @@ fn output_same_name_files(files: &[PathBuf]) -> anyhow::Result<()> {
         map.entry(item.1).or_insert_with(Vec::new).push(item);
     }
 
-    let duplicated: HashMap<&str, &Vec<&(&PathBuf, &str)>> =
+    let duplicate: HashMap<&str, &Vec<&(&PathBuf, &str)>> =
         map.iter().filter(|(_, value)| value.len() > 1).map(|(&key, value)| (key, value)).collect();
 
-    println!("\nINFO : duplicated name files");
+    println!("\nINFO : List of files with duplicate filenames");
 
-    for (index, (&key, &value)) in duplicated.iter().enumerate() {
+    for (index, (&key, &value)) in duplicate.iter().enumerate() {
         println!("{:4}: {:}", index + 1, key);
         for it in value.iter() {
             println!("\t{}", it.0.as_path().display());
         }
     }
 
-    println!("INFO : The total number of duplicated name files is {}", duplicated.len());
+    println!("INFO : The total number of files with duplicate filenames is {}", duplicate.len());
 
     println!("\n");
 
