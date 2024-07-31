@@ -119,7 +119,7 @@ fn output_format(files: &[PathBuf]) {
         println!("\nINFO : matched files");
 
         for (index, f) in files.iter().enumerate() {
-            println!("{:4}: {}", index + 1, f.to_str().expect(""));
+            println!("{:4}: {}", index + 1, f.display());
         }
 
         println!("\n");
@@ -145,7 +145,7 @@ fn output_same_name_files(files: &[PathBuf]) -> anyhow::Result<()> {
     for (index, (&key, &value)) in duplicated.iter().enumerate() {
         println!("{:4}: {:}", index + 1, key);
         for it in value.iter() {
-            println!("\t{:?}", it.0);
+            println!("\t{}", it.0.as_path().display());
         }
     }
 
