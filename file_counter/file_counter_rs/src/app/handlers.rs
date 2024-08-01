@@ -12,11 +12,11 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
 
     output_format(&files);
 
-    if args.show_same_name_files {
+    if args.show_all || args.show_same_name_files {
         output_same_name_files(&files)?;
     }
 
-    if args.show_extensions {
+    if args.show_all || args.show_extensions {
         output_extensions(&files)?;
     }
 

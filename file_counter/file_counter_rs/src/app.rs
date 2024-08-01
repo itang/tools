@@ -31,6 +31,10 @@ pub struct Args {
     #[arg(long, default_value_t = false)]
     show_extensions: bool,
 
+    /// Show all verbose info
+    #[arg(long, default_value_t = false)]
+    show_all: bool,
+
     /// The exported dir
     #[arg(short = 't', long)]
     exported_dir: Option<PathBuf>,
