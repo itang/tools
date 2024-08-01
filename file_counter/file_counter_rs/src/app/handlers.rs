@@ -173,7 +173,7 @@ fn output_extensions(files: &[PathBuf]) -> anyhow::Result<()> {
     println!("\nINFO : List of the extensions");
 
     for (index, value) in extensions.into_iter().enumerate() {
-        println!("{:4}: {}", index + 1, value);
+        println!("{:4}: .{}", index + 1, value);
     }
 
     Ok(())
