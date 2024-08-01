@@ -10,7 +10,7 @@ pub struct Args {
     /// Extension name for match
     #[arg(short, long)]
     ext_name: Option<Vec<String>>,
-    
+
     /// Glob match
     #[arg(long)]
     glob: Option<String>,
@@ -26,6 +26,10 @@ pub struct Args {
     /// Grouped by file name and show
     #[arg(short = 'g', long, default_value_t = false)]
     show_same_name_files: bool,
+
+    /// Show the extension of matched files
+    #[arg(long, default_value_t = false)]
+    show_extensions: bool,
 
     /// The exported dir
     #[arg(short = 't', long)]

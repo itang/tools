@@ -16,6 +16,10 @@ pub(crate) fn main(args: Args) -> anyhow::Result<()> {
         output_same_name_files(&files)?;
     }
 
+    if args.show_extensions {
+        output_extensions(&files)?;
+    }
+
     if let Some(exported_dir) = &args.exported_dir {
         println!("INFO : export matched files to directory {:?}", exported_dir);
         export(&files, exported_dir, &args.strip_prefix_before_dir)?
@@ -155,6 +159,22 @@ fn output_same_name_files(files: &[PathBuf]) -> anyhow::Result<()> {
     println!("INFO : The total number of files with duplicate filenames is {}", duplicate.len());
 
     println!("\n");
+
+    Ok(())
+}
+
+fn output_extensions(files: &[PathBuf]) -> anyhow::Result<()> {
+    let mut extensions: Vec<&str> =
+        files.iter().flat_map(|file| file.extension().map(|it| it.to_str().expect("to_str"))).collect();
+
+    extensions.sort_unstable();
+    extensions.dedup();
+
+    println!("\nINFO : List of the extensions");
+
+    for (index, value) in extensions.into_iter().enumerate() {
+        println!("{:4}: {}", index + 1, value);
+    }
 
     Ok(())
 }
