@@ -8,7 +8,8 @@ use ifile_counter::{build_glob_match_fn, build_predicate_contains_fn, build_pred
 use super::Args;
 
 pub(crate) fn main(args: Args) -> anyhow::Result<()> {
-    let files = ifile_counter::files(args.dir.clone(), Box::new(build_predicate_fn(args.clone())))?;
+    let files =
+        ifile_counter::files(args.dir.clone(), args.ignore_dirs.clone(), Box::new(build_predicate_fn(args.clone())))?;
 
     output_format(&files);
 
