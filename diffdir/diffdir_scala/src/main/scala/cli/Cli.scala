@@ -23,7 +23,9 @@ object Cli:
         ignoreDirs: List[String]
     ): Unit = time {
         println(s"DEBUG: $leftFile $rightFile , ignoreDirs: $ignoreDirs")
+
         val loader = getLoader(ignoreDirs)
+
         val left   = leftFile |> (File(_)) |> loader.load
         val right  = rightFile |> (File(_)) |> loader.load
 
@@ -45,6 +47,7 @@ object Cli:
         val filesP = doCheckAndPreprocessingFiles(files)
 
         val loader    = getLoader(ignoreDirs)
+
         val fileSizes = filesP.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
             fileSize.walk(): (file, level) =>

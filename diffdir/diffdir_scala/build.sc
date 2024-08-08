@@ -17,7 +17,6 @@ object Main extends RootModule with SbtModule with ScalaModule with NativeImage 
   def scalaVersion = "3.5.0-RC6"
 
   override def ivyDeps = Agg(
-    //ivy"org.scala-lang::toolkit:0.2.0",
     ivy"com.lihaoyi::mainargs::0.7.1",
     ivy"com.funpaas::tang-scala:$tangVersion"
   )
