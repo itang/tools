@@ -10,18 +10,22 @@ import diff.impl.{FileTreeDiffImpl, FileTreeLoaderImpl, given}
 
 /// 命令行界面
 object Cli:
-    private lazy val loader: FileTreeLoader = FileTreeLoaderImpl()
-    private lazy val diff: FileTreeDiff     = FileTreeDiffImpl()
+
+    private lazy val diff: FileTreeDiff = FileTreeDiffImpl()
 
     @main
     def diff(
         @arg(short = 'l', doc = "left file")
         leftFile: String,
         @arg(short = 'r', doc = "right file")
-        rightFile: String
+        rightFile: String,
+        @arg(short = 'i', doc = "ignore dirs")
+        ignoreDirs: List[String]
     ): Unit = time {
-        val left  = leftFile |> (File(_)) |> loader.load
-        val right = rightFile |> (File(_)) |> loader.load
+        println(s"DEBUG: $leftFile $rightFile , ignoreDirs: $ignoreDirs")
+        val loader = getLoader(ignoreDirs)
+        val left   = leftFile |> (File(_)) |> loader.load
+        val right  = rightFile |> (File(_)) |> loader.load
 
         diff.diff(left, right).formatForConsole() |> println
 
@@ -31,13 +35,16 @@ object Cli:
     def walk(
         @arg(short = 'm', doc = "max level")
         maxLevel: Option[Int],
+        @arg(short = 'i', doc = "ignore dirs")
+        ignoreDirs: List[String],
         @arg(doc = "files")
         files: Leftover[String]
     ): Unit = time {
         println(s"DEBUG: $maxLevel $files")
 
-        val filesP =doCheckAndPreprocessingFiles(files)
+        val filesP = doCheckAndPreprocessingFiles(files)
 
+        val loader    = getLoader(ignoreDirs)
         val fileSizes = filesP.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
             fileSize.walk(): (file, level) =>
@@ -55,7 +62,19 @@ object Cli:
         if files.value.isEmpty then
             println(s"INFO: Unspecified directory, use the current work directory")
             Leftover(".")
-
         else files
+
+    private def getLoader(ignoreDirs: List[String]): FileTreeLoader =
+        def getFilter: Option[File => Boolean] =
+            ignoreDirs match
+                case Nil => None
+                case _ =>
+                    Some(file =>
+                        if file.isFile then true
+                        else !ignoreDirs.contains(file.getName)
+                    )
+
+        FileTreeLoaderImpl(getFilter)
+    end getLoader
 
 end Cli

@@ -1,10 +1,10 @@
-ThisBuild / scalaVersion := "3.5.0-RC5"
+ThisBuild / scalaVersion := "3.5.0-RC6"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.example"
 ThisBuild / organizationName := "example"
 
 val TANG_VERSION = "0.1.5-SNAPSHOT"
-val MUNIT_VERSION = "1.0.0-M7"
+val MUNIT_VERSION = "1.0.0"
 
 lazy val root = project.in(file("."))
   .enablePlugins(GraalVMNativeImagePlugin)
@@ -12,7 +12,7 @@ lazy val root = project.in(file("."))
     name := "diffdir_scala",
     description := "Example sbt project that compiles using Scala",
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "mainargs"   % "0.7.0",
+      "com.lihaoyi" %% "mainargs"   % "0.7.1",
       "org.scala-lang" %% "toolkit-test" % "0.2.1" % Test,
       "com.funpaas" %% "tang-scala" % TANG_VERSION,
       "org.scalameta" %% "munit" % MUNIT_VERSION % Test
