@@ -3,10 +3,10 @@ package diff.impl
 import diff.api.FileTreeLoader
 import diff.api.types.FileTree
 
-import java.io.File
+import java.io.{File, FileFilter}
 
 /// Loader
-class FileTreeLoaderImpl(filter: Option[File => Boolean] = None) extends FileTreeLoader:
+class FileTreeLoaderImpl(filter: Option[FileFilter] = None) extends FileTreeLoader:
     override def load(root: File): FileTree =
         // @rec
         def _walk(file: File): FileTree =
@@ -14,7 +14,7 @@ class FileTreeLoaderImpl(filter: Option[File => Boolean] = None) extends FileTre
                 import language.unsafeNulls
                 val children =
                     filter match
-                        case Some(f) => file.listFiles().filter(f).map(_walk)
+                        case Some(f) => file.listFiles(f).map(_walk)
                         case _       => file.listFiles().map(_walk)
                 FileTree(file, root, children)
             else

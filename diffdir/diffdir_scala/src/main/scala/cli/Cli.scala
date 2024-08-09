@@ -1,9 +1,8 @@
 package cli
 
-import java.io.File
+import java.io.{File, FileFilter}
 import mainargs.{Leftover, arg, main}
 import tang.{ignore, time, |>}
-
 import diff.api.types.DiffResult
 import diff.api.{FileTreeDiff, FileTreeLoader}
 import diff.impl.{FileTreeDiffImpl, FileTreeLoaderImpl, given}
@@ -26,8 +25,8 @@ object Cli:
 
         val loader = getLoader(ignoreDirs)
 
-        val left   = leftFile |> (File(_)) |> loader.load
-        val right  = rightFile |> (File(_)) |> loader.load
+        val left  = leftFile |> (File(_)) |> loader.load
+        val right = rightFile |> (File(_)) |> loader.load
 
         diff.diff(left, right).formatForConsole() |> println
 
@@ -46,7 +45,7 @@ object Cli:
 
         val filesP = doCheckAndPreprocessingFiles(files)
 
-        val loader    = getLoader(ignoreDirs)
+        val loader = getLoader(ignoreDirs)
 
         val fileSizes = filesP.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
@@ -68,11 +67,11 @@ object Cli:
         else files
 
     private def getLoader(ignoreDirs: List[String]): FileTreeLoader =
-        def getFilter: Option[File => Boolean] =
+        def getFilter: Option[FileFilter] =
             ignoreDirs match
                 case Nil => None
                 case _ =>
-                    Some(file =>
+                    Some((file: File) =>
                         if file.isFile then true
                         else !ignoreDirs.contains(file.getName)
                     )
