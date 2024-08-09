@@ -1,17 +1,14 @@
-package cli
-
 import java.io.{File, FileFilter}
+
 import mainargs.{Flag, Leftover, arg, main}
 import tang.{ignore, time, |>}
+
+import difflib.impl.*
 import difflib.types.DiffResult
 import difflib.{DiffResultFormatter, FileTreeDiff, FileTreeFormatter, FileTreeLoader}
-import difflib.impl.{DiffResultConsoleFormatter, DiffResultTableConsoleFormatter, FileTreeConsoleFormatter, FileTreeDiffImpl, FileTreeLoaderImpl}
 
 /// 命令行界面
-object Cli:
-
-    private lazy val fileTreeDiff: FileTreeDiff = FileTreeDiffImpl()
-
+object App:
     @main
     def diff(
         @arg(short = 'l', doc = "left file")
@@ -34,6 +31,7 @@ object Cli:
             if showTable.value then DiffResultTableConsoleFormatter()
             else DiffResultConsoleFormatter()
 
+        val fileTreeDiff: FileTreeDiff = FileTreeDiffImpl()
         fileTreeDiff.diff(left, right).formatForConsole() |> println
 
     }.ignore()
@@ -51,7 +49,7 @@ object Cli:
 
         val filesP = doCheckAndPreprocessingFiles(files)
 
-        val loader = getLoader(ignoreDirs)
+        val loader                                 = getLoader(ignoreDirs)
         given fileTreeFormatter: FileTreeFormatter = FileTreeConsoleFormatter()
 
         val fileSizes = filesP.value.map(File(_)).map(loader.load)
@@ -86,4 +84,4 @@ object Cli:
         FileTreeLoaderImpl(getFilter)
     end getLoader
 
-end Cli
+end App
