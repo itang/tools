@@ -1,7 +1,7 @@
-package diff.impl
+package difflib.impl
 
-import diff.api.types.{DiffItem, DiffResult, FileTree}
-import diff.api.FileTreeDiff
+import difflib.types.{DiffItem, DiffResult, FileTree}
+import difflib.FileTreeDiff
 
 /// 差异化对比实现
 class FileTreeDiffImpl extends FileTreeDiff:

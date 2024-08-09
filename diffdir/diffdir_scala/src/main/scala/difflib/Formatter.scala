@@ -1,6 +1,6 @@
-package diff.api
+package difflib
 
-import diff.api.types.{DiffResult, FileTree}
+import difflib.types.{DiffResult, FileTree}
 
 /// 格式化 type class
 trait Formatter[T]:

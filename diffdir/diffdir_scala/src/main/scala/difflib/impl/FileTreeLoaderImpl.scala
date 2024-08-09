@@ -1,7 +1,7 @@
-package diff.impl
+package difflib.impl
 
-import diff.api.FileTreeLoader
-import diff.api.types.FileTree
+import difflib.FileTreeLoader
+import difflib.types.FileTree
 
 import java.io.{File, FileFilter}
 

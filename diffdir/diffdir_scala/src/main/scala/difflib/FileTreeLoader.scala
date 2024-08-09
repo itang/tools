@@ -1,6 +1,6 @@
-package diff.api
+package difflib
 
-import diff.api.types.FileTree
+import difflib.types.FileTree
 
 import java.io.File
 

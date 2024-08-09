@@ -1,4 +1,4 @@
-package diff.api.types
+package difflib.types
 
 
 /// 差异化对比项

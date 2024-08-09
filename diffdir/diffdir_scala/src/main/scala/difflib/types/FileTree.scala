@@ -1,4 +1,4 @@
-package diff.api.types
+package difflib.types
 
 import java.io.File
 

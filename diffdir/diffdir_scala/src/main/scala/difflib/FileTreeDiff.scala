@@ -1,6 +1,6 @@
-package diff.api
+package difflib
 
-import diff.api.types.{DiffResult, FileTree}
+import difflib.types.{DiffResult, FileTree}
 
 /// 差异化对比特质
 trait Diff[A, B]:

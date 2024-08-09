@@ -1,7 +1,7 @@
-package diff.impl
+package difflib.impl
 
-import diff.api.{DiffResultFormatter, FileTreeFormatter}
-import diff.api.types.{DiffResult, FileTree}
+import difflib.{DiffResultFormatter, FileTreeFormatter}
+import difflib.types.{DiffResult, FileTree}
 
 import java.io.File
 

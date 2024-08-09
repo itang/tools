@@ -3,9 +3,9 @@ package cli
 import java.io.{File, FileFilter}
 import mainargs.{Flag, Leftover, arg, main}
 import tang.{ignore, time, |>}
-import diff.api.types.DiffResult
-import diff.api.{DiffResultFormatter, FileTreeDiff, FileTreeFormatter, FileTreeLoader}
-import diff.impl.{DiffResultConsoleFormatter, DiffResultTableConsoleFormatter, FileTreeConsoleFormatter, FileTreeDiffImpl, FileTreeLoaderImpl}
+import difflib.types.DiffResult
+import difflib.{DiffResultFormatter, FileTreeDiff, FileTreeFormatter, FileTreeLoader}
+import difflib.impl.{DiffResultConsoleFormatter, DiffResultTableConsoleFormatter, FileTreeConsoleFormatter, FileTreeDiffImpl, FileTreeLoaderImpl}
 
 /// 命令行界面
 object Cli:
