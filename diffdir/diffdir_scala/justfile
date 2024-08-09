@@ -13,7 +13,7 @@ compile-mill:
 alias compile := compile-mill
 
 run-mill:
-  mill run diff --left-file D:\downloads\a --right-file D:\downloads\b
+  mill run diff --left-file . --right-file . -i .git -i .idea -i target
 
 run-sbt:
   sbt run
@@ -22,7 +22,7 @@ alias run := run-mill
 
 
 dev-mill:
-  mill --watch run diff --left-file D:\downloads\a --right-file D:\downloads\b
+  mill --watch run diff -l . -r . -i .git -i .idea -i target
 
 dev-sbt:
   sbt '~reStart --- -Dfile.encoding=utf-8'
@@ -55,7 +55,7 @@ install-sbt: build-sbt
 
 [windows]
 install-mill: build-mill
-  cp out/nativeImage.dest/diffdir_scala.exe D:/dev-env/bin/
+  cp out/nativeImage.dest/diffdir_scala.exe D:/dev-env/bin/idir.exe
 
 target_dir := "D:/dev-env/diffdir_scala"
 

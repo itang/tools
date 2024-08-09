@@ -1,16 +1,22 @@
 package cli
 
 import java.io.{File, FileFilter}
-import mainargs.{Leftover, arg, main}
+import mainargs.{Flag, Leftover, arg, main}
 import tang.{ignore, time, |>}
 import diff.api.types.DiffResult
-import diff.api.{FileTreeDiff, FileTreeLoader}
-import diff.impl.{FileTreeDiffImpl, FileTreeLoaderImpl, given}
+import diff.api.{DiffResultFormatter, FileTreeDiff, FileTreeLoader}
+import diff.impl.{
+    DiffResultConsoleFormatter,
+    DiffResultTableConsoleFormatter,
+    FileTreeDiffImpl,
+    FileTreeLoaderImpl,
+    fileTreeConsoleFormatter
+}
 
 /// 命令行界面
 object Cli:
 
-    private lazy val diff: FileTreeDiff = FileTreeDiffImpl()
+    private lazy val fileTreeDiff: FileTreeDiff = FileTreeDiffImpl()
 
     @main
     def diff(
@@ -19,7 +25,9 @@ object Cli:
         @arg(short = 'r', doc = "right file")
         rightFile: String,
         @arg(short = 'i', doc = "ignore dirs")
-        ignoreDirs: List[String]
+        ignoreDirs: List[String],
+        @arg(short = 't', doc = "show table")
+        showTable: Flag
     ): Unit = time {
         println(s"DEBUG: $leftFile $rightFile , ignoreDirs: $ignoreDirs")
 
@@ -28,7 +36,11 @@ object Cli:
         val left  = leftFile |> (File(_)) |> loader.load
         val right = rightFile |> (File(_)) |> loader.load
 
-        diff.diff(left, right).formatForConsole() |> println
+        given fileTreeConsoleFormatter: DiffResultFormatter =
+            if showTable.value then DiffResultTableConsoleFormatter()
+            else DiffResultConsoleFormatter()
+
+        fileTreeDiff.diff(left, right).formatForConsole() |> println
 
     }.ignore()
 

@@ -13,6 +13,7 @@ lazy val root = project.in(file("."))
     description := "Example sbt project that compiles using Scala",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "mainargs"   % "0.7.1",
+      "de.vandermeer" % "asciitable" % "0.3.2",
       "org.scala-lang" %% "toolkit-test" % "0.2.1" % Test,
       "com.funpaas" %% "tang-scala" % TANG_VERSION,
       "org.scalameta" %% "munit" % MUNIT_VERSION % Test

@@ -18,8 +18,7 @@ given fileTreeConsoleFormatter: FileTreeFormatter with
 
 end fileTreeConsoleFormatter
 
-//TODO: 使用tabled样式输出
-given diffResultConsoleFormatter: DiffResultFormatter with
+class DiffResultConsoleFormatter extends DiffResultFormatter:
     extension (t: DiffResult)
         override def formatForConsole(_level: Int = 0): String =
             t.items.map: item =>
@@ -32,5 +31,38 @@ given diffResultConsoleFormatter: DiffResultFormatter with
                         f"${r.relatePath}%-138s > [right], right:size: ${r.totalSizeHuman}%-10s"
                     case _ => throw IllegalStateException("illegal state")
             .mkString("\n")
+end DiffResultConsoleFormatter
 
-end diffResultConsoleFormatter
+class DiffResultTableConsoleFormatter extends DiffResultFormatter:
+    extension (t: DiffResult)
+        override def formatForConsole(_level: Int = 0): String =
+            import de.vandermeer.asciitable.AsciiTable
+            import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment
+
+            val asciiTable = new AsciiTable()
+            asciiTable.addRule()
+            asciiTable.addRow("path", "M", "eq", "left", "right")
+            asciiTable.addRule()
+
+            t.items.foreach: item =>
+                (item.left, item.right) match
+                    case (Some(l), Some(r)) =>
+                        asciiTable.addRow(
+                          l.relatePath,
+                          "both",
+                          item.isSizeEqToString,
+                          l.totalSizeHuman,
+                          r.totalSizeHuman
+                        )
+                    case (Some(l), None) =>
+                        asciiTable.addRow(l.relatePath, "left", item.isSizeEqToString, l.totalSizeHuman, "")
+                    case (None, Some(r)) =>
+                        asciiTable.addRow(r.relatePath, "right", item.isSizeEqToString, "", r.totalSizeHuman)
+                    case _ => throw IllegalStateException("illegal state")
+                end match
+
+                asciiTable.addRule()
+
+            asciiTable.setTextAlignment(TextAlignment.CENTER)
+            asciiTable.render
+end DiffResultTableConsoleFormatter
