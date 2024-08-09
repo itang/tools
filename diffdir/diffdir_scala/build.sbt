@@ -43,6 +43,7 @@ lazy val projectNativeImageOptions = Seq(
   "-H:+ReportExceptionStackTraces",
   "--enable-preview",
   "-H:-CheckToolchain",
+  "-H:+UnlockExperimentalVMOptions",
 
   //"--verbose",
   //"-H:ReflectionConfigurationFiles=../../src/main/resources/reflection-config.json",
