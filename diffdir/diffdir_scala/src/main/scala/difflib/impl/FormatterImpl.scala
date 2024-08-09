@@ -47,13 +47,7 @@ class DiffResultTableConsoleFormatter extends DiffResultFormatter:
             t.items.foreach: item =>
                 (item.left, item.right) match
                     case (Some(l), Some(r)) =>
-                        asciiTable.addRow(
-                          l.relatePath,
-                          "both",
-                          item.isSizeEqToString,
-                          l.totalSizeHuman,
-                          r.totalSizeHuman
-                        )
+                        asciiTable.addRow(l.relatePath, "both", item.isSizeEqToString, l.totalSizeHuman, r.totalSizeHuman)
                     case (Some(l), None) =>
                         asciiTable.addRow(l.relatePath, "left", item.isSizeEqToString, l.totalSizeHuman, "")
                     case (None, Some(r)) =>

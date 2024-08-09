@@ -27,9 +27,8 @@ object App:
         val left  = leftFile |> (File(_)) |> loader.load
         val right = rightFile |> (File(_)) |> loader.load
 
-        given fileTreeConsoleFormatter: DiffResultFormatter =
-            if showTable.value then DiffResultTableConsoleFormatter()
-            else DiffResultConsoleFormatter()
+        given DiffResultFormatter =
+            if showTable.value then DiffResultTableConsoleFormatter() else DiffResultConsoleFormatter()
 
         val fileTreeDiff: FileTreeDiff = FileTreeDiffImpl()
         fileTreeDiff.diff(left, right).formatForConsole() |> println
@@ -49,8 +48,8 @@ object App:
 
         val filesP = doCheckAndPreprocessingFiles(files)
 
-        val loader                                 = getLoader(ignoreDirs)
-        given fileTreeFormatter: FileTreeFormatter = FileTreeConsoleFormatter()
+        val loader              = getLoader(ignoreDirs)
+        given FileTreeFormatter = FileTreeConsoleFormatter()
 
         val fileSizes = filesP.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do
@@ -74,7 +73,8 @@ object App:
     private def getLoader(ignoreDirs: List[String]): FileTreeLoader =
         def getFilter: Option[FileFilter] =
             ignoreDirs match
-                case Nil => None
+                case Nil =>
+                    None
                 case _ =>
                     Some((file: File) =>
                         if file.isFile then true
