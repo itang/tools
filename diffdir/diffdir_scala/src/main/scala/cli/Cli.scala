@@ -4,14 +4,8 @@ import java.io.{File, FileFilter}
 import mainargs.{Flag, Leftover, arg, main}
 import tang.{ignore, time, |>}
 import diff.api.types.DiffResult
-import diff.api.{DiffResultFormatter, FileTreeDiff, FileTreeLoader}
-import diff.impl.{
-    DiffResultConsoleFormatter,
-    DiffResultTableConsoleFormatter,
-    FileTreeDiffImpl,
-    FileTreeLoaderImpl,
-    fileTreeConsoleFormatter
-}
+import diff.api.{DiffResultFormatter, FileTreeDiff, FileTreeFormatter, FileTreeLoader}
+import diff.impl.{DiffResultConsoleFormatter, DiffResultTableConsoleFormatter, FileTreeConsoleFormatter, FileTreeDiffImpl, FileTreeLoaderImpl}
 
 /// 命令行界面
 object Cli:
@@ -58,6 +52,7 @@ object Cli:
         val filesP = doCheckAndPreprocessingFiles(files)
 
         val loader = getLoader(ignoreDirs)
+        given fileTreeFormatter: FileTreeFormatter = FileTreeConsoleFormatter()
 
         val fileSizes = filesP.value.map(File(_)).map(loader.load)
         for fileSize <- fileSizes do

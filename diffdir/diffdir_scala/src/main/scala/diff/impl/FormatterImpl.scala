@@ -5,7 +5,7 @@ import diff.api.types.{DiffResult, FileTree}
 
 import java.io.File
 
-given fileTreeConsoleFormatter: FileTreeFormatter with
+class FileTreeConsoleFormatter extends FileTreeFormatter:
     extension (f: FileTree)
         override def formatForConsole(level: Int): String =
             extension (f: File)
@@ -16,7 +16,7 @@ given fileTreeConsoleFormatter: FileTreeFormatter with
 
             f"$prefix%-80s ${f.totalSizeHuman}%10s"
 
-end fileTreeConsoleFormatter
+end FileTreeConsoleFormatter
 
 class DiffResultConsoleFormatter extends DiffResultFormatter:
     extension (t: DiffResult)
