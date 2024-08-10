@@ -40,3 +40,17 @@ pub fn build_glob_match_fn(glob: String) -> impl Fn(&Path) -> bool {
 fn trim(ext_name: &str) -> &str {
     ext_name.strip_prefix(".").unwrap_or(ext_name)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::trim;
+    #[test]
+    fn test_trim() {
+        assert_eq!("txt", trim(".txt"));
+        assert_eq!("txt", trim("txt"));
+        
+        assert_eq!(".txt", trim("..txt"));
+        assert_eq!("", trim("."));
+        assert_eq!("", trim(""));
+    }
+}
