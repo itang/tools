@@ -10,15 +10,16 @@ class FileTreeLoaderImpl(filter: Option[FileFilter] = None) extends FileTreeLoad
     override def load(root: File): FileTree =
         // @rec
         def _walk(file: File): FileTree =
-            if file.isDirectory then
-                import language.unsafeNulls
-                val children =
+            val children =
+                if file.isDirectory then
                     filter match
                         case Some(f) => file.listFiles(f).map(_walk)
                         case _       => file.listFiles().map(_walk)
-                FileTree(file, root, children)
-            else
-                FileTree(file, root, Array.empty)
+                else
+                    Array.empty[FileTree]
+
+            FileTree(file, root, children)
+        end _walk
 
         _walk(root)
     end load

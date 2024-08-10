@@ -14,6 +14,7 @@ class FileTreeDiffImpl extends FileTreeDiff:
     // TODO: 树比较输出结构和优化性能
     private def diffFileTree(left: FileTree, right: FileTree): List[DiffItem] =
         var list: List[DiffItem] = Nil
+
         left.walk(): (file, _) =>
             val leftPath = file.relatePath
             list = DiffItem(Some(file), right.findByRelatePath(leftPath)) :: list
