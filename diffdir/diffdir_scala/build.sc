@@ -19,6 +19,7 @@ object Main extends RootModule with SbtModule with ScalaModule with NativeImage 
   override def ivyDeps = Agg(
     ivy"com.lihaoyi::mainargs::0.7.1",
     ivy"de.vandermeer:asciitable:0.3.2",
+    ivy"dev.soundness:escritoire-core:0.11.0",
     ivy"com.funpaas::tang-scala:$tangVersion"
   )
 

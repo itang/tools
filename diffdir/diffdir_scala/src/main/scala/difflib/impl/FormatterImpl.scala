@@ -33,6 +33,7 @@ class DiffResultConsoleFormatter extends DiffResultFormatter:
             .mkString("\n")
 end DiffResultConsoleFormatter
 
+//TODO: 新增 https://soundness.dev/escritoire的实现
 class DiffResultTableConsoleFormatter extends DiffResultFormatter:
     extension (t: DiffResult)
         override def formatForConsole(_level: Int = 0): String =
