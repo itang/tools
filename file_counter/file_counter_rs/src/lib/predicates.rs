@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use crate::PredicatePathFn;
 use glob_match::glob_match;
 use path_slash::PathExt;
 
@@ -37,6 +38,19 @@ pub fn build_glob_match_fn(glob: String) -> impl Fn(&Path) -> bool {
     }
 }
 
+/// and predicate fns
+pub fn and_predicate_path_fns(fns: Vec<Box<PredicatePathFn>>) -> impl Fn(&Path) -> bool {
+    move |path| {
+        for f in fns.iter() {
+            if !f(path) {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
 fn trim(ext_name: &str) -> &str {
     ext_name.strip_prefix(".").unwrap_or(ext_name)
 }
@@ -48,7 +62,7 @@ mod tests {
     fn test_trim() {
         assert_eq!("txt", trim(".txt"));
         assert_eq!("txt", trim("txt"));
-        
+
         assert_eq!(".txt", trim("..txt"));
         assert_eq!("", trim("."));
         assert_eq!("", trim(""));

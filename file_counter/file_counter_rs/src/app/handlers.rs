@@ -3,7 +3,9 @@ use std::path::{Path, PathBuf};
 
 use anyhow::anyhow;
 
-use ifile_counter::{build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn, PredicatePathFn};
+use ifile_counter::{
+    and_predicate_path_fns, build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn, PredicatePathFn,
+};
 
 use super::Args;
 
@@ -92,8 +94,6 @@ fn get_relative_path(
         },
         None => Ok(Some(file.to_path_buf())),
     }
-
-    //Ok(file.strip_prefix(std::env::current_dir()?)?.to_path_buf())
 }
 
 fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
@@ -111,15 +111,7 @@ fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
         ps.push(Box::new(build_predicate_contains_fn(contains)))
     }
 
-    move |path| {
-        for f in ps.iter() {
-            if !f(path) {
-                return false;
-            }
-        }
-
-        true
-    }
+    and_predicate_path_fns(ps)
 }
 
 fn output_format(files: &[PathBuf]) {
