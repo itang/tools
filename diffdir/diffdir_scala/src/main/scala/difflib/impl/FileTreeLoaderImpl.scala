@@ -12,9 +12,10 @@ class FileTreeLoaderImpl(filter: Option[FileFilter] = None) extends FileTreeLoad
         def _walk(file: File): FileTree =
             val children =
                 if file.isDirectory then
-                    filter match
-                        case Some(f) => file.listFiles(f).map(_walk)
-                        case _       => file.listFiles().map(_walk)
+                    val list = filter match
+                        case Some(f) => file.listFiles(f)
+                        case _       => file.listFiles()
+                    list.map(_walk)
                 else
                     Array.empty[FileTree]
 
