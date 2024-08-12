@@ -1,0 +1,83 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+test:
+  mill test
+
+test-sbt:
+  sbt test
+
+compile-sbt:
+  sbt compile
+
+run +args="encode 123456":
+  mill run {{args}}
+
+run-sbt +args="encode 123456":
+  sbt 'run {{args}}'
+
+run-matches:
+  sbt 'run matches -r 123456 -e "$2a$10$NvgvcocBqMn050z4nC0I6OeAhO5ERjM74pvMtSGLghPhWI5ed5myG"'
+
+build:
+  sbt 'show graalvm-native-image:packageBin'
+
+[windows]
+install: build
+  cp target/graalvm-native-image/ipasswd_scala.exe D:/dev-env/bin/ipasswd.exe
+
+build-mill:
+  mill nativeImage
+
+[windows]
+install-mill: build-mill
+  cp out/nativeImage.dest/ipasswd_scala.exe D:/dev-env/bin/ipasswd.exe
+
+
+
+compile:
+  mill compile
+
+deps-update:
+  scala-update
+
+deps-tree:
+  sbt dependencyTree
+
+reset:
+  sbt clean ; sbt shutdownall ; bloop exit
+
+edit:
+  idea64 .
+
+dist:
+  sbt stage
+
+dev:
+  mill --watch run encode 123456
+
+dev-sbt:
+  sbt '~reStart encode 123456 --- -Dfile.encoding=utf-8'
+
+edit-clean:
+  rm -rf .bsp .idea
+
+edit-mill-idea:
+  mill mill.scalalib.GenIdea/idea
+
+console:
+  mill -i console
+
+fatjar:
+  sbt assembly
+
+run-fatjar *args: fatjar
+  java -DSOME_KEY=1 -jar target/scala-3.5.0-RC6/ipasswd_scala-assembly-0.1.0-SNAPSHOT.jar 
+
+run-dist *args: dist
+  java -Dfile.encoding=UTF-8 -cp "target/universal/stage/lib/*" Main 
+
+run-dist-debug *args: dist
+  java -Dfile.encoding=UTF-8 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -cp "target/universal/stage/lib/*" Main 
