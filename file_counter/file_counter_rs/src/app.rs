@@ -18,7 +18,11 @@ pub struct Args {
     /// Contains for match
     #[arg(short, long)]
     contains: Option<Vec<String>>,
-    
+
+    /// Contains for match
+    #[arg(short = 'n', long)]
+    not_contains: Option<Vec<String>>,
+
     /// Ignore directories
     #[arg(short, long)]
     ignore_dirs: Option<Vec<PathBuf>>,

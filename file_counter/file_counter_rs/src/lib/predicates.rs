@@ -24,6 +24,17 @@ pub fn build_predicate_contains_fn(contains: Vec<String>) -> impl Fn(&Path) -> b
     }
 }
 
+/// build predicate not contains fn
+pub fn build_predicate_not_contains_fn(not_contains: Vec<String>) -> impl Fn(&Path) -> bool {
+    move |p| {
+        if let Ok(content) = std::fs::read_to_string(p) {
+            not_contains.iter().all(|c| !content.contains(c))
+        } else {
+            false
+        }
+    }
+}
+
 /// build glob match fn
 //TODO: review
 pub fn build_glob_match_fn(glob: String) -> impl Fn(&Path) -> bool {
@@ -49,6 +60,11 @@ pub fn and_predicate_path_fns(fns: Vec<Box<PredicatePathFn>>) -> impl Fn(&Path) 
 
         true
     }
+}
+
+/// not predicate
+pub fn not_predicated_fn(f: Box<PredicatePathFn>) -> impl Fn(&Path) -> bool {
+    move |path| !f(path)
 }
 
 fn trim(ext_name: &str) -> &str {

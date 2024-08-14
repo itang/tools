@@ -45,7 +45,7 @@ object Main extends RootModule with SbtModule with ScalaModule with NativeImage 
     "-H:-CheckToolchain"
   ) ++ (if (sys.props.get("os.name").contains("Linux")) Seq("--static") else Seq.empty)
 
-  object test extends SbtModuleTests with TestModule.Munit {
+  object test extends JavaTests with TestModule.Munit {
     def ivyDeps = Agg(
       ivy"org.scalameta::munit:${Tests.MUNIT_VERSION}",
       ivy"org.mockito:mockito-core:${Tests.MOCKITO_CORE_VERSION}"
