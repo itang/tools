@@ -50,7 +50,7 @@ pub fn build_glob_match_fn(glob: String) -> impl Fn(&Path) -> bool {
 }
 
 /// and predicate fns
-pub fn and_predicate_path_fns(fns: Vec<Box<PredicatePathFn>>) -> impl Fn(&Path) -> bool {
+pub fn and(fns: Vec<Box<PredicatePathFn>>) -> impl Fn(&Path) -> bool {
     move |path| {
         for f in fns.iter() {
             if !f(path) {
@@ -63,7 +63,7 @@ pub fn and_predicate_path_fns(fns: Vec<Box<PredicatePathFn>>) -> impl Fn(&Path) 
 }
 
 /// not predicate
-pub fn not_predicated_fn(f: Box<PredicatePathFn>) -> impl Fn(&Path) -> bool {
+pub fn not(f: Box<PredicatePathFn>) -> impl Fn(&Path) -> bool {
     move |path| !f(path)
 }
 

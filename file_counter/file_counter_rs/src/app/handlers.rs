@@ -4,8 +4,8 @@ use std::path::{Path, PathBuf};
 use anyhow::anyhow;
 
 use ifile_counter::{
-    and_predicate_path_fns, build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn,
-    build_predicate_not_contains_fn, not_predicated_fn, PredicatePathFn,
+    and, build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn,
+    build_predicate_not_contains_fn, not, PredicatePathFn,
 };
 
 use super::Args;
@@ -114,10 +114,9 @@ fn build_predicate_fn(args: Args) -> impl Fn(&Path) -> bool {
 
     if let Some(not_contains) = args.not_contains {
         ps.push(Box::new(build_predicate_not_contains_fn(not_contains)))
-        //ps.push(Box::new(not_predicated_fn(Box::new(build_predicate_contains_fn(not_contains)))));
     }
 
-    and_predicate_path_fns(ps)
+    and(ps)
 }
 
 fn output_format(files: &[PathBuf]) {

@@ -8,8 +8,8 @@
 
 pub use files::files;
 pub use predicates::{
-    and_predicate_path_fns, build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn,
-    build_predicate_not_contains_fn, not_predicated_fn,
+    and, build_glob_match_fn, build_predicate_contains_fn, build_predicate_ext_fn,
+    build_predicate_not_contains_fn, not,
 };
 pub use types::PredicatePathFn;
 
