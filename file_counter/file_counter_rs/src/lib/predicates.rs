@@ -73,7 +73,8 @@ fn trim(ext_name: &str) -> &str {
 
 #[cfg(test)]
 mod tests {
-    use super::trim;
+    use super::{not, trim};
+    use std::path::Path;
     #[test]
     fn test_trim() {
         assert_eq!("txt", trim(".txt"));
@@ -82,5 +83,11 @@ mod tests {
         assert_eq!(".txt", trim("..txt"));
         assert_eq!("", trim("."));
         assert_eq!("", trim(""));
+    }
+
+    #[test]
+    fn test_not() {
+        assert!(not(Box::new(|_| false))(Path::new("")));
+        assert!(!not(Box::new(|_| true))(Path::new("")));
     }
 }
