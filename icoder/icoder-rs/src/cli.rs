@@ -4,11 +4,11 @@ use clap::{Args, Parser, Subcommand};
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
-    pub action: Action,
+    pub command: Command,
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum Action {
+pub enum Command {
     ///base64
     Base64(CoderOptions),
     ///hex
@@ -25,6 +25,8 @@ pub enum Action {
     Uuid(UuidOptions),
     ///random
     Random(RandomOptions),
+    ///md5
+    Md5(Md5Options),
     ///now
     Now,
 }
@@ -68,4 +70,11 @@ pub struct UuidOptions {
     pub upcase: bool,
     #[arg(short, long)]
     pub no_underline: bool,
+}
+
+///i2binary
+#[derive(Args, Debug, Clone)]
+pub struct Md5Options {
+    ///input
+    pub input: Option<String>,
 }

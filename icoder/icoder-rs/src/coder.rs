@@ -117,6 +117,14 @@ pub mod i2binary {
     }
 }
 
+
+///encode
+pub fn md5(src: impl AsRef<[u8]>) -> String {
+    let digest = md5::compute(src);
+    format!("{:x}", digest)
+}
+
+
 ///uuid
 pub fn uuid(upcase: bool, no_underline: bool) -> String {
     let id = uuid::Uuid::new_v4();

@@ -16,6 +16,7 @@ uuid = { version = "1.7.0", features = [
 ] }
 rand = "0.8.5"
 chrono = "0.4.34"
+md5 = "0.7.0"
 
 [profile.release]
 # https://doc.rust-lang.org/cargo/reference/profiles.html
