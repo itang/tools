@@ -14,7 +14,7 @@ import Versions.Tests
 
 
 object Main extends RootModule with SbtModule with ScalaModule with NativeImage {
-  def scalaVersion = "3.5.0-RC6"
+  def scalaVersion = "3.5.0"
 
   override def ivyDeps = Agg(
     ivy"com.lihaoyi::mainargs::0.7.1",
