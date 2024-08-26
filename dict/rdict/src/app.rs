@@ -54,7 +54,7 @@ async fn process_word(word: &str) {
 
     match dict(word).await {
         Ok(trans) => {
-            println!("\t->: {}", Colour::Blue.paint(trans));
+            println!("\t->: {}", Colour::Blue.paint(trans.to_string()));
             //post_to_cloud(word, trans)
         },
         Err(err) => println!("\terror: {}", err),
