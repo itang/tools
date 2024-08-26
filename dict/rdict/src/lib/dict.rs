@@ -20,47 +20,30 @@ impl DictResult {
 
 impl Display for DictResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {}", self.result, self.pronunciation)
+        write!(f, "{}\n\t{}", self.pronunciation, self.result)
     }
 }
 
 /// dict
 pub async fn dict(word: &str) -> Result<DictResult, Box<dyn Error>> {
-    // content: owned move ?
-    //TODO: extract pronunciation
+    //TODO: 优化抽取结果
     fn extract_result(content: &str) -> Option<DictResult> {
-        // let document = Html::parse_document(r#"<html><div class="trans-container"><span class="trans">你好</span></div></html>"#);
-        // dbg!(document.html());
-
         let document = Html::parse_document(content);
-        // let html = document.html();
-        // let document = Html::parse_document(&html);
 
-        let span_trans_selector = Selector::parse("div.trans-container span.trans").expect("selector parse");
-
-        for element in document.select(&span_trans_selector) {
-            dbg!(&element.value().name());
-        }
-
-        let values: Vec<String> = document
-            .select(&span_trans_selector)
-            .map(|e| {
-                dbg!(&e);
-                e.inner_html()
-            })
-            .collect();
+        let span_trans_selector = Selector::parse("div.trans-container li span").expect("selector parse");
+        let values: Vec<String> = document.select(&span_trans_selector).map(|e| e.inner_html()).collect();
         let r = values.join(", ");
-        dbg!(&r);
 
         let phonetic_selector = Selector::parse("span.phonetic").expect("selector parse");
         let values: Vec<String> = document.select(&phonetic_selector).map(|e| e.inner_html()).collect();
         let p = values.join(", ");
-        dbg!(&p);
 
         Some(DictResult::new(r, p))
     }
 
-    let url = format!("http://dict.youdao.com/search?q={}&keyfrom=dict.index" /*DICT_SERVICE_URL*/, word);
+    let url = format!("https://dict.youdao.com/result?word={}&lang=en" /*DICT_SERVICE_URL*/, word);
+
+    dbg!(&url);
 
     util::http_get_as_string(&url)
         .await
