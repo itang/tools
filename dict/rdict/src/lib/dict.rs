@@ -50,7 +50,14 @@ pub async fn dict(word: &str) -> Result<DictResult, Box<dyn Error>> {
                 let s1 = Selector::parse("span.pos").expect("selector parse");
                 let part_of_speech = e.select(&s1).map(|it| it.inner_html()).collect::<Vec<String>>().join("");
                 let s2 = Selector::parse("span.trans").expect("selector parse");
-                let explanation = e.select(&s2).map(|it| it.inner_html()).collect::<Vec<String>>().join("");
+                let explanation = e
+                    .select(&s2)
+                    .map(|it| it.inner_html())
+                    .collect::<Vec<String>>()
+                    .join("")
+                    .replace("&lt;", "<")
+                    .replace("&gt;", ">");
+
                 TranResult { part_of_speech, explanation }
             })
             .collect();
