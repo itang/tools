@@ -55,11 +55,11 @@ async fn process_word(word: &str) {
     match dict(word).await {
         Ok(trans) => {
             for p in trans.pronunciation {
-                print!("\t {:-6}: {} \t", p.alias, Colour::Blue.paint(&p.pronunciation));
+                print!("\t {:-4}: {} \t", p.alias, Colour::Blue.paint(&p.pronunciation));
             }
             println!("\n");
             for r in trans.result {
-                println!("\t {:-6}: {}", r.part_of_speech, Colour::Blue.paint(&r.explanation));
+                println!("\t {:-4}: {}", r.part_of_speech, Colour::Blue.paint(&r.explanation));
             }
         },
         Err(err) => println!("\terror: {}", err),
