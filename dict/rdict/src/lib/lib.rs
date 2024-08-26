@@ -5,7 +5,7 @@
 #![deny(missing_docs)]
 #![deny(warnings)]
 
-pub use dict::dict;
+pub use dict::{dict, DictResult, PronResult, TranResult};
 
 mod dict;
 mod util;

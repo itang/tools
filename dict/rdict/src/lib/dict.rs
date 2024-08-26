@@ -7,21 +7,27 @@ use crate::util;
 ///Tran Result
 #[derive(Debug)]
 pub struct TranResult {
+    ///part of speech
     pub part_of_speech: String,
+    ///explanation
     pub explanation: String,
 }
 
 ///Pronunciation Result
 #[derive(Debug)]
 pub struct PronResult {
+    ///alias
     pub alias: String,
+    ///pronunciation
     pub pronunciation: String,
 }
 
 ///Dict Result
 #[derive(Debug)]
 pub struct DictResult {
+    ///result
     pub result: Vec<TranResult>,
+    ///pronunciation
     pub pronunciation: Vec<PronResult>,
 }
 
