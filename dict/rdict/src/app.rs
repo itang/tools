@@ -52,10 +52,17 @@ impl Router {
 async fn process_word(word: &str) {
     println!("{}:", Colour::Green.paint(word));
 
+    println!();
+
     match dict(word).await {
         Ok(trans) => {
-            println!("\t->: {}", Colour::Blue.paint(trans.to_string()));
-            //post_to_cloud(word, trans)
+            for p in trans.pronunciation {
+                println!("\t {:-6}: {}", p.alias, Colour::Blue.paint(&p.pronunciation));
+            }
+            println!();
+            for r in trans.result {
+                println!("\t {:-6}: {}", r.part_of_speech, Colour::Blue.paint(&r.explanation));
+            }
         },
         Err(err) => println!("\terror: {}", err),
     }
