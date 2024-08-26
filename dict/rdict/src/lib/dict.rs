@@ -43,8 +43,6 @@ pub async fn dict(word: &str) -> Result<DictResult, Box<dyn Error>> {
 
     let url = format!("https://dict.youdao.com/result?word={}&lang=en" /*DICT_SERVICE_URL*/, word);
 
-    dbg!(&url);
-
     util::http_get_as_string(&url)
         .await
         .and_then(|content| extract_result(&content).ok_or_else(|| From::from("无法解析获取翻译内容")))
