@@ -6,5 +6,17 @@ default:
 install:
   cargo install --path .
 
+dev *args="hello 界面":
+  cargo watch -x 'run -- {{args}}'
+
+run *args="hello 界面":
+  cargo run -- {{args}}
+
 fmt:
   cargo fmt
+
+lint:
+  cargo clippy
+
+test:
+  cargo test
