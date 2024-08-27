@@ -21,4 +21,8 @@ pub enum Command {
 
 ///Command1 Options
 #[derive(Args, Debug, Clone)]
-pub struct AccountOptions {}
+pub struct AccountOptions {
+    ///all
+    #[arg(short, long, default_value_t = false)]
+    pub all: bool,
+}

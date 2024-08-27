@@ -17,17 +17,19 @@ impl Router {
 
         match args.command {
             Some(Command::Account(_options)) => handle_account_command(_options),
-            None => handle_account_command(AccountOptions {}),
+            None => handle_account_command(AccountOptions { all: false }),
         };
 
         Ok(())
     }
 }
 
-fn handle_account_command(_account_options: AccountOptions) {
+fn handle_account_command(account_options: AccountOptions) {
     println!("Accounts:");
     for (index, account) in AccountRepository.list().iter().enumerate() {
-        println!("{index:-2} - {}:{}@{}", account.name, account.mask_password(), account.site)
+        if account_options.all || account.pubilc {
+            println!("{:-2} - {}:{}@{}", index + 1, account.name, account.mask_password(), account.site)
+        }
     }
     println!();
 }
