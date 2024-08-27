@@ -55,7 +55,7 @@ async fn process_word(word: &str) {
     match dict(word).await {
         Ok(trans) => {
             for p in trans.pronunciation {
-                print!("\t {:-4}: {} \t", p.alias, Colour::Blue.paint(&p.pronunciation));
+                print!("\t {:-2}: {} \t", p.alias, Colour::Blue.paint(&p.pronunciation));
             }
             println!("\n");
             for r in trans.result {
