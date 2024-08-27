@@ -4,7 +4,7 @@ use clap::{Args, Parser, Subcommand};
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
     #[command(subcommand)]
-    pub command: Command,
+    pub command: Option<Command>,
 }
 
 impl CliArgs {
@@ -15,19 +15,10 @@ impl CliArgs {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Command {
-    ///command1
+    ///Account
     Account(AccountOptions),
-    ///command2
-    Command2(Command2Options),
 }
 
 ///Command1 Options
 #[derive(Args, Debug, Clone)]
 pub struct AccountOptions {}
-
-///Command2 Options
-#[derive(Args, Debug, Clone)]
-pub struct Command2Options {
-    ///input
-    pub input: Option<String>,
-}
