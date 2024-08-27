@@ -7,19 +7,19 @@
 //! add doc here
 
 /// account
-pub struct Account {
+pub struct Account<'a> {
     ///name
-    pub name: String,
+    pub name: &'a str,
     ///password
-    pub password: String,
+    pub password: &'a str,
     ///site
-    pub site: String,
+    pub site: &'a str,
 }
 
-impl Account {
+impl<'a> Account<'a> {
     /// mask password
     pub fn mask_password(&self) -> String {
-        mask_text(&self.password, 2, 1)
+        mask_text(self.password, 2, 1)
     }
 }
 
@@ -31,27 +31,23 @@ impl AccountRepository {
     pub fn list(&self) -> Vec<Account> {
         vec![
             Account {
-                name: "18018786450".to_string(),
-                password: "Authine@123456".to_string(),
-                site: "http://39.104.227.186:8089/login?corpId=dingc55494e63f745d5335c2f4657eb6378f".into(),
+                name: "18018786450",
+                password: "Authine@123456",
+                site: "http://39.104.227.186:8089/login?corpId=dingc55494e63f745d5335c2f4657eb6378f",
             },
-            Account { name: "live.tang@gmail.com".to_string(), password: "Ic1".to_string(), site: "微软".into() },
-            Account { name: "itang2005".to_string(), password: "Ic1".to_string(), site: "12306".into() },
-            Account { name: "live.tang@gmail.com".to_string(), password: "I  - 15".to_string(), site: "weibo".into() },
-            Account { name: "itang".to_string(), password: "t15".to_string(), site: "github".into() },
-            Account { name: "".to_string(), password: "myc@123456".to_string(), site: "个税app".into() },
-            Account { name: "root".to_string(), password: "tq521#".to_string(), site: "hk qq yun 119.28.45.29".into() },
-            Account {
-                name: "itang".to_string(),
-                password: "it115#".to_string(),
-                site: "hk qq yun 119.28.45.29".into(),
-            },
-            Account { name: "live.tang@gmail.com".to_string(), password: "ic1".to_string(), site: "aliyun".into() },
-            Account { name: "tqibm@163.com".to_string(), password: "tq51".to_string(), site: "alipay dl".into() },
-            Account { name: "tqibm@163.com".to_string(), password: "tq510".to_string(), site: "alipay zf".into() },
-            Account { name: "live.tang@gmail.com".to_string(), password: "t15".to_string(), site: "github".into() },
-            Account { name: "livetang".to_string(), password: "tq510".to_string(), site: "twitter.com".into() },
-            Account { name: "l.t@gmail.com".to_string(), password: "i115".to_string(), site: "google".into() },
+            Account { name: "live.tang@gmail.com", password: "Ic1", site: "微软" },
+            Account { name: "itang2005", password: "Ic1", site: "12306" },
+            Account { name: "live.tang@gmail.com", password: "I  - 15", site: "weibo" },
+            Account { name: "itang", password: "t15", site: "github" },
+            Account { name: "", password: "myc@123456", site: "个税app" },
+            Account { name: "root", password: "tq521#", site: "hk qq yun 119.28.45.29" },
+            Account { name: "itang", password: "it115#", site: "hk qq yun 119.28.45.29" },
+            Account { name: "live.tang@gmail.com", password: "ic1", site: "aliyun" },
+            Account { name: "tqibm@163.com", password: "tq51", site: "alipay dl" },
+            Account { name: "tqibm@163.com", password: "tq510", site: "alipay zf" },
+            Account { name: "live.tang@gmail.com", password: "t15", site: "github" },
+            Account { name: "livetang", password: "tq510", site: "twitter.com" },
+            Account { name: "l.t@gmail.com", password: "i115", site: "google" },
         ]
     }
 }
