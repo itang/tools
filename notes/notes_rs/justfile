@@ -1,0 +1,47 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+
+dev *args:
+  cargo watch -x 'run -- {{args}}'
+
+run *args:
+  cargo run -- {{args}}
+
+run-release *args:
+  cargo run --release -- {{args}}
+
+lint:
+  cargo clippy --no-deps
+
+edit:
+  idea64 .
+
+install:
+  cargo install --path .
+
+repl:
+  @echo "':dep .' for current project repl"
+  evcxr
+
+doc:
+  cargo doc --document-private-items --open
+
+fmt:
+  cargo fmt
+
+
+
+add_clap:
+  cargo add clap --features derive
+
+add_ext:
+  cargo add dirs once_cell humantime url rust_decimal rust_decimal_macros ; cargo add uuid --features v4,fast-rng,macro-diagnostics
+
+add_toolkit:
+  cargo add tap chrono time fs_extra itertools xshell anyhow thiserror ; cargo add reqwest --features json ; cargo add serde --features derive ; cargo add serde_json
+
+add_tokio:
+  cargo add tokio --features full
