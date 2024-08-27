@@ -11,7 +11,7 @@ use rdict::dict;
 #[derive(Parser, Debug)]
 #[clap(author, version, name = "rdict", about = "rdict usage.", long_about = None)]
 pub struct Args {
-    #[clap(help = "Input words")]
+    #[arg(help = "Input words")]
     words: Vec<String>,
 }
 
