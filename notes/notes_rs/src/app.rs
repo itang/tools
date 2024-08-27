@@ -25,7 +25,9 @@ impl Router {
 }
 
 fn handle_account_command(_account_options: AccountOptions) {
-    for account in AccountRepository.list() {
-        println!("{}:{}@{}", account.name, account.mask_password(), account.site)
+    println!("Accounts:");
+    for (index, account) in AccountRepository.list().iter().enumerate() {
+        println!("{index:-2} - {}:{}@{}", account.name, account.mask_password(), account.site)
     }
+    println!();
 }
