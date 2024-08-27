@@ -84,7 +84,7 @@ fn parse_result(document: &Html) -> Vec<TranResult> {
                 let word = parse_and_wrap(e, &s2);
 
                 let s3 = Selector::parse(".word-exp_tran").expect("selector parse");
-                let explanation = parse_to_string(e, &s3);
+                let explanation = parse_and_wrap(e, &s3);
                 TranResult { part_of_speech: index + " " + &word, explanation }
             })
             .collect();
