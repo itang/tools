@@ -60,9 +60,18 @@ pub(crate) fn mask_text(text: &str, num_prefix_chars: usize, num_suffix_chars: u
     let length = text.len();
     let suffix_index = if length > num_suffix_chars { length - num_suffix_chars } else { 0 };
 
+    let show_middle = |len: usize, index: usize| {
+        if len > 6 {
+            let mid = len / 2;
+            index == mid
+        } else {
+            false
+        }
+    };
+
     let mut masked_text = String::with_capacity(length);
     for (i, c) in text.chars().enumerate() {
-        if i < num_prefix_chars || i >= suffix_index {
+        if i < num_prefix_chars || i >= suffix_index || show_middle(length, i) {
             masked_text.push(c);
         } else {
             masked_text.push('*');
