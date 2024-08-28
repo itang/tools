@@ -29,8 +29,9 @@ fn handle_account_command(account_options: AccountOptions) {
 
     let t = Some("yolo".into());
 
+    let show_non_public = account_options.all && account_options.token == t;
     for (index, account) in AccountRepository.list().iter().enumerate() {
-        if (account_options.all && account_options.token == t) || account.pubilc {
+        if show_non_public || account.pubilc {
             println!("{:-2} - {}:{}@{}", index + 1, account.name, account.mask_password(), account.site)
         }
     }
