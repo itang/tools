@@ -37,7 +37,7 @@ fn handle_account_command(account_options: AccountOptions) {
     }
 
     if account_options.all && (account_options.token != t) {
-        println!("\nNOTICE: The token(--token arg) is empty or invalid. ignore non-public accounts to print");
+        println!("\nNOTICE: The token(--token arg) is empty or invalid, so ignore non-public accounts printing");
     }
     println!();
 }
