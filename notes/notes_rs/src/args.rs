@@ -25,4 +25,7 @@ pub struct AccountOptions {
     ///all
     #[arg(short, long, default_value_t = false)]
     pub all: bool,
+
+    #[arg(long)]
+    pub token: Option<String>,
 }

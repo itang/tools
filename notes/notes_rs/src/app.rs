@@ -17,7 +17,7 @@ impl Router {
 
         match args.command {
             Some(Command::Account(_options)) => handle_account_command(_options),
-            None => handle_account_command(AccountOptions { all: false }),
+            None => handle_account_command(AccountOptions { all: false, token: None }),
         };
 
         Ok(())
@@ -27,7 +27,7 @@ impl Router {
 fn handle_account_command(account_options: AccountOptions) {
     println!("Accounts:");
     for (index, account) in AccountRepository.list().iter().enumerate() {
-        if account_options.all || account.pubilc {
+        if (account_options.all && account_options.token == Some("yolo".into())) || account.pubilc {
             println!("{:-2} - {}:{}@{}", index + 1, account.name, account.mask_password(), account.site)
         }
     }
