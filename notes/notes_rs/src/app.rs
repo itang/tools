@@ -25,11 +25,18 @@ impl Router {
 }
 
 fn handle_account_command(account_options: AccountOptions) {
-    println!("Accounts:");
+    println!("Accounts:\n");
+
+    let t = Some("yolo".into());
+
     for (index, account) in AccountRepository.list().iter().enumerate() {
-        if (account_options.all && account_options.token == Some("yolo".into())) || account.pubilc {
+        if (account_options.all && account_options.token == t) || account.pubilc {
             println!("{:-2} - {}:{}@{}", index + 1, account.name, account.mask_password(), account.site)
         }
+    }
+
+    if account_options.all && (account_options.token != t) {
+        println!("\nNOTICE: The token(--token arg) is empty or invalid. ignore non-public accounts to print");
     }
     println!();
 }
