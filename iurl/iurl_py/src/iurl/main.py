@@ -1,4 +1,4 @@
-from urllib.parse import urlparse, parse_qsl
+from urllib.parse import urlparse, parse_qsl, parse_qs
 import json
 import argparse
 
@@ -14,6 +14,14 @@ def _get_args():
         nargs="*",
         help="urls",
     )
+    parser.add_argument(
+        "--query-model",
+        type=str,
+        choices=["qsl", "qs"],
+        default="qsl",
+        help="query model",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -23,11 +31,13 @@ def _main(args: argparse.Namespace) -> None:
     for index, url in enumerate(urls):
         url_obj = urlparse(url)
 
+        parse_query_fn = parse_qsl if args.query_model == "qsl" else parse_qs
+
         m = {
             "scheme": url_obj.scheme,
             "hostname": url_obj.hostname,
             "path": url_obj.path,
-            "query": dict(parse_qsl(url_obj.query, keep_blank_values=True)),
+            "query": dict(parse_query_fn(url_obj.query, keep_blank_values=True)),
             "fragment": url_obj.fragment,
         }
 
