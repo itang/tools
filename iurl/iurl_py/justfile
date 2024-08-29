@@ -46,4 +46,4 @@ test-install:
   uv run --with iurl --no-project -- python -c "from iurl import hello; print(hello())"
 
 install-bin:
-  uv tool install .
+  uv tool install --reinstall .

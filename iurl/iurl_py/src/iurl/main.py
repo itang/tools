@@ -10,7 +10,6 @@ def _get_args():
     parser.add_argument("--url", type=str, help="输入url", default=link)
     parser.add_argument(
         "urls_args",
-        metavar="N",
         type=str,
         nargs="*",
         help="urls",
@@ -22,19 +21,19 @@ def _get_args():
 def _main(args: argparse.Namespace) -> None:
     urls = args.urls_args or [args.url]
     for index, url in enumerate(urls):
-        url = urlparse(url)
+        url_obj = urlparse(url)
 
         m = {
-            "scheme": url.scheme,
-            "hostname": url.hostname,
-            "path": url.path,
-            "query": dict(parse_qsl(url.query, keep_blank_values=True)),
-            "fragment": url.fragment,
+            "scheme": url_obj.scheme,
+            "hostname": url_obj.hostname,
+            "path": url_obj.path,
+            "query": dict(parse_qsl(url_obj.query, keep_blank_values=True)),
+            "fragment": url_obj.fragment,
         }
 
         print(f"{index+1}: {url}")
         print(">>>>")
-        print(json.dumps(m, indent=4))
+        print(json.dumps(m, indent=4, ensure_ascii=False))
 
 
 def main() -> None:
