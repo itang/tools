@@ -32,7 +32,7 @@ def _main(args: argparse.Namespace) -> None:
 
         parse_query_fn = parse_qsl if args.query_model == "qsl" else parse_qs
 
-        m = {
+        url_dict = {
             "scheme": url_obj.scheme,
             "hostname": url_obj.hostname,
             "path": url_obj.path,
@@ -42,7 +42,7 @@ def _main(args: argparse.Namespace) -> None:
 
         print(f"{index+1}: {url}")
         print(">>>>")
-        print(json.dumps(m, indent=4, ensure_ascii=False))
+        print(json.dumps(url_dict, indent=4, ensure_ascii=False))
 
 
 def main() -> None:
