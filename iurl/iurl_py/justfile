@@ -1,0 +1,49 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+
+setup:
+  uv sync
+
+run:
+  uv run iurl
+
+dev:
+  watchexec -e py uv run iurl
+
+all: setup run
+
+lint:
+  uv run ruff check .
+  #uvx ruff check .
+
+lint-fix:
+  uv run ruff check . --unsafe-fixes --fix
+  #uvx ruff check . --unsafe-fixes --fix
+
+sync:
+  uv sync
+
+add:
+  uv add
+
+add-dev:
+  uv add --dev
+
+fmt:
+  uv run ruff format
+  #uvx ruff format
+
+build:
+  uvx --from build pyproject-build --installer uv
+
+publish:
+  uvx twine upload dist/*
+
+test-install:
+  uv run --with iurl --no-project -- python -c "from iurl import hello; print(hello())"
+
+install-bin:
+  uv tool install .
