@@ -1,9 +1,5 @@
 from urllib.parse import urlparse, parse_qsl
 import json
-
-# get args
-
-
 import argparse
 
 
@@ -12,24 +8,33 @@ def _get_args():
 
     parser = argparse.ArgumentParser(description="My url pretty parser")
     parser.add_argument("--url", type=str, help="输入url", default=link)
+    parser.add_argument(
+        "urls_args",
+        metavar="N",
+        type=str,
+        nargs="*",
+        help="urls",
+    )
     args = parser.parse_args()
     return args
 
 
 def _main(args: argparse.Namespace) -> None:
-    url = urlparse(args.url)
+    urls = args.urls_args or [args.url]
+    for index, url in enumerate(urls):
+        url = urlparse(url)
 
-    m = {
-        "scheme": url.scheme,
-        "hostname": url.hostname,
-        "path": url.path,
-        "query": dict(parse_qsl(url.query, keep_blank_values=True)),
-        "fragment": url.fragment,
-    }
+        m = {
+            "scheme": url.scheme,
+            "hostname": url.hostname,
+            "path": url.path,
+            "query": dict(parse_qsl(url.query, keep_blank_values=True)),
+            "fragment": url.fragment,
+        }
 
-    print(args.url)
-    print(">>>>")
-    print(json.dumps(m, indent=4))
+        print(f"{index+1}: {url}")
+        print(">>>>")
+        print(json.dumps(m, indent=4))
 
 
 def main() -> None:
