@@ -3,7 +3,7 @@ import json
 import argparse
 
 
-def _get_args():
+def _get_args() -> argparse.Namespace:
     link = "http://39.104.227.186:8089/api/api/runtime/organization/department/tree?deptIds=&filterType=root_display&sourceType=portal&corpId=&excludeCorpId=&selectUserIds=&workflowInstanceId=&activityCode=&formRootDeptIds=&queryType="
 
     parser = argparse.ArgumentParser(description="My url pretty parser")
@@ -22,8 +22,7 @@ def _get_args():
         help="query model",
     )
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def _main(args: argparse.Namespace) -> None:
