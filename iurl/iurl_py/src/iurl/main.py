@@ -25,6 +25,7 @@ def _get_args() -> argparse.Namespace:
         help="urls",
     )
     parser.add_argument(
+        "-m",
         "--query-model",
         type=str,
         choices=["qsl", "qs", "raw"],
