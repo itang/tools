@@ -27,6 +27,17 @@ def _get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _format_port(port: int | None, scheme: str) -> str:
+    if port:
+        return f"{port}"
+    elif scheme == "http":
+        return "80"
+    elif scheme == "https":
+        return "443"
+    else:
+        return "0"
+
+
 def _main(args: argparse.Namespace) -> None:
     urls = args.urls_args or [args.url]
     for index, url in enumerate(urls):
@@ -37,7 +48,7 @@ def _main(args: argparse.Namespace) -> None:
         url_dict = {
             "scheme": url_obj.scheme,
             "hostname": url_obj.hostname,
-            "port": url_obj.port,
+            "port": _format_port(url_obj.port, url_obj.scheme),
             "path": url_obj.path,
             "query": dict(parse_query_fn(url_obj.query, keep_blank_values=True)),
             "fragment": url_obj.fragment,
