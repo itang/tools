@@ -4,7 +4,7 @@ from urllib.parse import ParseResult, urlparse, parse_qsl, parse_qs
 from termcolor import colored
 
 
-DEFAULT_URL = "http://39.104.227.186:8089/api/api/runtime/organization/department/tree?deptIds=&filterType=root_display&sourceType=portal&corpId=&excludeCorpId=&selectUserIds=&workflowInstanceId=&activityCode=&formRootDeptIds=&queryType="
+DEFAULT_URL = "http://39.104.227.186:8089/api/api/runtime/organization/department/tree?deptIds=&filterType=root_display&sourceType=portal&corpId=&excludeCorpId=&selectUserIds=&workflowInstanceId=&activityCode=&formRootDeptIds=&queryType=#/apps/main"
 
 
 def _get_args() -> argparse.Namespace:
