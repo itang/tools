@@ -16,8 +16,7 @@ pub use coder::{base64::Base64,
                 uuid,
                 Coder,
                 CoderResult,
-                pretty_print_url,
-                QueryMode};
+                url};
 pub use read_line::ReadLine;
 
 mod coder;
