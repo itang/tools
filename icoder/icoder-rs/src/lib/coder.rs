@@ -187,7 +187,7 @@ pub fn pretty_print_url(url: &str, query_mode: QueryMode) -> Result<String, Box<
     let scheme = url.scheme();
     let url_obj = UrlObj {
         scheme: scheme.to_string(),
-        host: url.host().map(|h| h.to_string()).unwrap_or("".to_string()),
+        host: url.host().map(|h| h.to_string()),
         #[allow(clippy::unnecessary_lazy_evaluations)]
         port: url.port().or_else(|| match scheme {
             "https" => Some(443),
@@ -227,7 +227,7 @@ fn parse_query(query: &str, query_mode: QueryMode) -> Query {
 #[derive(Serialize, Debug)]
 pub struct UrlObj {
     pub scheme: String,
-    pub host: String,
+    pub host: Option<String>,
     pub port: Option<u16>,
     pub path: String,
     pub query: Option<Query>,
