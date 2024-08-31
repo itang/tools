@@ -153,7 +153,7 @@ impl IRouter for Router {
             Command::Random(options) => random_str(options.length.unwrap_or(8)),
             Command::Md5(options) => md5(options.input.or_read_line()),
             Command::Now => now("%Y-%m-%d %H:%M:%S"),
-            Command::Url(options) => url::pretty_print_url(&options.input.or_read_line(), options.query_mode)?
+            Command::Url(options) => url::parse_url(&options.input.or_read_line(), options.query_mode)?.to_pretty_string()?
         };
 
         println!("{}", ret);
