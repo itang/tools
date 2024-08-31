@@ -36,7 +36,7 @@ def _get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _format_port(port: int | None, scheme: str) -> str:
+def _format_port(port: int | None, scheme: str) -> str | None:
     if port:
         return f"{port}"
     elif scheme == "http":
@@ -44,7 +44,7 @@ def _format_port(port: int | None, scheme: str) -> str:
     elif scheme == "https":
         return "443"
     else:
-        return "0"
+        return None
 
 
 def _w(fn):  # type: ignore
@@ -77,6 +77,9 @@ def _main(args: argparse.Namespace) -> None:
             "path": url_obj.path,  # type: ignore
             "query": parse_query_fn(url_obj.query),  # type: ignore
             "fragment": url_obj.fragment,  # type: ignore
+            "username": url_obj.username,  # type: ignore
+            "password": url_obj.password,  # type: ignore
+
         }
 
         print(colored(f"{index+1}: {url}", "blue"))
