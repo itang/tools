@@ -1,4 +1,5 @@
 use std::error::Error;
+use url::Url;
 
 ///Coder Result
 pub type CoderResult = Result<String, Box<dyn Error>>;
@@ -162,4 +163,11 @@ pub fn now(fmt: &str) -> String {
         Weekday::Sun => "星期天",
     };
     format!("{} {}", now.format(fmt), week)
+}
+
+///pretty print url
+pub fn pretty_print_url(url: &str) -> Result<String, Box<dyn Error>> {
+    let url_obj = Url::parse(url)?;
+
+    Ok(serde_json::to_string(&url_obj)?)
 }

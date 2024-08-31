@@ -39,6 +39,8 @@ pub enum Command {
     Md5(Md5Options),
     ///now
     Now,
+    ///url
+    Url(UrlOptions),
 }
 
 ///i2binary
@@ -85,6 +87,13 @@ pub struct UuidOptions {
 ///i2binary
 #[derive(Args, Debug, Clone)]
 pub struct Md5Options {
+    ///input
+    pub input: Option<String>,
+}
+
+/// url options
+#[derive(Args, Debug, Clone)]
+pub struct UrlOptions {
     ///input
     pub input: Option<String>,
 }
@@ -140,6 +149,7 @@ impl IRouter for Router {
             Command::Random(options) => random_str(options.length.unwrap_or(8)),
             Command::Md5(options) => md5(options.input.or_read_line()),
             Command::Now => now("%Y-%m-%d %H:%M:%S"),
+            Command::Url(options) => pretty_print_url(&options.input.or_read_line())?
         };
 
         println!("{}", ret);
