@@ -6,6 +6,9 @@ default:
 run:
   cargo run
 
+run-test-url *args="-m qsl https://user1:pass@www.baidu.com/portal?a=1&b=2&c=3&c=4#/apps/main":
+  cargo run -- url {{args}}
+
 doc:
   cargo doc --document-private-items --open
 
