@@ -3,6 +3,13 @@ use crate::domain::Url;
 
 pub(crate) struct BrowserImpl;
 
+impl BrowserImpl {
+    ///new
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 impl Browser for BrowserImpl {
     fn browser_single_url(&self, url: &Url) -> anyhow::Result<()> {
         Ok(webbrowser::open(url)?) // Deref coercion
