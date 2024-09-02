@@ -20,7 +20,7 @@ edit:
   idea64 .
 
 install:
-  cargo install --path .
+  cargo install --force --path .
 
 fmt:
   cargo fmt
