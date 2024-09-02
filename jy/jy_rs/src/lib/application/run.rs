@@ -25,6 +25,6 @@ impl RunOptions {
 
 /// run jy
 pub fn run(options: RunOptions) -> anyhow::Result<()> {
-    let jiayou_list = JiayouList::parse(options.get_config_path().ok(), ConfigProviderImpl {})?;
+    let jiayou_list = JiayouList::parse(options.get_config_path().ok(), ConfigProviderImpl::new())?;
     jiayou_list.browser(options.dry_run, BrowserImpl {})
 }

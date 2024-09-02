@@ -5,7 +5,9 @@ use toml::Value;
 use crate::domain::constants;
 use crate::domain::gateway::ConfigProvider;
 
-pub(crate) struct ConfigProviderImpl {}
+pub(crate) struct ConfigProviderImpl {
+    _p: std::marker::PhantomData<()>,
+}
 
 impl ConfigProvider for ConfigProviderImpl {
     fn get_config(&self, path: Option<PathBuf>) -> anyhow::Result<Value> {
@@ -42,6 +44,11 @@ impl ConfigProvider for ConfigProviderImpl {
 }
 
 impl ConfigProviderImpl {
+    ///new
+    pub fn new() -> Self {
+        Self { _p: std::marker::PhantomData }
+    }
+
     /// get content from path
     fn _get_config<P>(&self, config_path: P) -> anyhow::Result<Value>
     where

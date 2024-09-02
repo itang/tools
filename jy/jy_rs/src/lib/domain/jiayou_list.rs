@@ -8,16 +8,22 @@ use crate::domain::Url;
 #[derive(Debug)]
 pub struct JiayouList {
     urls: Vec<Url>,
+    _p: std::marker::PhantomData<()>,
 }
 
 impl JiayouList {
+    ///new
+    pub fn new(urls: Vec<Url>) -> Self {
+        Self { urls, _p: std::marker::PhantomData }
+    }
+
     /// parse
     pub fn parse(config_path: Option<PathBuf>, cp: impl ConfigProvider) -> anyhow::Result<Self> {
         let config = cp.get_config(config_path)?;
         let urls: Vec<String> = config.urls();
         let urls: Vec<Url> = urls.into_iter().map(Url).collect();
 
-        Ok(JiayouList { urls })
+        Ok(JiayouList::new(urls))
     }
 
     ///browser the list
