@@ -19,15 +19,15 @@ impl ConfigProvider for ConfigProviderImpl {
             },
             None => {
                 let home_config_dir = dirs::home_dir().expect("get home dir").join(".jy");
-                println!("INFO: 未指定要加载配置文件, 尝试从{:?}加载", home_config_dir);
+                println!("INFO: 未指定要加载配置文件, 尝试从{}加载", home_config_dir.as_os_str().to_str().expect("to_str"));
 
                 let home_config_path = home_config_dir.join(constants::DEFAULT_FILE_NAME);
                 if home_config_path.exists() {
-                    println!("INFO: 默认配置文件存在 {:?}", home_config_path);
+                    println!("INFO: 默认配置文件存在 {}", home_config_path.as_os_str().to_str().expect("to_str"));
                     get_config(home_config_path)?
                 } else {
                     fs::create_dir(home_config_dir).expect("create dir");
-                    println!("WARN: 默认配置文件不存在, 使用默认配置列表创建{:?}...", home_config_path);
+                    println!("WARN: 默认配置文件不存在, 使用默认配置列表创建{}...", home_config_path.as_os_str().to_str().expect("to_str"));
                     fs::write(home_config_path, constants::DEFAULT_CONFIG).expect("write file");
                     constants::DEFAULT_CONFIG.into()
                 }
@@ -44,7 +44,7 @@ where
     P: AsRef<Path>,
 {
     let config_path: &Path = config_path.as_ref();
-    println!("INFO: read from config file: {:?}", config_path);
+    println!("INFO: read from config file: {}", config_path.as_os_str().to_str().expect("to_str"));
 
     let result = fs::read_to_string(config_path)?.parse::<Value>();
 
