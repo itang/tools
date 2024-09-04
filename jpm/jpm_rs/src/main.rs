@@ -44,6 +44,8 @@ struct ListArgs {
     /// The glob pattern
     #[arg(short, long)]
     glob: Option<String>,
+    #[arg(short, long, default_value_t = false)]
+    simple: bool,
 }
 
 #[derive(Args, Debug)]
@@ -87,7 +89,7 @@ fn handle_tip(args: TipArgs) -> anyhow::Result<()> {
 fn handle_kill(args: KillArgs) -> anyhow::Result<()> {
     let pid_list: Vec<Proc> = Proc::get_java_process_list(args.glob)?;
 
-    display(&pid_list);
+    display(&pid_list, true);
 
     if pid_list.is_empty() {
         println!("INFO: No Found Java process, just exit.")
@@ -102,22 +104,25 @@ fn handle_kill(args: KillArgs) -> anyhow::Result<()> {
 fn handle_list(args: ListArgs) -> anyhow::Result<()> {
     let pid_list: Vec<Proc> = Proc::get_java_process_list(args.glob)?;
 
-    display(&pid_list);
+    display(&pid_list, args.simple);
 
     Ok(())
 }
 
-fn display(procs: &[Proc]) {
+fn display(procs: &[Proc], simple: bool) {
     println!("Found {} Java processes:", procs.len().to_string().green());
     if !procs.is_empty() {
         let ps = procs
             .iter()
             .enumerate()
             .map(|(i, p)| {
-                let jts =
-                    java_tools(&p.pid.to_string()).iter().map(|t| format!("\t{t}")).collect::<Vec<String>>().join("\n");
+                let jts = if simple {
+                    "".to_string()
+                } else {
+                    java_tools(&p.pid.to_string()).iter().map(|t| format!("\t{t}")).collect::<Vec<String>>().join("\n")
+                };
                 format!(
-                    "{:2}: {:6} {} {}\n\n{}",
+                    "{:2}: {:6} {} {}\n\njp{}",
                     (i + 1).to_string().yellow(),
                     p.pid.to_string().green(),
                     p.name.blue(),

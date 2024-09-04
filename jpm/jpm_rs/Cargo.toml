@@ -1,6 +1,6 @@
 [package]
 name = "jpm"
-version = "0.5.0-20240110.1"
+version = "0.5.1-20240904.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
