@@ -122,7 +122,7 @@ fn display(procs: &[Proc], simple: bool) {
                     java_tools(&p.pid.to_string()).iter().map(|t| format!("\t{t}")).collect::<Vec<String>>().join("\n")
                 };
                 format!(
-                    "{:2}: {:6} {} {}\n\njp{}",
+                    "{:2}: {:6} {} {}\n{}",
                     (i + 1).to_string().yellow(),
                     p.pid.to_string().green(),
                     p.name.blue(),
