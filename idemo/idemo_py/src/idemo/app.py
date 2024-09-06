@@ -39,7 +39,7 @@ class MyDriver:
         # 打开网页
         self.driver.get(login_page)
 
-        button = self._get_submit_button_or_wait()
+        submit_button = self._get_submit_button_or_wait()
 
         # 找到表单输入元素并填充数据
         username_input = self.driver.find_element(By.CSS_SELECTOR, ".login-input")
@@ -51,7 +51,7 @@ class MyDriver:
         password_input.send_keys("Authine@123456")
 
         # 找到按钮并点击
-        button.click()
+        submit_button.click()
 
         # # 等待页面加载
         # driver.implicitly_wait(10)  # 等待10秒
