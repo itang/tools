@@ -1,0 +1,46 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+
+setup builder="uv":
+  {{builder}} sync
+
+run-bin builder="uv":
+  {{builder}} run idemo
+
+alias run := run-bin
+
+dev builder="uv":
+  watchexec -e py {{builder}} run idemo
+
+all: setup run-bin
+
+
+lint builder="uv":
+  {{builder}} run ruff check .
+
+lint-fix builder="uv":
+  {{builder}} run ruff check . --unsafe-fixes --fix
+
+sync builder="uv":
+  {{builder}} sync
+
+add builder="uv":
+  {{builder}} add
+
+add-dev builder="uv":
+  {{builder}} add --dev
+
+fmt builder="uv":
+  {{builder}} run ruff format
+
+install builder="uv":
+  {{builder}} tool install --force --reinstall .
+
+
+tip:
+  echo "builder: uv | rye "
+  echo 'overlay use .venv/bin/activate.nu' ; echo 'overlay use .venv\Scripts\activate.nu' ; echo 'maturin develop'
+  echo 'rye run python -m pip install --force-reinstall somepath/xx-0.1.0-cp312-none-win_amd64.whl'
