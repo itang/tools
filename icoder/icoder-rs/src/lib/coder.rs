@@ -169,5 +169,5 @@ pub fn split_string_whitespace(s: &str) -> String {
     //s.split_whitespace().fold("".to_string(), |a, b| if a.is_empty() { b.to_string() } else { format!("{a}\n{b}") })
 
     let vec: Vec<&str> = s.split_whitespace().collect();
-    vec.join("")
+    vec.join("\n")
 }
