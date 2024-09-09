@@ -2,7 +2,6 @@ use clap::{Args, Parser, Subcommand};
 
 use icoder::*;
 
-
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
 pub struct CliArgs {
@@ -11,7 +10,7 @@ pub struct CliArgs {
 }
 
 impl CliArgs {
-    ///get 
+    ///get
     pub fn get() -> Self {
         Self::parse()
     }
@@ -41,6 +40,8 @@ pub enum Command {
     Now,
     ///url
     Url(UrlOptions),
+    ///split
+    Split(SplitOptions),
 }
 
 ///i2binary
@@ -91,7 +92,6 @@ pub struct Md5Options {
     pub input: Option<String>,
 }
 
-
 /// url options
 #[derive(Args, Debug, Clone)]
 pub struct UrlOptions {
@@ -100,6 +100,16 @@ pub struct UrlOptions {
     ///query mode
     #[arg(short='m', long, value_enum, default_value_t=url::QueryMode::Qsl)]
     pub query_mode: url::QueryMode,
+}
+
+/// split options
+#[derive(Args, Debug, Clone)]
+pub struct SplitOptions {
+    ///input
+    pub input: Option<String>,
+    ///whitespace
+    #[arg(short = 'w', long, default_value_t = true)]
+    pub whitespace: bool,
 }
 
 ///IRouter
@@ -111,7 +121,6 @@ pub trait IRouter {
 ///Router
 #[derive(Debug, Clone, Default)]
 pub struct Router {}
-
 
 impl IRouter for Router {
     type ARGS = CliArgs;
@@ -125,35 +134,45 @@ impl IRouter for Router {
                 } else {
                     Base64.encode(options.input.or_read_line())?
                 }
-            }
+            },
             Command::Hex(options) => {
                 if options.decode {
                     Hex.decode(options.input.or_read_line())?
                 } else {
                     Hex.encode(options.input.or_read_line())?
                 }
-            }
+            },
             Command::I2hex(options) => {
                 if options.decode {
                     I2Hex.decode(options.input.or_read_line())?
                 } else {
                     I2Hex.encode(options.input.or_read_line())?
                 }
-            }
+            },
             Command::I2binary(options) => {
                 if options.decode {
                     I2Binary.decode(options.input.or_read_line())?
                 } else {
                     I2Binary.encode(options.input.or_read_line())?
                 }
-            }
+            },
             Command::Uuid(options) => uuid(options.upcase, options.no_underline),
             Command::Upcase(options) => options.input.or_read_line().to_uppercase(),
             Command::Lowcase(options) => options.input.or_read_line().to_lowercase(),
             Command::Random(options) => random_str(options.length.unwrap_or(8)),
             Command::Md5(options) => md5(options.input.or_read_line()),
             Command::Now => now("%Y-%m-%d %H:%M:%S"),
-            Command::Url(options) => url::parse_url(&options.input.or_read_line(), options.query_mode)?.to_pretty_string()?
+            Command::Url(options) => {
+                url::parse_url(&options.input.or_read_line(), options.query_mode)?.to_pretty_string()?
+            },
+            Command::Split(options) => {
+                let s = options.input.or_read_line();
+                if options.whitespace {
+                    split_string_whitespace(&s)
+                } else {
+                    s
+                }
+            },
         };
 
         println!("{}", ret);

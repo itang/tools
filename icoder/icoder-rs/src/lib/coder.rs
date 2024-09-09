@@ -1,6 +1,5 @@
 use std::error::Error;
 
-
 pub mod url;
 
 ///Coder Result
@@ -93,7 +92,6 @@ pub mod i2hex {
     }
 }
 
-
 ///i to binary
 pub mod i2binary {
     use super::{Coder, CoderResult};
@@ -120,13 +118,11 @@ pub mod i2binary {
     }
 }
 
-
 ///encode
 pub fn md5(src: impl AsRef<[u8]>) -> String {
     let digest = md5::compute(src);
     format!("{:x}", digest)
 }
-
 
 ///uuid
 pub fn uuid(upcase: bool, no_underline: bool) -> String {
@@ -165,4 +161,10 @@ pub fn now(fmt: &str) -> String {
         Weekday::Sun => "星期天",
     };
     format!("{} {}", now.format(fmt), week)
+}
+
+///split_string
+pub fn split_string_whitespace(s: &str) -> String {
+    //TODO: optimize
+    s.split_whitespace().fold("".to_string(), |a, b| if a.is_empty() { b.to_string() } else { format!("{a}\n{b}") })
 }
