@@ -133,8 +133,6 @@ fn display(procs: &[Proc], simple: bool) {
             .collect::<Vec<String>>()
             .join("\n\n");
         println!("{ps}");
-    } else {
-        println!("INFO: No Found Java process, just exit.");
     }
 }
 
