@@ -167,7 +167,5 @@ pub fn now(fmt: &str) -> String {
 pub fn split_string_whitespace(s: &str) -> String {
     //TODO: optimize
     //s.split_whitespace().fold("".to_string(), |a, b| if a.is_empty() { b.to_string() } else { format!("{a}\n{b}") })
-
-    let vec: Vec<&str> = s.split_whitespace().collect();
-    vec.join("\n")
+    s.split_whitespace().collect::<Vec<&str>>().join("\n")
 }
