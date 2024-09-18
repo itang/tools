@@ -1,4 +1,5 @@
 use clap::{Args, Parser, Subcommand};
+use std::time::Duration;
 
 use icoder::*;
 
@@ -42,6 +43,8 @@ pub enum Command {
     Url(UrlOptions),
     ///split
     Split(SplitOptions),
+    ///delay
+    Delay(DelayOptions),
 }
 
 ///i2binary
@@ -112,6 +115,13 @@ pub struct SplitOptions {
     pub whitespace: bool,
 }
 
+///delay
+#[derive(Args, Debug, Clone)]
+pub struct DelayOptions {
+    ///input
+    pub input: Option<u32>,
+}
+
 ///IRouter
 pub trait IRouter {
     type ARGS;
@@ -172,6 +182,13 @@ impl IRouter for Router {
                 } else {
                     s
                 }
+            },
+            Command::Delay(options) => {
+                let value: String = options.input.map(|it| it.to_string()).or_read_line();
+                let value: u64 = value.parse()?;
+                std::thread::sleep(Duration::from_millis(value));
+
+                String::default()
             },
         };
 
