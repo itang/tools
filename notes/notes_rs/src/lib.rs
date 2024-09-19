@@ -51,6 +51,7 @@ impl AccountRepository {
             Account { pubilc: false, name: "live.tang@gmail.com", password: "t15", site: "github" },
             Account { pubilc: false, name: "livetang", password: "tq510", site: "twitter.com" },
             Account { pubilc: false, name: "l.t@gmail.com", password: "i115", site: "google" },
+            Account { pubilc: false, name: "itang2024", password: "c1", site: "reddit.com" },
         ]
     }
 }
