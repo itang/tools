@@ -48,7 +48,7 @@ type dictArray<'a> = Js.Dict.t<array<'a>>
     }
 )
 
-let urlToObj = (url: Url.t, ~mode: mode_t=Qs) =>
+let urlToObj = (url: Url.t, ~mode: Mode.t=Qs) =>
   switch mode {
   | Qsl => url->urlToObj0(~tf=ObjectOps.fromEntries)
   | Qs => url->urlToObj0(~tf=fromQS)

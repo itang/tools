@@ -6,27 +6,22 @@ open Util
 let defaultUrl = "https://www.baidu.com/hello?a=1&b=2&b=3#/main"
 
 let run = (args: array<string>): unit => {
-  let appArgs = args->parseArgs
-
+  let appArgs = args->AppArgs.parseArgs
   Js.log2("INFO: appArgs=", appArgs)
-  if appArgs.mode == "" {
-    appArgs.mode = "qsl"
-  }
-  if appArgs.urls->Array.length == 0 {
-    appArgs.urls->Array.push(defaultUrl)
-  }
-  Js.log2("INFO: fill default, appArgs=", appArgs)
+
+  appArgs->AppArgs.setDefault(~mode=Mode.Qsl, ~url=defaultUrl)->ignore
+
+  Js.log2("INFO: after set default, appArgs=", appArgs)
   Js.log()
 
-  let mode = appArgs.mode->modeFromString
-  switch mode {
-  | None => Js.log("ERROR: unknown mode")
+  switch appArgs.mode {
   | Some(mode) =>
     appArgs.urls->Array.forEachWithIndex((url, index) => {
       Js.log(`[${Int.toString(index + 1)}]INFO: url=${url}`)
-      url->Url.make->urlToObj(~mode)->JSON.stringifyAny(_, ~space=2)->Js.log
+      url->Url.make->urlToObj(~mode)->(JSON.stringifyAny(_, ~space=2))->Js.log
       Js.log()
     })
+  | None => Js.log("ERROR: unknown mode")
   }
 }
 

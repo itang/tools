@@ -7,17 +7,12 @@ import * as Nodeprocess from "node:process";
 function main() {
   let args = Nodeprocess.argv;
   console.log("DEBUG: args=" + args.toString());
-  let appArgs = Types.parseArgs(args);
+  let appArgs = Types.AppArgs.parseArgs(args);
   console.log("INFO: appArgs=", appArgs);
-  if (appArgs.mode === "") {
-    appArgs.mode = "qsl";
-  }
-  if (appArgs.urls.length === 0) {
-    appArgs.urls.push("https://www.baidu.com/hello?a=1&b=2&b=3#/main");
-  }
-  console.log("INFO: fill default, appArgs=", appArgs);
+  Types.AppArgs.setDefault(appArgs, "Qsl", "https://www.baidu.com/hello?a=1&b=2&b=3#/main");
+  console.log("INFO: after set default, appArgs=", appArgs);
   console.log();
-  let mode = Types.modeFromString(appArgs.mode);
+  let mode = appArgs.mode;
   if (mode !== undefined) {
     appArgs.urls.forEach((url, index) => {
       console.log("[" + (index + 1 | 0).toString() + "]INFO: url=" + url);

@@ -2,7 +2,7 @@
 
 import * as Core__Option from "@rescript/core/src/Core__Option.res.mjs";
 
-function modeFromString(s) {
+function fromString(s) {
   switch (s) {
     case "qs" :
       return "Qs";
@@ -13,17 +13,21 @@ function modeFromString(s) {
   }
 }
 
+let Mode = {
+  fromString: fromString
+};
+
 function parseArgs(raw_args) {
   let args = raw_args.slice(2, raw_args.length);
   let ret = {
-    mode: "",
+    mode: undefined,
     urls: []
   };
   let index = 0;
   while (index < args.length) {
     let curr = Core__Option.getOr(args[index], "");
     if (curr === "--mode" || curr === "-m") {
-      ret.mode = Core__Option.getOr(args[index + 1 | 0], "");
+      ret.mode = Core__Option.flatMap(args[index + 1 | 0], fromString);
       index = index + 1 | 0;
     } else if (curr.startsWith("-")) {
       console.log("WARN: unknown " + curr);
@@ -35,8 +39,24 @@ function parseArgs(raw_args) {
   return ret;
 }
 
+function setDefault(args, modeOpt, url) {
+  let mode = modeOpt !== undefined ? modeOpt : "Qsl";
+  if (args.mode === undefined) {
+    args.mode = mode;
+  }
+  if (args.urls.length === 0) {
+    args.urls.push(url);
+  }
+  return args;
+}
+
+let AppArgs = {
+  parseArgs: parseArgs,
+  setDefault: setDefault
+};
+
 export {
-  modeFromString,
-  parseArgs,
+  Mode,
+  AppArgs,
 }
 /* No side effect */
