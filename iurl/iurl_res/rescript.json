@@ -1,0 +1,18 @@
+{
+  "name": "iurl",
+  "version": "0.1.0",
+  "sources": {
+    "dir": "src",
+    "subdirs": true
+  },
+  "package-specs": {
+    "module": "esmodule",
+    "in-source": true
+  },
+  "suffix": ".res.mjs",
+  "bs-dependencies": ["@rescript/core", "rescript-webapi"],
+  "bsc-flags": ["-open RescriptCore"],
+  "warnings": {
+    "error": "+101"
+  }
+}

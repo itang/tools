@@ -1,0 +1,51 @@
+# justfile
+## ref link: https://github.com/casey/just/blob/master/examples/kitchen-sink.just
+
+set shell := ["nu", "-c"]
+
+
+default:
+  just --list
+
+prepare:
+  pnpm install
+
+alias setup := prepare
+
+build-res:
+  pnpm run res:build
+
+run-node *args: build-res
+  node src/Main.res.mjs {{args}}
+
+run-deno *args: build-res
+  deno run -A src/Main.res.mjs {{args}}
+
+run-bun *args: build-res
+  bun run src/Main.res.mjs {{args}}
+
+alias run := run-node
+
+dev:
+  pnpm run dev
+
+all: prepare dev
+
+compile-deno: build-res
+  deno compile -A --unstable -o dist/iurl src/Main.res.mjs
+  ls -l dist
+
+compile-bun: build-res
+  bun build --compile --outfile=dist/iurl src/Main.res.mjs
+
+compile: compile-deno
+
+[windows]
+install:compile-bun
+  cp dist/iurl.exe D:/dev-env/bin/iurl-res.exe
+
+bench-runtime:
+  hyperfine "bun run src/Main.res.mjs" "node src/Main.res.mjs" "deno run -A src/Main.res.mjs"
+
+fmt:
+  pnpm run res:fmt
