@@ -18,7 +18,7 @@ let run = (args: array<string>): unit => {
   | Some(mode) =>
     appArgs.urls->Array.forEachWithIndex((url, index) => {
       Js.log(`[${Int.toString(index + 1)}]INFO: url=${url}`)
-      url->Url.make->urlToObj(~mode)->(JSON.stringifyAny(_, ~space=2))->Js.log
+      url->Url.make->UrlOps.toObj(~mode)->(JSON.stringifyAny(_, ~space=2))->Js.log
       Js.log()
     })
   | None => Js.log("ERROR: unknown mode")

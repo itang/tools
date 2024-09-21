@@ -16,7 +16,7 @@ function main() {
   if (mode !== undefined) {
     appArgs.urls.forEach((url, index) => {
       console.log("[" + (index + 1 | 0).toString() + "]INFO: url=" + url);
-      console.log(JSON.stringify(Util.urlToObj(new URL(url), mode), undefined, 2));
+      console.log(JSON.stringify(Util.UrlOps.toObj(new URL(url), mode), undefined, 2));
       console.log();
     });
   } else {

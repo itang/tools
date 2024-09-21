@@ -6,10 +6,10 @@ open Webapi
 open Types
 open FFI
 
-type dictArray<'a> = Js.Dict.t<array<'a>>
+module DictWithArrayValue = {
+  type t<'v> = Js.Dict.t<array<'v>>
 
-%%private(
-  let addToDictValueArray = (dict: dictArray<'v>, key: string, value: 'v): dictArray<'v> => {
+  let push = (dict: t<'v>, key: string, value: 'v): t<'v> => {
     let oldValue = Dict.get(dict, key)
 
     switch oldValue {
@@ -19,9 +19,10 @@ type dictArray<'a> = Js.Dict.t<array<'a>>
 
     dict
   }
+}
 
-  @inline
-  let fromQS = (searchParams: Url.URLSearchParams.t): dictArray<string> => {
+module URLSearchParamsOps = {
+  let fromQS = (searchParams: Url.URLSearchParams.t): DictWithArrayValue.t<string> => {
     let dict = Js.Dict.empty()
 
     let entries = searchParams->Url.URLSearchParams.entries
@@ -31,25 +32,29 @@ type dictArray<'a> = Js.Dict.t<array<'a>>
     ArrayOps.reduce(
       arr,
       (d, (key, value)) => {
-        d->addToDictValueArray(key, value)
+        d->DictWithArrayValue.push(key, value)
       },
       dict,
     )
   }
+}
 
-  let urlToObj0 = (url: Url.t, ~tf: Url.URLSearchParams.t => 'b) =>
-    {
-      "protocol": url->Url.protocol,
-      "host": url->Url.host,
-      "port": url->Url.port,
-      "pathname": url->Url.pathname,
-      "searchParams": url->Url.searchParams->tf,
-      "hash": url->Url.hash,
+module UrlOps = {
+  %%private(
+    let toObj0 = (url: Url.t, ~tf: Url.URLSearchParams.t => 'b) =>
+      {
+        "protocol": url->Url.protocol,
+        "host": url->Url.host,
+        "port": url->Url.port,
+        "pathname": url->Url.pathname,
+        "searchParams": url->Url.searchParams->tf,
+        "hash": url->Url.hash,
+      }
+  )
+
+  let toObj = (url: Url.t, ~mode: Mode.t=Qs) =>
+    switch mode {
+    | Qsl => url->toObj0(~tf=ObjectOps.fromEntries)
+    | Qs => url->toObj0(~tf=URLSearchParamsOps.fromQS)
     }
-)
-
-let urlToObj = (url: Url.t, ~mode: Mode.t=Qs) =>
-  switch mode {
-  | Qsl => url->urlToObj0(~tf=ObjectOps.fromEntries)
-  | Qs => url->urlToObj0(~tf=fromQS)
-  }
+}
