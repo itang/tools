@@ -10,14 +10,12 @@ function main() {
   let appArgs = Types.AppArgs.parseArgs(args);
   console.log("INFO: appArgs=", appArgs);
   Types.AppArgs.setDefault(appArgs, "Qsl", "https://www.baidu.com/hello?a=1&b=2&b=3#/main");
-  console.log("INFO: after set default, appArgs=", appArgs);
-  console.log();
+  console.log("INFO: after set default, appArgs=", appArgs, "\n");
   let mode = appArgs.mode;
   if (mode !== undefined) {
     appArgs.urls.forEach((url, index) => {
       console.log("[" + (index + 1 | 0).toString() + "]INFO: url=" + url);
-      console.log(JSON.stringify(Util.UrlOps.toObj(new URL(url), mode), undefined, 2));
-      console.log();
+      console.log(JSON.stringify(Util.UrlOps.toObj(new URL(url), mode), undefined, 2), "\n");
     });
   } else {
     console.log("ERROR: unknown mode");
