@@ -9,7 +9,7 @@ let run = (args: array<string>): unit => {
   let appArgs = args->AppArgs.parseArgs
   Js.log2("INFO: appArgs=", appArgs)
 
-  appArgs->AppArgs.setDefault(~mode=Mode.Qsl, ~url=defaultUrl)->ignore
+  let appArgs = appArgs->AppArgs.setDefault(~mode=Mode.Qsl, ~url=defaultUrl)
 
   Js.log3("INFO: after set default, appArgs=", appArgs, "\n")
 
