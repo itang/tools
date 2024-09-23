@@ -9,7 +9,7 @@ function main() {
   console.log("DEBUG: args=" + args.toString());
   let appArgs = Types.AppArgs.parseArgs(args);
   console.log("INFO: appArgs=", appArgs);
-  let appArgs$1 = Types.AppArgs.setDefault(appArgs, "Qsl", "https://www.baidu.com/hello?a=1&b=2&b=3#/main");
+  let appArgs$1 = Types.AppArgs.setDefault(appArgs, "Qsl", "https://user1:pass@www.baidu.com/portal?a=1&b=2&c=3&c=4#/apps/main");
   console.log("INFO: after set default, appArgs=", appArgs$1, "\n");
   let mode = appArgs$1.mode;
   if (mode !== undefined) {

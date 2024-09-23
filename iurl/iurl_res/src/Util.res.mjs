@@ -33,7 +33,9 @@ function toObj0(url, tf) {
     port: url.port,
     pathname: url.pathname,
     searchParams: tf(url.searchParams),
-    hash: url.hash
+    hash: url.hash,
+    username: url.username,
+    password: url.password
   };
 }
 

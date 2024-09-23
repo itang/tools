@@ -3,7 +3,7 @@ open Webapi
 open Types
 open Util
 
-let defaultUrl = "https://www.baidu.com/hello?a=1&b=2&b=3#/main"
+let defaultUrl = "https://user1:pass@www.baidu.com/portal?a=1&b=2&c=3&c=4#/apps/main"
 
 let run = (args: array<string>): unit => {
   let appArgs = args->AppArgs.parseArgs

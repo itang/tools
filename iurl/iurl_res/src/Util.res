@@ -49,6 +49,8 @@ module UrlOps = {
         "pathname": url->Url.pathname,
         "searchParams": url->Url.searchParams->tf,
         "hash": url->Url.hash,
+        "username": url->Url.username,
+        "password": url->Url.password,
       }
   )
 
