@@ -11,9 +11,6 @@ importers:
       '@rescript/core':
         specifier: ^1.6.0
         version: 1.6.0(rescript@12.0.0-alpha.3)
-      rescript:
-        specifier: ^12.0.0-alpha.3
-        version: 12.0.0-alpha.3
       rescript-webapi:
         specifier: ^0.9.1
         version: 0.9.1
@@ -24,6 +21,9 @@ importers:
       delay-cli:
         specifier: ^2.0.0
         version: 2.0.0
+      rescript:
+        specifier: ^12.0.0-alpha.3
+        version: 12.0.0-alpha.3
 
 packages:
 
