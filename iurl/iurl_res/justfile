@@ -3,6 +3,8 @@
 
 set shell := ["nu", "-c"]
 
+main_js_file := "lib/es6/src/Main.res.mjs"
+
 
 default:
   just --list
@@ -16,13 +18,13 @@ build-res:
   pnpm run res:build
 
 run-node *args: build-res
-  node src/Main.res.mjs {{args}}
+  node {{main_js_file}} {{args}}
 
 run-deno *args: build-res
-  deno run -A src/Main.res.mjs {{args}}
+  deno run -A {{main_js_file}} {{args}}
 
 run-bun *args: build-res
-  bun run src/Main.res.mjs {{args}}
+  bun run {{main_js_file}} {{args}}
 
 alias run := run-node
 
@@ -32,11 +34,11 @@ dev:
 all: prepare dev
 
 compile-deno: build-res
-  deno compile -A --unstable -o dist/iurl src/Main.res.mjs
+  deno compile -A --unstable -o dist/iurl {{main_js_file}}
   ls -l dist
 
 compile-bun: build-res
-  bun build --compile --outfile=dist/iurl src/Main.res.mjs
+  bun build --compile --outfile=dist/iurl {{main_js_file}}
 
 compile: compile-deno
 
@@ -45,7 +47,7 @@ install:compile-bun
   cp dist/iurl.exe D:/dev-env/bin/iurl-res.exe
 
 bench-runtime:
-  hyperfine "bun run src/Main.res.mjs" "node src/Main.res.mjs" "deno run -A src/Main.res.mjs"
+  hyperfine "bun run {{main_js_file}}" "node {{main_js_file}}" "deno run -A {{main_js_file}}"
 
 fmt:
   pnpm run res:fmt

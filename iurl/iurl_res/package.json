@@ -6,8 +6,8 @@
     "res:build": "rescript",
     "res:dev": "rescript -w",
     "res:fmt": "rescript format src/Main.res",
-    "dev:deno": "delay 1 && deno run -A --unstable --watch src/Main.res.js",
-    "dev:node": "delay 1 && node --watch-path=src src/Main.res.js",
+    "dev:deno": "delay 1 && deno run -A --unstable --watch lib/es6/src/Main.res.mjs",
+    "dev:node": "delay 1 && node --watch-path=src lib/es6/src/Main.res.mjs",
     "dev": "concurrently pnpm:res:dev pnpm:dev:node"
   },
   "keywords": [
