@@ -17,7 +17,6 @@
   "license": "MIT",
   "dependencies": {
     "@rescript/core": "^1.6.0",
-    "date-fns": "^3.6.0",
     "rescript-webapi": "^0.9.1"
   },
   "devDependencies": {

@@ -3,11 +3,10 @@ open FFI
 let get_app_args = (args: array<string>): array<string> => args->Array.sliceToEnd(~start=2)
 
 let run = async (args: array<string>): unit => {
-  let url = args->Array.get(0)->Option.getOr("http://127.0.0.1:8080/api")
+  let url = args->Array.get(0)->Option.getOr("http://127.0.0.1:8080/api/ops/getServerInfo")
   Console.log3(">>get", "url       =", url)
 
-  let sdk = FunSdk.make(url)
-  let ret = await sdk.ops->FunSdk.Ops.getServerInfo
+  let ret = await JsonRpc.get(url)
 
   Console.log()
   Console.log3("<<response", "data =", `${ret->JSONOps.stringifyUnsafe(~space=2)}`)
