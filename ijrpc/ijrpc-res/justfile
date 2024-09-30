@@ -1,0 +1,56 @@
+# justfile
+## ref link: https://github.com/casey/just/blob/master/examples/kitchen-sink.just
+
+set shell := ["nu", "-c"]
+
+main_js_file := "src/Main.res.mjs"
+
+default:
+  just --list
+
+
+prepare builder="pnpm":
+  {{builder}} install
+  # https://github.com/rescript-lang/rescript-vscode/issues/979
+  #if "{{builder}}" == "bun" { cp node_modules/.bin/rescript.exe node_modules/.bin/rescript }
+
+
+alias setup := prepare
+
+build-res builder="bun":
+  {{builder}} run res:build
+
+run-node *args: build-res
+  node {{main_js_file}} {{args}}
+
+run-deno *args: build-res
+  deno run -A {{main_js_file}} {{args}}
+
+run-bun *args: build-res
+  bun run {{main_js_file}} {{args}}
+
+alias run := run-bun
+
+dev *args:
+  pnpm run dev {{args}}
+
+all: prepare dev
+
+compile-deno: build-res
+  deno compile -A --unstable -o dist/ijrpc-res {{main_js_file}}
+  ls -l dist
+
+compile-bun: build-res
+  bun build --compile --outfile=dist/ijrpc-res {{main_js_file}}
+
+alias compile := compile-bun
+
+#[windows]
+install: compile-bun
+  cp dist/ijrpc-res.exe D:/dev-env/bin/ijrpc.exe
+
+bench-runtime:
+  hyperfine "bun run {{main_js_file}}" "node {{main_js_file}}" "deno run -A {{main_js_file}}"
+
+fmt:
+  pnpm run res:fmt
