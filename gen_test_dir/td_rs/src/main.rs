@@ -8,7 +8,7 @@ use std::{env::current_dir, process::ExitCode};
 use clap::Parser;
 use serde::Serialize;
 
-use td::{gen_dir_str, info, warn, DirCreate};
+use td::{gen_dir_str, info, init_silent_mode, warn, DirCreate};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -25,7 +25,7 @@ struct Data<'a> {
 
 fn main() -> ExitCode {
     let args = Args::parse();
-    td::init_silent_mode(args.json);
+    init_silent_mode(args.json);
 
     let dir = gen_dir_str();
     let create_result = dir.create();
