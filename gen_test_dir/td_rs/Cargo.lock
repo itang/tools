@@ -348,7 +348,7 @@ dependencies = [
 
 [[package]]
 name = "td"
-version = "0.5.0-20230406.1"
+version = "0.5.0-20241004.1"
 dependencies = [
  "chrono",
  "clap",

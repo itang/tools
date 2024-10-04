@@ -19,8 +19,8 @@ struct Args {
 }
 
 #[derive(Serialize, Debug)]
-struct Data {
-    dir: String,
+struct Data<'a> {
+    dir: &'a str,
 }
 
 fn main() -> ExitCode {
@@ -44,7 +44,7 @@ fn main() -> ExitCode {
     };
 
     if args.json {
-        let data = Data { dir: dir.clone() };
+        let data = Data { dir: &dir };
         let json = serde_json::to_string_pretty(&data).expect("to json");
         println!("{json}");
     }
