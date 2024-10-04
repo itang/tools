@@ -1,0 +1,17 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+run:
+  cargo run
+
+dev:
+  cargo watch -x run
+
+lint:
+  cargo clippy
+
+install:
+  cargo install --path .
+
