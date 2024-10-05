@@ -9,5 +9,5 @@ mod dir;
 mod macros;
 mod state;
 
-pub use dir::{gen_dir_str, DirCreate, DirCreateError};
+pub use dir::{gen_dir, DirCreate, DirCreateError};
 pub use state::{get_silent_mode, init_silent_mode};

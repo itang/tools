@@ -348,12 +348,11 @@ dependencies = [
 
 [[package]]
 name = "td"
-version = "0.5.0-20241004.1"
+version = "0.5.0-20241005.1"
 dependencies = [
  "chrono",
  "clap",
  "colored",
- "once_cell",
  "serde",
  "serde_json",
  "thiserror",

@@ -1,9 +1,11 @@
 //! state module.
 
-use once_cell::sync::OnceCell;
+//use once_cell::sync::OnceCell;
+
+use std::sync::OnceLock;
 
 /// silent mode.
-static SILENT: OnceCell<bool> = OnceCell::new();
+static SILENT: OnceLock<bool> = OnceLock::new();
 
 /// init silent mode.
 pub fn init_silent_mode(silent: bool) {

@@ -8,7 +8,7 @@ use thiserror::Error;
 const PREFIX_STR: &str = "t";
 
 /// generate a dir.
-pub fn gen_dir_str() -> String {
+pub fn gen_dir() -> String {
     let now = Local::now();
     let s = format!("{}", now.format("%m%d"));
     let s = if s.starts_with('0') {
@@ -50,11 +50,11 @@ pub enum DirCreateError {
 
 #[cfg(test)]
 mod tests {
-    use super::{gen_dir_str, PREFIX_STR};
+    use super::{gen_dir, PREFIX_STR};
 
     #[test]
-    fn test_gen_dir_str() {
-        let d = gen_dir_str();
+    fn test_gen_dir() {
+        let d = gen_dir();
         assert!(d.starts_with(PREFIX_STR));
     }
 }

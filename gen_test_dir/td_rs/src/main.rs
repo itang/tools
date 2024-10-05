@@ -8,7 +8,7 @@ use std::{env::current_dir, process::ExitCode};
 use clap::Parser;
 use serde::Serialize;
 
-use td::{gen_dir_str, info, init_silent_mode, warn, DirCreate};
+use td::{gen_dir, info, init_silent_mode, warn, DirCreate};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -27,7 +27,7 @@ fn main() -> ExitCode {
     let args = Args::parse();
     init_silent_mode(args.json);
 
-    let dir = gen_dir_str();
+    let dir = gen_dir();
     let create_result = dir.create();
 
     info!("try to create directory: '{dir}' on '{}'...", current_dir().expect("get current dir").as_path().display());
