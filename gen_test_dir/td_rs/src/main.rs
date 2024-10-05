@@ -25,6 +25,7 @@ struct Data<'a> {
 
 fn main() -> ExitCode {
     let args = Args::parse();
+
     init_silent_mode(args.json);
 
     let dir = gen_dir();
