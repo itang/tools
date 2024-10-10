@@ -1,6 +1,6 @@
 import scala.scalanative.build._
 
-ThisBuild / scalaVersion := "{{scala_version}}"
+ThisBuild / scalaVersion := "3.5.2-RC1"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.example"
 ThisBuild / organizationName := "example"
@@ -8,7 +8,6 @@ ThisBuild / organizationName := "example"
 lazy val root = project.in(file("."))
   .enablePlugins(ScalaNativePlugin)
   .settings(
-    scalaVersion := "3.3.0",
     scalacOptions ++= Seq("-Wunused:all", "-Wvalue-discard", "-Yexplicit-nulls"),
     nativeConfig ~= {
       _.withIncrementalCompilation(true)

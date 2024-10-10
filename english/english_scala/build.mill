@@ -1,9 +1,13 @@
+package build
+
 import mill._, scalalib._, scalanativelib._
 import mill.scalanativelib.api.{ReleaseMode, LTO}
 
-val tangVersion = "0.1.2-SNAPSHOT"
 
-object Main extends RootModule with SbtModule with ScalaNativeModule {
+
+object `package` extends RootModule with SbtModule with ScalaNativeModule {
+
+  val tangVersion = "0.1.2-SNAPSHOT"
 
   override def scalaVersion = "3.3.0"
 
