@@ -1,6 +1,6 @@
 package data
 
-import types.{*, given}
+import types.{Group, Item, toItems}
 
 object GroupRepository:
   def monthGroup: Group = Group(
@@ -29,7 +29,7 @@ object GroupRepository:
        |星期四 Thursday
        |星期五 Friday
        |星期六 Saturday
-       |星期天 Sunday""".stripMargin
+       |星期天 Sunday""".stripMargin.toItems
   )
 
   def quarterGroup: Group = Group(
@@ -37,7 +37,7 @@ object GroupRepository:
     """|春天 Spring
        |夏天 Summer
        |秋天 Autumn/Fall
-       |冬天 Winter""".stripMargin
+       |冬天 Winter""".stripMargin.toItems
   )
 
   def daysGroup: Group = Group(
@@ -46,5 +46,5 @@ object GroupRepository:
      |今天 Today
      |后天 The day after tomorrow
      |前天 The day before yesterday
-     |明天 Tomorrow""".stripMargin
+     |明天 Tomorrow""".stripMargin.toItems
   )

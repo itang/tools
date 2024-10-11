@@ -14,5 +14,5 @@ extension (s: String)
         case Array(a, rest*) => Some(Item(a.nn, rest.mkString(" "), ""))
         case _               => None
 
-given stringToListItem: Conversion[String, List[Item]] with
-  override def apply(x: String): List[Item] = x.toItems
+//given stringToListItem: Conversion[String, List[Item]] with
+//  override def apply(x: String): List[Item] = x.toItems
