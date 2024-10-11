@@ -1,0 +1,34 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+run +args="command1 --arg1 hello":
+  mill run {{args}}
+
+run-sbt +args="command1 --arg1 hello":
+  sbt 'run {{args}}'
+
+build:
+  mill nativeLink
+
+build-sbt:
+  sbt nativeLink
+
+dev:
+  mill --watch run
+
+dev-sbt:
+  sbt '~reStart --- -Dfile.encoding=UTF-8'
+
+nativeLinkReleaseFast:
+  sbt nativeLinkReleaseFast
+
+nativeLinkReleaseFull:
+  sbt nativeLinkReleaseFull
+
+deps-tree:
+  sbt dependencyTree
+
+show-native-config:
+  sbt 'show nativeConfig'

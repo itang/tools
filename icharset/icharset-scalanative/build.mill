@@ -1,0 +1,39 @@
+package build
+
+import mill._, scalalib._, scalanativelib._
+import mill.scalanativelib.api.{ReleaseMode, LTO}
+
+object Versions {
+  val tangVersion = "0.1.5-SNAPSHOT"
+}
+import Versions._
+
+
+object `package` extends RootModule with ScalaNativeModule {
+
+  override def scalaVersion = "3.5.2-RC1"
+
+  override def scalaNativeVersion = "0.5.5"
+
+  override def releaseMode = ReleaseMode.ReleaseFast
+  override def nativeGC = "none"
+  override def nativeLTO = LTO.Thin
+
+  override def ivyDeps = Agg(
+    ivy"com.funpaas::tang-scala::$tangVersion",
+    ivy"com.lihaoyi::os-lib::0.10.7",
+    ivy"com.lihaoyi::mainargs::0.7.1"
+  )
+
+  override def javacOptions = Seq("-Dfile.encoding=UTF-8")
+
+  override def scalacOptions = super.scalacOptions.map(_ ++ Seq("-Wunused:all", "-Wvalue-discard", "-Wnonunit-statement", "-Yexplicit-nulls"))
+
+  //object test extends Tests with TestModule.Utest {
+  //  def ivyDeps = Agg(ivy"com.lihaoyi::utest::0.6.3")
+  //}
+
+  //def moduleDeps = Seq(javatest)
+
+  override def forkArgs = Seq("-Dfile.encoding=UTF-8")
+}

@@ -1,0 +1,78 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+test:
+  mill test
+
+test-sbt:
+  sbt test
+
+compile-sbt:
+  sbt compile
+
+run *args:
+  mill run {{args}}
+
+build:
+  sbt 'show graalvm-native-image:packageBin'
+
+[windows]
+install: build
+  cp target/graalvm-native-image/icharset.exe D:/dev-env/bin/
+
+build-mill:
+  mill nativeImage
+
+[windows]
+install-mill: build-mill
+  cp out/nativeImage.dest/icharset.exe D:/dev-env/bin/
+
+run-sbt *args:
+  sbt 'run {{args}}'
+
+compile:
+  mill compile
+
+deps-update:
+  scala-update
+
+deps-tree:
+  sbt dependencyTree
+
+reset:
+  sbt clean ; sbt shutdownall ; bloop exit
+
+edit:
+  idea64 .
+
+dist:
+  sbt stage
+
+dev:
+  mill --watch run
+
+dev-sbt:
+  sbt '~reStart --- -Dfile.encoding=UTF-8'
+
+edit-clean:
+  rm -rf .bsp .idea
+
+edit-mill-idea:
+  mill mill.scalalib.GenIdea/idea
+
+console:
+  mill -i console
+
+fatjar:
+  sbt assembly
+
+run-fatjar *args: fatjar
+  java -DSOME_KEY=1 -jar target/scala-3.5.2-RC1/icharset-assembly-0.1.0-SNAPSHOT.jar {{args}}
+
+run-dist *args: dist
+  java -Dfile.encoding=UTF-8 -cp "target/universal/stage/lib/*" Main {{args}}
+
+run-dist-debug *args: dist
+  java -Dfile.encoding=UTF-8 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -cp "target/universal/stage/lib/*" Main {{args}}
