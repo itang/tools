@@ -43,4 +43,4 @@ object Main:
       |> println
 
   private def version(): Unit =
-    "v0.2-20241010.1" |> println
+    "v0.2-20241011.1" |> println

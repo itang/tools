@@ -4,6 +4,7 @@ set shell := ["nu", "-c"]
 
 bin_dir := if os_family() == "windows" { "D:/dev-env/bin" } else { env_var('HOME') / 'dev-env' / 'bin' }
 bin_name := if os_family() == "windows" { 'en.exe' } else { 'en' }
+out_name := if os_family() == "windows" { 'out.exe' } else { 'out' }
 
 default:
   just --list
@@ -14,6 +15,9 @@ dev:
 run *args='':
   mill run {{args}}
 
+run-sbt *args='':
+  sbt 'run {{args}}'
+
 build:
   mill nativeLink
 
@@ -22,8 +26,5 @@ test:
 
 install: build
   -{{bin_name}} --version
-  cp out/nativeLink.dest/out {{bin_dir}}/{{bin_name}}
+  cp out/nativeLink.dest/{{out_name}} {{bin_dir}}/{{bin_name}}
   {{bin_name}} --version
-
-info:
-  echo 'bin_dir: {{bin_dir}}'

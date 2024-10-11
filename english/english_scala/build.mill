@@ -11,7 +11,7 @@ object `package` extends RootModule with SbtModule with ScalaNativeModule {
 
   override def scalaVersion = "3.5.2-RC1"
 
-  override def scalaNativeVersion = "0.4.14"
+  override def scalaNativeVersion = "0.5.5"
 
   override def ivyDeps = Agg(ivy"com.funpaas::tang-scala:$tangVersion")
 
