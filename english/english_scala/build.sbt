@@ -17,7 +17,7 @@ lazy val root = project.in(file("."))
       //.withGC(GC.commix)
     },
     libraryDependencies ++= Seq(
-      "com.funpaas" %%% "tang-scala" % "0.1.2-SNAPSHOT"
+      "com.funpaas" %%% "tang-scala" % "0.1.5-SNAPSHOT"
     ),
     Compile / mainClass := Some("Main"),
   )
