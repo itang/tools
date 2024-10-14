@@ -5,8 +5,7 @@ open Util
 
 let defaultUrl = "https://user1:pass@www.baidu.com/portal?a=1&b=2&c=3&c=4#/apps/main"
 
-let run = (args: array<string>): unit => {
-  let appArgs = args->AppArgs.parseArgs
+let run = (appArgs: AppArgs.t): unit => {
   Js.log2("INFO: appArgs=", appArgs)
 
   let appArgs = appArgs->AppArgs.setDefault(~mode=Mode.Qsl, ~url=defaultUrl)
@@ -27,7 +26,7 @@ let main = (): unit => {
   let args = FFI.NodeProcess.argv
   Js.log(`DEBUG: args=${args->Array.toString}`)
 
-  run(args)
+  run(args->AppArgs.parseArgs)
 }
 
 main()

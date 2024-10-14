@@ -1,5 +1,5 @@
 {
-  "name": "iurl",
+  "name": "r1",
   "version": "0.1.0",
   "sources": {
     "dir": "src",
@@ -10,8 +10,13 @@
     "in-source": false
   },
   "suffix": ".res.mjs",
-  "bs-dependencies": ["@rescript/core", "rescript-webapi"],
-  "bsc-flags": ["-open RescriptCore"],
+  "bs-dependencies": [
+    "@rescript/core",
+    "rescript-webapi"
+  ],
+  "bsc-flags": [
+    "-open RescriptCore"
+  ],
   "warnings": {
     "error": "+101"
   }

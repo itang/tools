@@ -21,7 +21,7 @@ module AppArgs = {
   }
 
   let parseArgs = (raw_args: array<string>): t => {
-    let args = raw_args->Array.slice(~start=2, ~end=raw_args->Array.length)
+    let args = raw_args->Array.sliceToEnd(~start=2)
 
     let ret: t = {mode: None, urls: []}
 

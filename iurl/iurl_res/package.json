@@ -20,6 +20,7 @@
     "rescript-webapi": "^0.9.1"
   },
   "devDependencies": {
+    "@types/node": "^22.7.0",
     "rescript": "^12.0.0-alpha.3",
     "concurrently": "^8.2.2",
     "delay-cli": "^2.0.0"
