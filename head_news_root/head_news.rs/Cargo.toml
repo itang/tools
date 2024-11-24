@@ -1,6 +1,6 @@
 [package]
 name = "head_news"
-version = "0.2.2-2024-0707.1"
+version = "0.2.2-20241124.1"
 edition = "2021"
 
 
@@ -15,10 +15,10 @@ path = "src/main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 #async-trait = "0.1.64"
-reqwest = "0.12.5"
-scraper = "0.19.0"
-tabled = "0.15.0"
-tokio = { version = "1.38.0", features = ["rt"] }
+reqwest = "0.12.9"
+scraper = "0.21.0"
+tabled = "0.17.0"
+tokio = { version = "1.41.1", features = ["rt"] }
 
 
 [profile.release]

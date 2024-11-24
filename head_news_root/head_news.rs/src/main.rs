@@ -9,6 +9,7 @@ use head_news::{Portal, Sina};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let news_list = runtime::Builder::new_current_thread()
         .enable_io()
+        .enable_time()
         .build()
         .expect("build tokio runtime")
         .block_on(Sina::get_news())?;
