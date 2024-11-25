@@ -1,0 +1,37 @@
+set shell := ["nu", "-c"]
+
+default:
+  just --list
+
+
+dev *args:
+  cargo watch -x 'run -- {{args}}'
+
+run *args:
+  cargo run -- {{args}}
+
+run-debug *args:
+  RUST_BACKTRACE=full cargo run -- {{args}}
+
+run-release *args:
+  cargo run --release -- {{args}}
+
+lint:
+  cargo clippy --no-deps
+
+edit:
+  idea64 .
+
+install:
+  cargo install --path .
+
+repl:
+  @echo "':dep .' for current project repl"
+  evcxr
+
+doc:
+  cargo doc --document-private-items --open
+
+fmt:
+  cargo fmt
+

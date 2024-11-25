@@ -1,0 +1,23 @@
+[package]
+name = "lsusb"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rusb = "0.9.4"
+#tap = "1.0.1"
+#derive_more = "0.99.0"
+#nutype = { version = "0.4.2", features = ["new_unchecked", "regex"] }
+
+[dev-dependencies]
+#mockall = "0.12.1"
+
+[profile.release]
+# https://doc.rust-lang.org/cargo/reference/profiles.html
+strip = "debuginfo"
+incremental = true
+lto = true          # Link Time Optimization (LTO)
+#opt-level = 'z'     # Optimize for size
+#codegen-units = 1   # Parallel Code Generation Units
