@@ -243,7 +243,7 @@ impl IRouter for Router {
         for i in 0..20 {
             let value = u32::pow(2, i);
             let s = format!("pow(2, {})", i);
-            println!("{:<12} = {:<8} 0x{:x}", s, value, value);
+            println!("{:<12} = {:<8} 0x{:<8x} 0b{:b}", s, value, value, value);
         }
 
 
