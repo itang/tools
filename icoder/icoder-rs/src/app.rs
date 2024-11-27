@@ -1,7 +1,6 @@
 use clap::{Args, Parser, Subcommand};
-use std::time::Duration;
-
 use icoder::*;
+use std::time::Duration;
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -45,6 +44,8 @@ pub enum Command {
     Split(SplitOptions),
     ///delay
     Delay(DelayOptions),
+    ///Hexs
+    Hexs(HexsOptions),
 }
 
 ///i2binary
@@ -121,6 +122,9 @@ pub struct DelayOptions {
     ///input
     pub input: Option<u32>,
 }
+///hexs
+#[derive(Args, Debug, Clone)]
+pub struct HexsOptions {}
 
 ///IRouter
 pub trait IRouter {
@@ -189,6 +193,47 @@ impl IRouter for Router {
                 std::thread::sleep(Duration::from_millis(value));
 
                 String::default()
+            },
+            Command::Hexs(_options) => {
+                let ds = [
+                    "0xFFFF",
+                    "0xFFF",
+                    "0xFF",
+                    "0xF",
+                    "0x1111",
+                    "0x111",
+                    "0x11",
+                    "0x1",
+                    "0b1",
+                    "0b11",
+                    "0b111",
+                    "0b1111",
+                    "0b11111",
+                    "0b1111111",
+                    "0b11111111",
+                    "0b111111111",
+                ];
+                ds.into_iter()
+                    .map(|raw_s| {
+                        let value = match raw_s {
+                            hex_string if hex_string.starts_with("0x") || hex_string.starts_with("0X") => {
+                                let trimmed = &hex_string[2..];
+                                u32::from_str_radix(trimmed, 16).expect("Invalid hex string")
+                            },
+                            binary_string if binary_string.starts_with("0b") || binary_string.starts_with("0b") => {
+                                let trimmed = &binary_string[2..];
+                                u32::from_str_radix(trimmed, 2).expect("Invalid binary string")
+                            },
+                            _ => {
+                                let trimmed = raw_s;
+                                u32::from_str_radix(trimmed, 10).expect("Invalid decimal string")
+                            },
+                        };
+
+                        format!("{:12}: {}", raw_s, value)
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n")
             },
         };
 
