@@ -197,6 +197,7 @@ impl IRouter for Router {
             Command::Hexs(_options) => {
                 let ds = [
                     "0xFFFF",
+                    "0x8000",
                     "0xFFF",
                     "0xFF",
                     "0xF",
@@ -238,6 +239,14 @@ impl IRouter for Router {
         };
 
         println!("{}", ret);
+
+        for i in 0..20 {
+            let value = u32::pow(2, i);
+            let s = format!("pow(2, {})", i);
+            println!("{:<12} = {:<8} 0x{:x}", s, value, value);
+        }
+
+
 
         Ok(())
     }
