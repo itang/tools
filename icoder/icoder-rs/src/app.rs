@@ -46,6 +46,8 @@ pub enum Command {
     Delay(DelayOptions),
     ///Hexs
     Hexs(HexsOptions),
+    ///Pows
+    Pows(PowsOptions),
 }
 
 ///i2binary
@@ -126,6 +128,10 @@ pub struct DelayOptions {
 #[derive(Args, Debug, Clone)]
 pub struct HexsOptions {}
 
+///pows
+#[derive(Args, Debug, Clone)]
+pub struct PowsOptions {}
+
 ///IRouter
 pub trait IRouter {
     type ARGS;
@@ -202,6 +208,7 @@ impl IRouter for Router {
                     "0xFF",
                     "0xF",
                     "0x1111",
+                    "0x1000",
                     "0x111",
                     "0x11",
                     "0x1",
@@ -236,17 +243,17 @@ impl IRouter for Router {
                     .collect::<Vec<String>>()
                     .join("\n")
             },
+            Command::Pows(_options) => (0..20)
+                .map(|i| {
+                    let value = u32::pow(2, i);
+                    let s = format!("pow(2, {})", i);
+                    format!("{:<12} = {:<8} 0x{:<8x} 0b{:b}", s, value, value, value)
+                })
+                .collect::<Vec<String>>()
+                .join("\n"),
         };
 
         println!("{}", ret);
-
-        for i in 0..20 {
-            let value = u32::pow(2, i);
-            let s = format!("pow(2, {})", i);
-            println!("{:<12} = {:<8} 0x{:<8x} 0b{:b}", s, value, value, value);
-        }
-
-
 
         Ok(())
     }
