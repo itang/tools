@@ -214,28 +214,14 @@ impl IRouter for Router {
                 to_num_string(&raw_s, value)
             },
             Command::Nums(_options) => {
-                let ds = [
-                    "0xFFFF",
-                    "0x8000",
-                    "0xFFF",
-                    "0xFF",
-                    "0xF",
-                    "0x1111",
-                    "0x1000",
-                    "0x111",
-                    "0x11",
-                    "0x1",
-                    "0b1",
-                    "0b11",
-                    "0b111",
-                    "0b1111",
-                    "0b11111",
-                    "0b1111111",
-                    "0b11111111",
-                    "0b111111111",
-                ];
-                ds.into_iter()
+                let content = include_str!("nums.txt");
+
+                content
+                    .lines()
+                    .filter(|line| !line.is_empty())
                     .map(|raw_s| {
+                        let raw_s = unwrap(raw_s);
+
                         let value = num_from_string(raw_s).expect("failed to parse num");
                         to_num_string(raw_s, value)
                     })
@@ -281,4 +267,14 @@ fn num_from_string(raw_s: &str) -> Result<u64, Box<dyn std::error::Error>> {
 
 fn to_num_string(raw_s: &str, value: u64) -> String {
     format!("{:<12} = {:<8} 0x{:<8x} 0o{:<10o} 0b{:b}", raw_s, value, value, value, value)
+}
+
+fn unwrap(raw_s: &str) -> &str {
+    let raw_s = if raw_s.starts_with("\"") || raw_s.starts_with("'") { &raw_s[1..raw_s.len() - 1] } else { raw_s };
+
+    if raw_s.ends_with("\"") || raw_s.ends_with("'") {
+        &raw_s[..raw_s.len() - 1]
+    } else {
+        raw_s
+    }
 }
