@@ -70,7 +70,7 @@ pub fn parse_url(url: &str, query_mode: QueryMode) -> Result<UrlObj, Box<dyn Err
         port: url.port().or_else(|| match scheme {
             "https" => Some(443),
             "http" => Some(80),
-            _ => None
+            _ => None,
         }),
         path: url.path().to_string(),
         query: url.query().map(|q| parse_query(q, query_mode)),
@@ -90,15 +90,14 @@ fn parse_query(query: &str, query_mode: QueryMode) -> QueryObj {
                 q.insert(k, v);
             }
             QueryObj::Qsl(q)
-        }
+        },
         QueryMode::Qs => {
             let mut q = HashMap::new();
             for (k, v) in url::form_urlencoded::parse(query.as_bytes()).into_owned() {
                 q.entry(k).or_insert(vec![]).push(v);
             }
             QueryObj::Qs(q)
-        }
+        },
         QueryMode::Raw => QueryObj::Raw(query.to_string()),
     }
 }
-
