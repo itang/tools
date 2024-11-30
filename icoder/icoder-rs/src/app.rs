@@ -48,6 +48,8 @@ pub enum Command {
     Num(NumOptions),
     ///Nums
     Nums(NumsOptions),
+    ///Pow
+    Pow(PowOptions),
     ///Pows
     Pows(PowsOptions),
 }
@@ -130,15 +132,19 @@ pub struct DelayOptions {
 #[derive(Args, Debug, Clone)]
 pub struct NumsOptions {}
 
-///pows
-#[derive(Args, Debug, Clone)]
-pub struct PowsOptions {}
-
 #[derive(Args, Debug, Clone)]
 pub struct NumOptions {
     pub input: Option<String>,
 }
 
+#[derive(Args, Debug, Clone)]
+pub struct PowOptions {
+    pub args: Vec<u32>,
+}
+
+///pows
+#[derive(Args, Debug, Clone)]
+pub struct PowsOptions {}
 ///IRouter
 pub trait IRouter {
     type ARGS;
@@ -227,6 +233,19 @@ impl IRouter for Router {
                     })
                     .collect::<Vec<String>>()
                     .join("\n")
+            },
+            Command::Pow(options) => match options.args.as_slice() {
+                [e, exp] => {
+                    let value = u64::pow(*e as u64, *exp);
+                    let s = format!("pow({}, {})", e, exp);
+                    format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{:b}", s, value, value, value, value)
+                },
+                [exp] => {
+                    let value = u64::pow(2, *exp);
+                    let s = format!("pow(2, {})", exp);
+                    format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{:b}", s, value, value, value, value)
+                },
+                _ => Default::default(),
             },
             Command::Pows(_options) => (0..20)
                 .map(|i| {
