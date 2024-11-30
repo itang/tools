@@ -244,6 +244,7 @@ impl IRouter for Router {
     }
 }
 
+//TODO: 重构
 fn num_from_string(raw_s: &str) -> Result<u64, Box<dyn std::error::Error>> {
     Ok(match raw_s {
         hex_string if hex_string.starts_with("0x") || hex_string.starts_with("0X") => {
@@ -270,10 +271,8 @@ fn to_num_string(raw_s: &str, value: u64) -> String {
 }
 
 fn unwrap(raw_s: &str) -> &str {
-    let raw_s = if raw_s.starts_with("\"") || raw_s.starts_with("'") { &raw_s[1..raw_s.len() - 1] } else { raw_s };
-
-    if raw_s.ends_with("\"") || raw_s.ends_with("'") {
-        &raw_s[..raw_s.len() - 1]
+    if raw_s.starts_with("\"") || raw_s.starts_with("'") {
+        &raw_s[1..raw_s.len() - 1]
     } else {
         raw_s
     }
