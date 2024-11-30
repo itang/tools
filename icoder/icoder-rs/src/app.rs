@@ -175,20 +175,6 @@ impl IRouter for Router {
                     Hex.encode(options.input.or_read_line())?
                 }
             },
-            // Command::I2hex(options) => {
-            //     if options.decode {
-            //         I2Hex.decode(options.input.or_read_line())?
-            //     } else {
-            //         I2Hex.encode(options.input.or_read_line())?
-            //     }
-            // },
-            // Command::I2binary(options) => {
-            //     if options.decode {
-            //         I2Binary.decode(options.input.or_read_line())?
-            //     } else {
-            //         I2Binary.encode(options.input.or_read_line())?
-            //     }
-            // },
             Command::Uuid(options) => uuid(options.upcase, options.no_underline),
             Command::Upcase(options) => options.input.or_read_line().to_uppercase(),
             Command::Lowcase(options) => options.input.or_read_line().to_lowercase(),
