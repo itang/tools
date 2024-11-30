@@ -1,6 +1,7 @@
 use std::error::Error;
 
 pub mod url;
+pub mod unum;
 
 ///Coder Result
 pub type CoderResult = Result<String, Box<dyn Error>>;

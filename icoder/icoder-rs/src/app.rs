@@ -209,9 +209,9 @@ impl IRouter for Router {
             },
             Command::Num(options) => {
                 let raw_s = options.input.or_read_line();
-                let value = num_from_string(&raw_s)?;
+                let num = UNum::from_string(&raw_s)?;
 
-                to_num_string(&raw_s, value)
+                num.to_pretty_string()
             },
             Command::Nums(_options) => {
                 let content = include_str!("nums.txt");
@@ -222,8 +222,8 @@ impl IRouter for Router {
                     .map(|raw_s| {
                         let raw_s = unwrap(raw_s);
 
-                        let value = num_from_string(raw_s).expect("failed to parse num");
-                        to_num_string(raw_s, value)
+                        let num = UNum::from_string(raw_s).expect("failed to parse num");
+                        num.to_pretty_string()
                     })
                     .collect::<Vec<String>>()
                     .join("\n")
@@ -232,7 +232,7 @@ impl IRouter for Router {
                 .map(|i| {
                     let value = u64::pow(2, i);
                     let s = format!("pow(2, {})", i);
-                    to_num_string(&s, value)
+                    format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{:b}", s, value, value, value, value)
                 })
                 .collect::<Vec<String>>()
                 .join("\n"),
@@ -242,32 +242,6 @@ impl IRouter for Router {
 
         Ok(())
     }
-}
-
-//TODO: 重构
-fn num_from_string(raw_s: &str) -> Result<u64, Box<dyn std::error::Error>> {
-    Ok(match raw_s {
-        hex_string if hex_string.starts_with("0x") || hex_string.starts_with("0X") => {
-            let trimmed = &hex_string[2..];
-            u64::from_str_radix(trimmed, 16)?
-        },
-        binary_string if binary_string.starts_with("0o") || binary_string.starts_with("0o") => {
-            let trimmed = &binary_string[2..];
-            u64::from_str_radix(trimmed, 8)?
-        },
-        binary_string if binary_string.starts_with("0b") || binary_string.starts_with("0b") => {
-            let trimmed = &binary_string[2..];
-            u64::from_str_radix(trimmed, 2)?
-        },
-        _ => {
-            let trimmed = raw_s;
-            u64::from_str_radix(trimmed, 10)?
-        },
-    })
-}
-
-fn to_num_string(raw_s: &str, value: u64) -> String {
-    format!("{:<12} = {:<8} 0x{:<8x} 0o{:<10o} 0b{:b}", raw_s, value, value, value, value)
 }
 
 fn unwrap(raw_s: &str) -> &str {
