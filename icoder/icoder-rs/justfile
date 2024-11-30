@@ -3,8 +3,8 @@ set shell := ["nu", "-c"]
 default:
   just --list
 
-run:
-  cargo run
+run *args="":
+  cargo run -- {{args}}
 
 run-test-url *args="-m qsl https://user1:pass@www.baidu.com/portal?a=1&b=2&c=3&c=4#/apps/main":
   cargo run -- url {{args}}
@@ -13,8 +13,8 @@ doc:
   cargo doc --document-private-items --open
 
 
-dev:
-  cargo watch -x run
+dev *args="":
+  cargo watch -x 'run -- {{args}}'
 
 lint:
   cargo clippy --no-deps
