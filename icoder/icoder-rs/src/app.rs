@@ -1,6 +1,8 @@
-use clap::{Args, Parser, Subcommand};
-use icoder::*;
 use std::time::Duration;
+
+use clap::{Args, Parser, Subcommand};
+
+use icoder::*;
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
