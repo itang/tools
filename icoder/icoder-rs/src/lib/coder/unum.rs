@@ -60,6 +60,8 @@ impl FromStr for UNum {
             },
             _ => {
                 let trimmed = raw_s;
+
+                #[allow(clippy::from_str_radix_10)]
                 UNum::D(UValue { raw: raw_s.to_string(), value: u64::from_str_radix(trimmed, 10)? })
             },
         })
