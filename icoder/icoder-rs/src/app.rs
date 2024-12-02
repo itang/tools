@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::time::Duration;
 
 use clap::{Args, Parser, Subcommand};
@@ -203,7 +204,7 @@ impl IRouter for Router {
             },
             Command::Num(options) => {
                 let raw_s = options.input.or_read_line();
-                let num = UNum::from_string(&raw_s)?;
+                let num = UNum::from_str(&raw_s)?;
 
                 num.to_pretty_string()
             },
@@ -216,7 +217,7 @@ impl IRouter for Router {
                     .map(|raw_s| {
                         let raw_s = unwrap(raw_s);
 
-                        let num = UNum::from_string(raw_s).expect("failed to parse num");
+                        let num = UNum::from_str(raw_s).expect("failed to parse num");
                         num.to_pretty_string()
                     })
                     .collect::<Vec<String>>()

@@ -1,3 +1,6 @@
+use std::num::ParseIntError;
+use std::str::FromStr;
+
 ///UValue
 #[derive(Clone, Debug)]
 pub struct UValue {
@@ -20,9 +23,28 @@ pub enum UNum {
     H(UValue),
 }
 
-impl UNum {
-    ///num_from_string
-    pub fn from_string(raw_s: &str) -> Result<Self, Box<dyn std::error::Error>> {
+#[derive(Debug, Clone, PartialEq, Eq)]
+//#[non_exhaustive]
+pub struct ParseUNumError(ParseIntError);
+
+impl std::fmt::Display for ParseUNumError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::error::Error for ParseUNumError {}
+
+impl From<ParseIntError> for ParseUNumError {
+    fn from(e: ParseIntError) -> Self {
+        Self(e)
+    }
+}
+
+impl FromStr for UNum {
+    type Err = ParseUNumError;
+
+    fn from_str(raw_s: &str) -> Result<Self, Self::Err> {
         Ok(match raw_s {
             hex_string if hex_string.starts_with("0x") || hex_string.starts_with("0X") => {
                 let trimmed = &hex_string[2..];
@@ -42,7 +64,9 @@ impl UNum {
             },
         })
     }
+}
 
+impl UNum {
     ///to_pretty_string
     pub fn to_pretty_string(&self) -> String {
         match self {
