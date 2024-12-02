@@ -203,8 +203,8 @@ impl IRouter for Router {
                 String::default()
             },
             Command::Num(options) => {
-                let raw_s = options.input.or_read_line();
-                let num = UNum::from_str(&raw_s)?;
+                let raw_s = &options.input.or_read_line();
+                let num: UNum = raw_s.parse()?; //UNum::from_str(raw_s)?;
 
                 num.to_pretty_string()
             },
