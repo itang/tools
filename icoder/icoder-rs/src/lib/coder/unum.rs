@@ -76,7 +76,7 @@ impl UNum {
                 format!("{:<16} = 0x{:<16x} 0o{:<16o} 0b{:<16b} (0b{})", raw, value, value, value, pretty_binary(value))
             },
             UNum::B(UValue { raw, value }) => {
-                format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{}", raw, value, value, value, pretty_binary(value))
+                format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} (0b{})", raw, value, value, value, pretty_binary(value))
             },
             UNum::O(UValue { raw, value }) => {
                 format!("{:<16} = {:<16} 0x{:<16x} 0b{:<16b} (0b{})", raw, value, value, value, pretty_binary(value))
@@ -94,7 +94,8 @@ fn pretty_binary(value: &u64) -> String {
     const WIDTH: usize = 4;
 
     if s.len() > WIDTH {
-        for i in (0..=(s.len() - WIDTH)).rev().step_by(WIDTH) {
+        //从后往前每隔4个字符插入'_'
+        for i in (1..=(s.len() - WIDTH)).rev().step_by(WIDTH) {
             s.insert(i, '_');
         }
     }
