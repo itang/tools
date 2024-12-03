@@ -73,17 +73,31 @@ impl UNum {
     pub fn to_pretty_string(&self) -> String {
         match self {
             UNum::D(UValue { raw, value }) => {
-                format!("{:<16} = 0x{:<16x} 0o{:<16o} 0b{:b}", raw, value, value, value)
+                format!("{:<16} = 0x{:<16x} 0o{:<16o} 0b{:<16b} (0b{})", raw, value, value, value, pretty_binary(value))
             },
             UNum::B(UValue { raw, value }) => {
-                format!("{:<16} = {:<16} 0x{:<16x} 0o{:o}", raw, value, value, value)
+                format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{}", raw, value, value, value, pretty_binary(value))
             },
             UNum::O(UValue { raw, value }) => {
-                format!("{:<16} = {:<16} 0x{:<16x} 0b{:b}", raw, value, value, value)
+                format!("{:<16} = {:<16} 0x{:<16x} 0b{:<16b} (0b{})", raw, value, value, value, pretty_binary(value))
             },
+
             UNum::H(UValue { raw, value }) => {
-                format!("{:<16} = {:<16} 0o{:<16o} 0b{:b}", raw, value, value, value)
+                format!("{:<16} = {:<16} 0o{:<16o} 0b{:<16b} (0b{})", raw, value, value, value, pretty_binary(value))
             },
         }
     }
+}
+
+fn pretty_binary(value: &u64) -> String {
+    let mut s = format!("{:b}", value);
+    const WIDTH: usize = 4;
+
+    if s.len() > WIDTH {
+        for i in (0..=(s.len() - WIDTH)).rev().step_by(WIDTH) {
+            s.insert(i, '_');
+        }
+    }
+
+    s
 }
