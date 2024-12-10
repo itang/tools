@@ -7,9 +7,8 @@ edition = "2021"
 
 [dependencies]
 rusb = "0.9.4"
-#tap = "1.0.1"
-#derive_more = "0.99.0"
-#nutype = { version = "0.4.2", features = ["new_unchecked", "regex"] }
+usb-ids = "1.2024.5"
+clap = { version = "4.2.0", features = ["derive"] }
 
 [dev-dependencies]
 #mockall = "0.12.1"
