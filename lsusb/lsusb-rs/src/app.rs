@@ -46,7 +46,7 @@ fn list_devices(verbose: bool) -> Result<()> {
     let timeout = Duration::from_secs(1);
 
     for (index, device) in DeviceList::new()?.iter().enumerate() {
-        println!("{:<2}: {}", index + 1, "-".repeat(42));
+        println!("{:02}: {}", index + 1, "-".repeat(38));
 
         let device_desc = match device.device_descriptor() {
             Ok(d) => d,
