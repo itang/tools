@@ -2,9 +2,12 @@
 #![forbid(unsafe_code)]
 
 mod app;
+mod router;
 
-use crate::app::{Args, Router};
+use self::router::{Args, Router};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    Router::new(Args::get()).run().map_err(|e| e.into())
+    Router::new(Args::get()).run()?;
+
+    Ok(())
 }

@@ -1,40 +1,10 @@
 use std::time::Duration;
 
-use clap::Parser;
 use rusb::{
     ConfigDescriptor, DeviceDescriptor, DeviceHandle, DeviceList, EndpointDescriptor, InterfaceDescriptor, Language,
     Result, Speed, UsbContext,
 };
 use usb_ids::{self, FromId};
-
-#[derive(Parser, Debug, Clone)]
-#[command(author, version, about, long_about = None)]
-pub struct Args {
-    #[arg(short, long, default_value_t = false)]
-    verbose: bool,
-}
-
-impl Args {
-    pub fn get() -> Self {
-        Self::parse()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Router {
-    args: Args,
-}
-
-impl Router {
-    pub fn new(args: Args) -> Self {
-        Self { args }
-    }
-
-    pub fn run(self) -> Result<()> {
-        list_devices(self.args.verbose)?;
-        Ok(())
-    }
-}
 
 struct UsbDevice<T: UsbContext> {
     handle: DeviceHandle<T>,
@@ -42,7 +12,7 @@ struct UsbDevice<T: UsbContext> {
     timeout: Duration,
 }
 
-fn list_devices(verbose: bool) -> Result<()> {
+pub fn list_devices(verbose: bool) -> Result<()> {
     let timeout = Duration::from_secs(1);
 
     for (index, device) in DeviceList::new()?.iter().enumerate() {
