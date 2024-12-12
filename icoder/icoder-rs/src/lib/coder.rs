@@ -170,3 +170,19 @@ pub fn split_string_whitespace(s: &str) -> String {
     //s.split_whitespace().fold("".to_string(), |a, b| if a.is_empty() { b.to_string() } else { format!("{a}\n{b}") })
     s.split_whitespace().collect::<Vec<&str>>().join("\n")
 }
+
+///pow_s
+pub fn pow_s(e: u64, exp: u32) -> String {
+    let s = format!("pow({}, {})", e, exp);
+    let value = u64::pow(e, exp);
+    format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{:b}", s, value, value, value, value)
+}
+
+///unbox_str
+pub fn unbox_str(raw_s: &str) -> &str {
+    if raw_s.starts_with("\"") || raw_s.starts_with("'") {
+        &raw_s[1..raw_s.len() - 1]
+    } else {
+        raw_s
+    }
+}

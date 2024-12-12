@@ -55,6 +55,8 @@ pub enum Command {
     Pow(PowOptions),
     ///Pows
     Pows(PowsOptions),
+
+    Pluralize(PluralizeOptions),
 }
 
 ///i2binary
@@ -148,6 +150,10 @@ pub struct PowOptions {
 ///pows
 #[derive(Args, Debug, Clone)]
 pub struct PowsOptions {}
+
+#[derive(Args, Debug, Clone)]
+pub struct PluralizeOptions {}
+
 ///IRouter
 pub trait IRouter {
     type ARGS;
@@ -215,7 +221,7 @@ impl IRouter for Router {
                     .lines()
                     .filter(|line| !line.is_empty())
                     .map(|raw_s| {
-                        let raw_s = unwrap(raw_s);
+                        let raw_s = unbox_str(raw_s);
 
                         let num = UNum::from_str(raw_s).expect("failed to parse num");
                         num.to_pretty_string()
@@ -233,24 +239,15 @@ impl IRouter for Router {
                 pow_s(e as u64, exp)
             },
             Command::Pows(_options) => (0..20).map(|i| pow_s(2, i)).collect::<Vec<String>>().join("\n"),
+            Command::Pluralize(_options) => "TODO: https://github.com/KennethGomez/pluralizer".into(),
         };
 
-        println!("{}", ret);
+        output_result(&ret);
 
         Ok(())
     }
 }
 
-fn pow_s(e: u64, exp: u32) -> String {
-    let s = format!("pow({}, {})", e, exp);
-    let value = u64::pow(e, exp);
-    format!("{:<16} = {:<16} 0x{:<16x} 0o{:<16o} 0b{:b}", s, value, value, value, value)
-}
-
-fn unwrap(raw_s: &str) -> &str {
-    if raw_s.starts_with("\"") || raw_s.starts_with("'") {
-        &raw_s[1..raw_s.len() - 1]
-    } else {
-        raw_s
-    }
+fn output_result(s: &str) {
+    println!("{s}");
 }
