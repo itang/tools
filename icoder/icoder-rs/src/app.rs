@@ -47,16 +47,17 @@ pub enum Command {
     Split(SplitOptions),
     ///delay
     Delay(DelayOptions),
-    ///Num
+    ///num
     Num(NumOptions),
-    ///Nums
+    ///nums
     Nums(NumsOptions),
-    ///Pow
+    ///pow
     Pow(PowOptions),
-    ///Pows
+    ///pows
     Pows(PowsOptions),
-
-    Pluralize(PluralizeOptions),
+    ///pluralize
+    #[clap(aliases = &["p"])]
+    Plur(PluralizeOptions),
 }
 
 ///i2binary
@@ -152,7 +153,11 @@ pub struct PowOptions {
 pub struct PowsOptions {}
 
 #[derive(Args, Debug, Clone)]
-pub struct PluralizeOptions {}
+pub struct PluralizeOptions {
+    #[arg(short, long, default_value_t = 2)]
+    pub count: u32,
+    pub input: Option<String>,
+}
 
 ///IRouter
 pub trait IRouter {
@@ -239,7 +244,9 @@ impl IRouter for Router {
                 pow_s(e as u64, exp)
             },
             Command::Pows(_options) => (0..20).map(|i| pow_s(2, i)).collect::<Vec<String>>().join("\n"),
-            Command::Pluralize(_options) => "TODO: https://github.com/KennethGomez/pluralizer".into(),
+            Command::Plur(options) => {
+                pluralizer::pluralize(&options.input.or_read_line(), options.count as isize, false)
+            },
         };
 
         output_result(&ret);

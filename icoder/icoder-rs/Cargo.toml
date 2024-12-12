@@ -24,6 +24,7 @@ md5 = "0.7.0"
 url = { version = "2.5.2" }
 serde = { version = "1.0.209", features = ["derive"] }
 serde_json = "1.0.127"
+pluralizer = "0.4.0"
 
 [profile.release]
 # https://doc.rust-lang.org/cargo/reference/profiles.html
