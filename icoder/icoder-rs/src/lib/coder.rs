@@ -184,3 +184,6 @@ pub fn unbox_str(raw_s: &str) -> &str {
         raw_s
     }
 }
+
+///pluralize
+pub use pluralizer::pluralize;

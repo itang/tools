@@ -56,8 +56,8 @@ pub enum Command {
     ///pows
     Pows(PowsOptions),
     ///pluralize
-    #[clap(aliases = &["p"])]
-    Plur(PluralizeOptions),
+    #[clap(aliases = &["plur"])]
+    Pluralize(PluralizeOptions),
 }
 
 ///i2binary
@@ -244,9 +244,7 @@ impl IRouter for Router {
                 pow_s(e as u64, exp)
             },
             Command::Pows(_options) => (0..20).map(|i| pow_s(2, i)).collect::<Vec<String>>().join("\n"),
-            Command::Plur(options) => {
-                pluralizer::pluralize(&options.input.or_read_line(), options.count as isize, false)
-            },
+            Command::Pluralize(options) => pluralize(&options.input.or_read_line(), options.count as isize, false),
         };
 
         output_result(&ret);
