@@ -11,6 +11,7 @@ use std::path::Path;
 use std::{fs, io, io::BufRead};
 
 /// list and count file lines
+//TODO: use glob
 pub fn list_and_count_file_lines<P: AsRef<Path>>(
     path: P, ext: Option<String>, sort: bool,
 ) -> Result<(), Box<dyn Error>> {
