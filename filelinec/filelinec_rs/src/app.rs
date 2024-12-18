@@ -7,14 +7,15 @@ use clap::Parser;
 pub struct Args {
     /// file extension
     #[arg(short, long)]
-    pub ext: Option<String>,
+    ext: Option<String>,
 
-    /// the directory to search
-    #[arg(default_value = ".")]
-    dir: PathBuf,
-
+    /// sort by number of lines (ASC)
     #[arg(short, long, default_value_t = false)]
     sort: bool,
+
+    /// the directory to count
+    #[arg(default_value = ".")]
+    dir: PathBuf,
 }
 
 impl Args {
@@ -34,6 +35,7 @@ impl Router {
     }
 
     pub fn run(self) -> Result<(), Box<dyn std::error::Error>> {
-        filelinec::list_and_count_file_lines(self.args.dir, self.args.ext, self.args.sort)
+        let Args { ext, dir, sort } = self.args;
+        filelinec::list_and_count_file_lines(dir, ext, sort)
     }
 }
