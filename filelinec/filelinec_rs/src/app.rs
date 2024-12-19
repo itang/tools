@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use clap::Parser;
+use filelinec::FileLineCount;
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -36,6 +37,9 @@ impl Router {
 
     pub fn run(self) -> Result<(), Box<dyn std::error::Error>> {
         let Args { ext, dir, sort } = self.args;
-        filelinec::list_and_count_file_lines(dir, ext, sort)
+        
+        FileLineCount::from_dir(dir, ext, sort)?.pretty_print();
+
+        Ok(())
     }
 }
