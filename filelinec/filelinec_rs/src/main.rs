@@ -1,10 +1,8 @@
 #![deny(clippy::unwrap_used)]
 #![forbid(unsafe_code)]
 
-mod app;
-
-use crate::app::{Args, Router};
+use filelinec::app::{Config, Router};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    Router::new(Args::get()).run()
+    Router::new(Config::parse()).run()
 }

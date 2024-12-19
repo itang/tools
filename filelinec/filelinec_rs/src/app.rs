@@ -1,11 +1,14 @@
+//! app entry
 use std::path::PathBuf;
 
 use clap::Parser;
-use filelinec::FileLineCount;
 
+use crate::FileLineCount;
+
+/// Config
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
-pub struct Args {
+pub struct Config {
     /// file extension
     #[arg(short, long)]
     ext: Option<String>,
@@ -19,25 +22,29 @@ pub struct Args {
     dir: PathBuf,
 }
 
-impl Args {
-    pub fn get() -> Self {
-        Self::parse()
+impl Config {
+    /// parse
+    pub fn parse() -> Self {
+        <Self as Parser>::parse()
     }
 }
 
+/// Router
 #[derive(Debug, Clone)]
 pub struct Router {
-    args: Args,
+    config: Config,
 }
 
 impl Router {
-    pub fn new(args: Args) -> Self {
-        Self { args }
+    /// new
+    pub fn new(config: Config) -> Self {
+        Self { config }
     }
 
+    /// run
     pub fn run(self) -> Result<(), Box<dyn std::error::Error>> {
-        let Args { ext, dir, sort } = self.args;
-        
+        let Config { ext, dir, sort } = self.config;
+
         FileLineCount::from_dir(dir, ext, sort)?.pretty_print();
 
         Ok(())

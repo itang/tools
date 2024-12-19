@@ -6,6 +6,8 @@
 //!
 //! add doc here
 
+pub mod app;
+
 use std::path::Path;
 use std::{fs, io, io::BufRead};
 
