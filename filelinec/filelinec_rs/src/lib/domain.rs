@@ -1,12 +1,4 @@
-#![deny(clippy::unwrap_used)]
-#![forbid(unsafe_code)]
-#![deny(missing_docs)]
-
-//! crate filelinec.
-//!
-//! add doc here
-
-pub mod app;
+//! domain
 
 use std::path::Path;
 use std::{fs, io, io::BufRead};
@@ -27,14 +19,31 @@ pub struct FileLineCount {
     pub items: Vec<CountItem>,
 }
 
+/// FromDirOptions
+#[derive(Debug)]
+pub struct FromDirOptions {
+    ///ext
+    pub ext: Option<String>,
+    ///sort
+    pub sort: bool,
+}
+
+impl FromDirOptions {
+    /// new
+    pub fn new(ext: Option<String>, sort: bool) -> Self {
+        Self { ext, sort }
+    }
+}
+
 impl FileLineCount {
     /// from dir
-    pub fn from_dir<P: AsRef<Path>>(path: P, ext: Option<String>, sort: bool) -> Result<FileLineCount, io::Error> {
+    pub fn from_dir<P: AsRef<Path>>(path: P, options: FromDirOptions) -> Result<FileLineCount, io::Error> {
         let mut items: Vec<CountItem> = fs::read_dir(path)?
             .filter_map(|entry| entry.ok())
             .filter(|entry| {
                 entry.file_type().expect("file type").is_file()
-                    && (ext.is_none() || entry.path().extension().unwrap_or_default().to_str() == ext.as_deref())
+                    && (options.ext.is_none()
+                        || entry.path().extension().unwrap_or_default().to_str() == options.ext.as_deref())
             })
             .map(|entry| {
                 let path = entry.path();
@@ -44,7 +53,7 @@ impl FileLineCount {
             })
             .collect();
 
-        if sort {
+        if options.sort {
             items.sort_by(|a, b| a.num.cmp(&b.num));
         }
 

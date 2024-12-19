@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-use crate::FileLineCount;
+use crate::domain::{FileLineCount, FromDirOptions};
 
 /// Config
 #[derive(Parser, Debug, Clone)]
@@ -29,13 +29,13 @@ impl Config {
     }
 }
 
-/// Router
+/// App
 #[derive(Debug, Clone)]
-pub struct Router {
+pub struct App {
     config: Config,
 }
 
-impl Router {
+impl App {
     /// new
     pub fn new(config: Config) -> Self {
         Self { config }
@@ -45,7 +45,7 @@ impl Router {
     pub fn run(self) -> Result<(), Box<dyn std::error::Error>> {
         let Config { ext, dir, sort } = self.config;
 
-        FileLineCount::from_dir(dir, ext, sort)?.pretty_print();
+        FileLineCount::from_dir(dir, FromDirOptions::new(ext, sort))?.pretty_print();
 
         Ok(())
     }
