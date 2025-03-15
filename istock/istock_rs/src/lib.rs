@@ -45,24 +45,30 @@ impl Deref for Labels {
 
 impl Labels {
     pub fn print(&self) {
+        let indent: String = " ".repeat(4);
+
         // self.items group by ty
         let groups = self.items.iter().chunk_by(|it| &it.ty);
-        for (ty, items) in groups.into_iter() {
-            println!("{}({})", ty.name, ty.description);
-            for item in items {
-                println!("  {}({})", item.name, item.description);
+        let groups = groups.into_iter().sorted_by_key(|(ty, _)| ty.sort);
+        for (index, (ty, items)) in groups.into_iter().enumerate() {
+            let ty_index = format!("{:0>2}", index + 1);
+            println!("{ty_index} {}({})", ty.name, ty.description);
+            for (index1, item) in items.enumerate() {
+                let label_index = format!("{:0>3} ", index1 + 1);
+                println!("{indent}{label_index}{}({})", item.name, item.description);
             }
+            println!();
         }
     }
 
     pub fn get_all() -> Self {
         let plate = LabelType { name: "Plate".to_string(), description: "板块".to_string(), parent: None, sort: 0 };
         let plates = labels(vec!["大模型", "算力", "通信", "半导体", "光刻机", "先进封装", "消费电子"], plate);
-        
-        let concept = LabelType { name: "Concept".to_string(), description: "概念".to_string(), parent: None, sort: 1 };
+
+        let concept =
+            LabelType { name: "Concept".to_string(), description: "概念".to_string(), parent: None, sort: 1 };
         let concepts = labels(vec!["华为鸿蒙", "华为智驾", "小米", "阿里", "AI眼镜", "AI医疗", "AI制药"], concept);
 
-        
         Self { items: concepts.into_iter().chain(plates).collect() }
     }
 }
