@@ -6,7 +6,7 @@ use std::error::Error;
 use istock_rs::Labels;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    Labels::get_all().print();
+    Labels::all().print_to_console();
 
     Ok(())
 }
