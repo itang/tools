@@ -43,8 +43,8 @@ impl Deref for Labels {
     }
 }
 
-impl Labels {
-    pub fn all() -> Self {
+impl Default for Labels {
+    fn default() -> Self {
         let plate = LabelType { name: "Plate".to_string(), description: "板块".to_string(), parent: None, sort: 0 };
         let plates = labels(vec!["大模型", "算力", "通信", "半导体", "光刻机", "先进封装", "消费电子"], plate);
 
@@ -53,6 +53,12 @@ impl Labels {
         let concepts = labels(vec!["华为鸿蒙", "华为智驾", "小米", "阿里", "AI眼镜", "AI医疗", "AI制药"], concept);
 
         Self { items: concepts.into_iter().chain(plates).collect() }
+    }
+}
+
+impl Labels {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn print_to_console(&self) {
