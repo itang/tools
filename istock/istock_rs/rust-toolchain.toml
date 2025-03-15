@@ -1,0 +1,8 @@
+[toolchain]
+channel = "stable"
+#hannel = "nightly"
+#channel = "nightly-2023-12-03"
+
+#components = [ "rustfmt", "rustc-dev" ]
+#targets = [ "wasm32-unknown-unknown", "thumbv2-none-eabi" ]
+#profile = "minimal"

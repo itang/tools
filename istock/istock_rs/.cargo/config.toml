@@ -1,0 +1,5 @@
+[build]
+#rustflags = ["-Z", "threads=12"]
+
+[alias]
+t = "test --features mysql -- --show-output"
