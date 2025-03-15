@@ -47,7 +47,6 @@ impl Labels {
     pub fn print(&self) {
         let indent: String = " ".repeat(4);
 
-        // self.items group by ty
         let groups = self.items.iter().chunk_by(|it| &it.ty);
         let groups = groups.into_iter().sorted_by_key(|(ty, _)| ty.sort);
         for (index, (ty, items)) in groups.into_iter().enumerate() {
