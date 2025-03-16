@@ -38,6 +38,7 @@ pub struct Labels {
 
 impl Deref for Labels {
     type Target = [Label];
+
     fn deref(&self) -> &Self::Target {
         &self.items
     }
@@ -46,11 +47,13 @@ impl Deref for Labels {
 impl Default for Labels {
     fn default() -> Self {
         let plate = LabelType { name: "Plate".to_string(), description: "板块".to_string(), parent: None, sort: 0 };
-        let plates = labels(vec!["大模型", "算力", "通信", "半导体", "光刻机", "先进封装", "消费电子"], plate);
+        let plates =
+            Self::make_labels(vec!["大模型", "算力", "通信", "半导体", "光刻机", "先进封装", "消费电子"], plate);
 
         let concept =
             LabelType { name: "Concept".to_string(), description: "概念".to_string(), parent: None, sort: 1 };
-        let concepts = labels(vec!["华为鸿蒙", "华为智驾", "小米", "阿里", "AI眼镜", "AI医疗", "AI制药"], concept);
+        let concepts =
+            Self::make_labels(vec!["华为鸿蒙", "华为智驾", "小米", "阿里", "AI眼镜", "AI医疗", "AI制药"], concept);
 
         Self { items: concepts.into_iter().chain(plates).collect() }
     }
@@ -78,8 +81,10 @@ impl Labels {
     }
 }
 
-fn labels<S: Into<String>>(names: Vec<S>, ty: LabelType) -> Vec<Label> {
-    names.into_iter().map(|name| Label { name: name.into(), description: "".to_string(), ty: ty.clone() }).collect()
+impl Labels {
+    fn make_labels<S: Into<String>>(names: Vec<S>, ty: LabelType) -> Vec<Label> {
+        names.into_iter().map(|name| Label { name: name.into(), description: "".to_string(), ty: ty.clone() }).collect()
+    }
 }
 
 #[cfg(test)]
