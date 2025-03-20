@@ -47,8 +47,10 @@ impl Deref for Labels {
 impl Default for Labels {
     fn default() -> Self {
         let plate = LabelType { name: "Plate".to_string(), description: "板块".to_string(), parent: None, sort: 0 };
-        let plates =
-            Self::make_labels(vec!["大模型", "算力", "通信", "半导体", "光刻机", "先进封装", "消费电子"], plate);
+        let plates = Self::make_labels(
+            vec!["大模型", "算力", "通信", "半导体", "光刻机", "先进封装", "消费电子", "深海科技"],
+            plate,
+        );
 
         let concept =
             LabelType { name: "Concept".to_string(), description: "概念".to_string(), parent: None, sort: 1 };
