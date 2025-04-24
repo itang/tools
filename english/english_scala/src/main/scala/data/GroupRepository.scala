@@ -48,3 +48,4 @@ object GroupRepository:
      |前天 The day before yesterday
      |明天 Tomorrow""".stripMargin.toItems
   )
+end GroupRepository

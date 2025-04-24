@@ -9,9 +9,9 @@ object `package` extends RootModule with SbtModule with ScalaNativeModule {
 
   val tangVersion = "0.1.5-SNAPSHOT"
 
-  override def scalaVersion = "3.5.2-RC1"
+  override def scalaVersion = "3.6.4"
 
-  override def scalaNativeVersion = "0.5.5"
+  override def scalaNativeVersion = "0.5.7"
 
   override def ivyDeps = Agg(ivy"com.funpaas::tang-scala:$tangVersion")
 

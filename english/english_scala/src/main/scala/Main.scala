@@ -6,12 +6,12 @@ import types.Group
 object Main:
 
   def main(args: Array[String]): Unit = args match
-    case Array()                               => Command.all |> commandsToGroups |> printGroups
+    case Array()                               => Command.all |> groupsFromCommands |> printGroups
     case Array("--help" | "-h" | "help")       => help()
     case Array("--version" | "-v" | "version") => version()
-    case _ => args.toList |> (Command.fromList(_).map(_._2)) |> commandsToGroups |> printGroups
+    case _ => args.toList |> (Command.fromList(_).map(_._2)) |> groupsFromCommands |> printGroups
 
-  private def commandsToGroups(commands: List[Command]): List[Group] =
+  private def groupsFromCommands(commands: List[Command]): List[Group] =
     commands.flatMap:
       case MonthCommand   => Some(GroupRepository.monthGroup)
       case WeekCommand    => Some(GroupRepository.weekGroup)
@@ -42,5 +42,6 @@ object Main:
         |""".stripMargin
       |> println
 
-  private def version(): Unit =
-    "v0.2-20241011.1" |> println
+  private def version(): Unit = "v0.2-20241011.1" |> println
+
+end Main

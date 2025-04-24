@@ -46,3 +46,5 @@ object Command:
 
   private def defaultOnIgnore: OnIgnore =
     (x: String) => System.err.nn.println(s"> Unknown '$x' command, just ignore")
+
+end Command
