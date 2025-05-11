@@ -1,0 +1,27 @@
+[project]
+name = "jsonrpc_py"
+version = "0.1.0"
+description = "Add a short description here"
+authors = [{ name = "itang", email = "your@example.com" }]
+dependencies = ["requests>=2.32.3"]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+jsonrpc_py = 'jsonrpc_py:main'
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jsonrpc_py"]
+
+[tool.ruff]
+preview = true
+
+[tool.uv]
+dev-dependencies = ["ruff>=0.9.9"]
