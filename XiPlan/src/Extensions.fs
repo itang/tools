@@ -1,4 +1,4 @@
-﻿module Extensions
+﻿module XiPlan.Extensions
 
 open System
 
@@ -45,7 +45,7 @@ module Seq =
 
         start_datetime
         |> Seq.unfold (fun it ->
-            if (it >= end_datetime) then
+            if it >= end_datetime then
                 None
             else
                 Some((it, it.AddDays 1)))

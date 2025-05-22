@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="src/Extensions.fs" />
     <Compile Include="src/Dates.fs" />
+    <Compile Include="src/GenerateHtml.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>
 

@@ -1,13 +1,11 @@
-﻿module Dates
+﻿module XiPlan.Dates
 
 open System
 
 type Dates(?start: string) =
     member this.GetSlice(lowBound: int option, upperBound: int option) =
         let startDate =
-            match start with
-            | Some it -> DateTime.Parse it
-            | _ -> DateTime.Now
+            start |> Option.map DateTime.Parse |> Option.defaultValue DateTime.Now
 
         match lowBound, upperBound with
         | None, None -> Seq.initInfinite startDate.AddDays
