@@ -1,17 +1,9 @@
 ﻿open System
 open System.IO
 
-open Ext
+open Extensions
 
-let tasks =
-    [ "语文阅读"
-      "英语绘本听读"
-      "数学口算题"
-      "体育锻炼"
-      "语文小测"
-      "数学小测"
-      "英语小测"
-      "其他" ]
+let tasks = [ "语文阅读"; "英语绘本听读"; "数学口算题"; "体育锻炼"; "语文小测"; "数学小测"; "英语小测"; "其他" ]
 
 let dates = Seq.dates "2021-10-27" "2022-01-31"
 
@@ -36,8 +28,7 @@ let html =
  <thead>
  <tr>
  <td align="center">#</td><td align="center">星期</td><td align="center">日期</td>
- {[ for task in tasks -> $"<td align=\"center\">{task}</td>" ]
-  |> String.concat ""}
+ {[ for task in tasks -> $"<td align=\"center\">{task}</td>" ] |> String.concat ""}
  </tr>
  </thead>
  <tbody>
@@ -45,12 +36,10 @@ let html =
         yield!
             [ "<tr>".IndentLevel1
               $"<td width='30px'>{index + 1}</td>".IndentLevel2
-              $"<td width='48px' align='center'>%s{date.DayOfWeek.Formated}</td>"
-                  .IndentLevel2
-              $"<td width='76px' align='center'>%s{date.Formated}</td>"
-                  .IndentLevel2 ]
+              $"<td width='48px' align='center'>%s{date.DayOfWeek.Formated}</td>".IndentLevel2
+              $"<td width='76px' align='center'>%s{date.Formated}</td>".IndentLevel2 ]
 
-        for _ in tasks -> $"<td></td>".IndentLevel2
+        for _ in tasks -> "<td></td>".IndentLevel2
         yield "</tr>".IndentLevel1
 
         if date.DayOfWeek = DayOfWeek.Sunday then
@@ -62,8 +51,8 @@ let html =
 </html>
 """
 
-printfn "%s" html
-File.WriteAllText("xiplan.html", html)
+html |> printfn "%s"
+html |> (fun it -> File.WriteAllText("xiplan.html", it))
 
 // let dates2 = (new Dates("2021-10-27")).[-2..20]
 //

@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Ext.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="src/Extensions.fs" />
+    <Compile Include="src/Dates.fs" />
+    <Compile Include="src/Program.fs" />
   </ItemGroup>
 
   <PropertyGroup>
