@@ -9,3 +9,5 @@ obj
 .ionide
 
 xiplan.html
+
+*.sln.DotSettings.user
