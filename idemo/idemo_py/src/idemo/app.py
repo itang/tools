@@ -43,12 +43,12 @@ class MyDriver:
 
         # 找到表单输入元素并填充数据
         username_input = self.driver.find_element(By.CSS_SELECTOR, ".login-input")
-        username_input.send_keys("18018786450")
+        username_input.send_keys("test")
 
         password_input = self.driver.find_element(
             By.CSS_SELECTOR, 'input[type="password"]'
         )
-        password_input.send_keys("Authine@123456")
+        password_input.send_keys("123456")
 
         # 找到按钮并点击
         submit_button.click()

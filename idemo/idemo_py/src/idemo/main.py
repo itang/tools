@@ -9,7 +9,7 @@ def main() -> None:
 
         # 调用自动登录函数
         my_driver.auto_login(
-            login_page="http://39.104.227.186:8089/login?corpId=dingc55494e63f745d5335c2f4657eb6378f"
+            login_page="https://idemo.com/login.html",
         )
 
         # 等待浏览器关闭

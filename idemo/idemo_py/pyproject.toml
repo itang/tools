@@ -5,7 +5,7 @@ description = "Add a short description here"
 authors = [{ name = "itang", email = "your@example.com" }]
 dependencies = ["selenium>=4.24.0", "webdriver-manager>=4.0.2"]
 readme = "README.md"
-requires-python = ">= 3.10"
+requires-python = ">= 3.13"
 
 [build-system]
 requires = ["hatchling"]
@@ -24,19 +24,11 @@ packages = ["src/idemo"]
 preview = true
 
 [tool.uv]
-dev-dependencies = ["ruff>=0.6.1"]
-
-########################################################################################
-# begin rye
-[tool.rye]
-managed = true
-dev-dependencies = ["ruff>=0.1.0"]
-#sources = [{ name = "default", url = "https://mirrors.aliyun.com/pypi/simple/" }]
-sources = [
-    { name = "default", url = "https://pypi.tuna.tsinghua.edu.cn/simple/" },
+dev-dependencies = [
+    "ruff>=0.11.9",
+    "ty>=0.0.1a3",
+    "pyinstaller>=6.14.1"
 ]
 
-[tool.rye.scripts]
-main = "python test.py"
-prod = { cmd = "python test.py", env = { MODE = "PRODUCTION" } }
-# end rye
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
