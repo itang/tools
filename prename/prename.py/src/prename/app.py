@@ -1,11 +1,13 @@
 import os
 
 
-def batch_rename_suffix(path: str,
-                        old_suffix: str,
-                        new_suffix: str,
-                        recursive=True,
-                        dry_run=False) -> None:
+def batch_rename_suffix(
+        path: str,
+        old_suffix: str,
+        new_suffix: str,
+        recursive=True,
+        dry_run=False
+) -> None:
     """
     批量修改文件后缀（支持递归和预览模式）
 
