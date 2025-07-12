@@ -1,0 +1,39 @@
+[project]
+name = "prename.py"
+version = "0.1.0"
+description = "Add a short description here"
+authors = [
+    { name = "itang", email = "your@example.com" }
+]
+dependencies = [
+    "expression>=1.2.0",
+    "typer>=0.16.0",
+]
+readme = "README.md"
+requires-python = ">= 3.13"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+prename_py = 'prename:main'
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/prename"]
+
+[tool.ruff]
+preview = true
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.11.9",
+    "ty>=0.0.1a3",
+    "pyinstaller>=6.14.1"
+]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"

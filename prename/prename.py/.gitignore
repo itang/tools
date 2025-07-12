@@ -1,0 +1,19 @@
+# python.quick generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# venv
+.venv
+
+# pixi environments
+.pixi
+
+.ruff_cache
+
+.idea
+
+prename.spec
