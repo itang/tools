@@ -1,19 +1,19 @@
 [package]
 authors = ["itang <live.tang@gmail.com>"]
 name = "rdict"
-version = "0.6.0-20240826.1"
-edition = "2021"
+version = "0.7.0-20250823.1"
+edition = "2024"
 
 [lib]
 path = "src/lib/lib.rs"
 
 [dependencies]
-toml = "0.8.15"
-dirs = "5.0.1"
-clap = { version = "4.5.9", features = ["derive"] }
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.120"
-tokio = { version = "1.38.1", features = ["rt", "macros"] }
-reqwest = { version = "0.12.5", features = ["json"] }
+#toml = "0.8.15"
+#dirs = "5.0.1"
+clap = { version = "4.5.45", features = ["derive"] }
+#serde = { version = "1.0.204", features = ["derive"] }
+#serde_json = "1.0.120"
+tokio = { version = "1.47.1", features = ["rt", "macros"] }
+reqwest = { version = "0.12.23", features = ["json"] }
 ansi_term = "0.12.1"
-scraper = { version = "0.20.0" }
+scraper = { version = "0.24.0" }
