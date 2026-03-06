@@ -141,15 +141,20 @@ fn java_tools(pid: &str) -> Vec<String> {
     let jstack = format!("jstack {} | save thread_stack.txt", pid);
     let jmap_heap0 = format!("jmap -heap {}", pid);
     let jmap_heap1 = format!("jhsdb jmap --heap --pid {}", pid);
-    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {}", pid);
-    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {}", pid);
-    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {}", pid);
-    let jmap_dump_gz_live = format!("jmap -dump:live,gz=9,format=b,file=dump.gz.bin {}", pid);
-    let jmap_histo_live = format!("jmap -histo:live {} #触发fullgc", pid);
-    let jstat_gc_live = format!("jstat -gc {} 2000", pid);
-    let jstat_gcutil_live = format!("jstat -gcutil {} 2000", pid);
-    let pidstat = format!("pidstat -w 5 -p {}", pid);
-    let kill = format!("kill -f {}", pid);
+    let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {pid}");
+    let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {pid}");
+    let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {pid}");
+    let jmap_dump_gz_live = format!("jmap -dump:live,gz=9,format=b,file=dump.gz.bin {pid}");
+    let jmap_histo_live = format!("jmap -histo:live {pid} #触发fullgc",);
+    let jstat_gc_live = format!("jstat -gc {pid} 2000");
+    let jstat_gcutil_live = format!("jstat -gcutil {pid} 2000");
+    let pidstat = format!("pidstat -w 5 -p {pid}");
+    let kill = format!("kill -f {pid}");
+    let jinfo_all = format!("jinfo --pid {pid}");
+    let jinfo_gc = format!("jinfo --pid {pid} | rg GC");
+    let jcmd_vm_flags = format!("jcmd {pid} VM.flags");
+    let jcmd_vm_flags_gc = format!("jcmd {pid} VM.flags | rg GC");
+    let jinfo_vm_flags = format!("jinfo -flags {pid}");
 
     vec![
         jstack,
@@ -164,5 +169,10 @@ fn java_tools(pid: &str) -> Vec<String> {
         jstat_gcutil_live,
         pidstat,
         kill,
+        jinfo_all,
+        jinfo_gc,
+        jcmd_vm_flags,
+        jcmd_vm_flags_gc,
+        jinfo_vm_flags,
     ]
 }
