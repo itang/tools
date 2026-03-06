@@ -138,9 +138,9 @@ fn display(procs: &[Proc], simple: bool) {
 
 fn java_tools(pid: &str) -> Vec<String> {
     let pid = pid.green();
-    let jstack = format!("jstack {} | save thread_stack.txt", pid);
-    let jmap_heap0 = format!("jmap -heap {}", pid);
-    let jmap_heap1 = format!("jhsdb jmap --heap --pid {}", pid);
+    let jstack = format!("jstack {pid} | save thread_stack.txt");
+    let jmap_heap0 = format!("jmap -heap {pid}");
+    let jmap_heap1 = format!("jhsdb jmap --heap --pid {pid}");
     let jmap_dump_all0 = format!("jmap -dump:format=b,file=dump.bin {pid}");
     let jmap_dump_all1 = format!("jmap -dump:all,format=b,file=dump.bin {pid}");
     let jmap_dump_live = format!("jmap -dump:live,format=b,file=dump.bin {pid}");
