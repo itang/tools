@@ -1,0 +1,7 @@
+[build]
+#rustflags = ["-Z", "threads=12"]
+#incremental = true # dev profile 下默认启用了
+#rustc-wrapper = "sccache"
+
+[alias]
+t = "test --features mysql -- --show-output"
