@@ -1,0 +1,12 @@
+{
+  "name": "oc-translate-host",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Chrome native messaging host that bridges the page-translator extension to the local opencode CLI.",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "bun build ./src/index.js --compile --outfile ./dist/oc-translate-host.exe",
+    "test": "bun test"
+  }
+}

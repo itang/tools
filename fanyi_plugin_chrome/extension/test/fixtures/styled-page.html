@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Shadow DOM isolation test</title>
+    <style>
+      * {
+        color: #c00 !important;
+        font-family: "Comic Sans MS", cursive !important;
+        font-size: 22px !important;
+        letter-spacing: 1.5px !important;
+      }
+      body { background: #fffbe6; padding: 40px; max-width: 720px; }
+      p { margin: 24px 0; }
+      .box { border: 3px dashed #c00; padding: 16px; }
+    </style>
+  </head>
+  <body>
+    <h1>Shadow DOM isolation test</h1>
+    <p>This paragraph must keep its original bright red styling after translation.</p>
+    <p>The injected Chinese translation should stay readable and should not inherit these aggressive styles.</p>
+    <div class="box">
+      <p>Inside a strongly styled box, the original still looks the same.</p>
+      <ul>
+        <li>List item one</li>
+        <li>List item two</li>
+      </ul>
+    </div>
+    <pre>const x = 1; // code blocks must not be translated</pre>
+    <p>你好，这一段已经是中文，不应被再次翻译。</p>
+  </body>
+</html>

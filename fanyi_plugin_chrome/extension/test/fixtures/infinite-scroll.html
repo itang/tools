@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Infinite scroll (x.com-like)</title>
+    <style>
+      body { font: 16px/1.6 system-ui, sans-serif; margin: 0 auto; padding: 24px; max-width: 640px; }
+      article { border: 1px solid #ddd; border-radius: 12px; padding: 12px 16px; margin: 12px 0; }
+      [data-testid="tweetText"] { white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Timeline</h1>
+    <p>Scroll to the bottom to load more tweets, mirroring x.com's virtualized timeline.</p>
+    <div id="timeline"></div>
+    <script>
+      const timeline = document.getElementById("timeline");
+      let counter = 0;
+      const templates = [
+        "this is dynamically loaded content used to test translation.",
+        "another post that appears only after scrolling further down.",
+        "recycled nodes and SPA updates should not be translated twice.",
+      ];
+
+      function addTweet() {
+        const article = document.createElement("article");
+        article.dataset.testid = "tweet";
+        const text = document.createElement("div");
+        text.dataset.testid = "tweetText";
+        text.textContent = `Tweet number ${++counter}: ${templates[counter % templates.length]}`;
+        article.append(text);
+        timeline.append(article);
+      }
+
+      for (let i = 0; i < 5; i += 1) addTweet();
+
+      window.addEventListener("scroll", () => {
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 200) addTweet();
+      });
+    </script>
+  </body>
+</html>

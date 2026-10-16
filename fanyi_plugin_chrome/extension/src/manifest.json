@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "opencode 网页翻译",
+  "version": "0.1.0",
+  "description": "使用本地 opencode 命令将网页或选定区域一键翻译为中文，中英对照阅读。",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonmrLXNLORA7YPPT7MV59uRGUIbFGSLoH3hlebjSHnjPg+SuGQ1D5gRruUymB+I5RlZZ/7IvNS6uar1cAmTyPFSRRwKrk9JQya84bV0jQu9n2RfWxulOnbw2ir2SifaEwIQb9Dc4RTiPCjzU20wzdx4uV0P214+hdZDtVCzx4vPPAPta3wnB/7WK3YepeKUmOkGB7+9aqwRClnus5J1Z3V3FIZIdFy0rQxYiR7mHxK7aL3l50v/2rnpwQxlA7EBliFZu5CseVgMayVqoR7NegrhJxPtPfW8DY2OR2D5ZoILBQ48yQa8iscStd1StvZQFOM48qFpqPAoRNc7EaQZzewIDAQAB",
+  "permissions": ["nativeMessaging", "storage", "scripting", "contextMenus", "activeTab"],
+  "host_permissions": ["*://x.com/*", "*://twitter.com/*"],
+  "optional_host_permissions": ["*://*/*"],
+  "background": { "service_worker": "service-worker.js", "type": "module" },
+  "action": { "default_title": "翻译网页 / 撤销翻译（Alt+Shift+T）" },
+  "options_page": "options.html",
+  "commands": {
+    "toggle-translate": {
+      "suggested_key": { "default": "Alt+Shift+T" },
+      "description": "翻译或撤销当前页面"
+    },
+    "translate-selection": {
+      "suggested_key": { "default": "Alt+Shift+S" },
+      "description": "翻译选中的文本（无选中时翻译右键所在区域）"
+    }
+  }
+}

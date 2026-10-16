@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>opencode 网页翻译 · 设置</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font: 14px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0 auto; max-width: 680px; padding: 24px; }
+      h1 { font-size: 20px; }
+      h2 { font-size: 16px; margin-top: 32px; }
+      form { display: grid; gap: 14px; }
+      label { display: grid; gap: 4px; }
+      input[type="text"], input[type="number"], input:not([type]) { padding: 6px 8px; border: 1px solid #888; border-radius: 6px; font: inherit; }
+      input[type="text"], input:not([type]) { min-width: 320px; }
+      fieldset { border: 1px solid #888; border-radius: 8px; }
+      #sites { display: grid; gap: 6px; margin-bottom: 8px; }
+      #sites label { display: flex; align-items: center; gap: 6px; }
+      .row { display: flex; gap: 8px; align-items: center; }
+      button { padding: 6px 12px; border: 1px solid #888; border-radius: 6px; background: #1d9bf0; color: #fff; font: inherit; cursor: pointer; }
+      button.secondary { background: transparent; color: inherit; }
+      .muted { color: #888; }
+      #status { background: rgba(127,127,127,.12); padding: 12px; border-radius: 8px; overflow: auto; white-space: pre-wrap; }
+      .saved { color: #1a9c5b; margin-left: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>opencode 网页翻译</h1>
+    <p class="muted">
+      翻译通过本地 <code>opencode run</code> 命令完成。页面文本只会经你在 opencode 中配置的 provider 传输，扩展本身不发送任何数据到其他服务器。
+    </p>
+
+    <form id="settings">
+      <label>
+        模型（留空使用 opencode 默认模型）
+        <input id="model" type="text" placeholder="opencode/deepseek-v4.1-flash-free" />
+      </label>
+      <label>
+        代理 agent（可选）
+        <input id="agent" type="text" placeholder="translator" />
+      </label>
+      <label>
+        目标语言
+        <input id="targetLang" type="text" placeholder="zh-CN" />
+      </label>
+      <label>
+        批量大小（每批文本片段数，1–200）
+        <input id="batchSize" type="number" min="1" max="200" />
+      </label>
+
+      <fieldset>
+        <legend>启用站点</legend>
+        <div id="sites"></div>
+        <div class="row">
+          <input id="newSite" type="text" placeholder="example.com" />
+          <button type="button" id="addSite" class="secondary">添加站点</button>
+        </div>
+        <p class="muted">x.com 默认启用。添加其它站点时浏览器会请求该站点的访问权限。</p>
+      </fieldset>
+
+      <div class="row">
+        <button type="submit">保存</button>
+        <span id="saved" class="saved"></span>
+      </div>
+    </form>
+
+    <section>
+      <h2>诊断</h2>
+      <div class="row">
+        <button type="button" id="check" class="secondary">检查本地主机与 opencode</button>
+      </div>
+      <pre id="status" class="muted">尚未检查。</pre>
+    </section>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

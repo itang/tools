@@ -1,0 +1,14 @@
+{
+  "name": "oc-translate-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome MV3 extension that translates pages or selections to Chinese via the local opencode CLI.",
+  "type": "module",
+  "scripts": {
+    "build": "bun build.js",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.3"
+  }
+}

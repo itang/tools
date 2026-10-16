@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/async" @async,
+  "moonbitlang/async/fs" @fs,
+  "moonbitlang/async/process" @process,
+  "moonbitlang/async/semaphore" @semaphore,
+  "moonbitlang/core/buffer" @buffer,
+  "moonbitlang/core/encoding/utf8" @utf8,
+  "moonbitlang/core/env" @env,
+  "moonbitlang/core/json" @json,
+}
