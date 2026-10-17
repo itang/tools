@@ -1,6 +1,5 @@
 import {
   "moonbitlang/async",
-  "moonbitlang/async/fs",
   "moonbitlang/async/process",
   "moonbitlang/async/semaphore",
   "moonbitlang/core/buffer",
@@ -8,3 +7,7 @@ import {
   "moonbitlang/core/env",
   "moonbitlang/core/json",
 }
+
+import {
+  "moonbitlang/async/fs",
+} for "wbtest"

@@ -95,6 +95,9 @@ the easiest client is a tiny script over the host's stdio.
   with the native backend. Requests are dispatched in a task group, each
   `translate` runs under a bounded semaphore, and the child process is killed
   on timeout via `@process.run(cancel_handler=@process.hard_cancel())`.
+- **Streamed stdin.** The request body is piped to the child through
+  `@process.write_to_process()` instead of a temp file, so nothing is written to
+  disk; the child sees EOF as soon as the writer closes its end.
 - **Caching.** The LRU cache key is `language \0 model \0 hash(text)`. The hash
   is FNV-1a 64-bit rendered as hexadecimal — determinism and distinctness are
   all the cache requires, so the JS host's SHA-256 is not needed.

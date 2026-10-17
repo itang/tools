@@ -30,6 +30,7 @@ fn fake_env(pairs : Array[(String, String)]) -> Map[String, String] {
 ///|
 async test "runner concatenates text and forwards model/agent/prompt args" {
   let dir = @fs.tmpdir(prefix="oc-host-test")
+  defer (@fs.rmdir(dir, recursive=true) catch { _ => () })
   let args_file = dir + "/args.json"
   let runner = OpencodeRunner::new(
     bin="bun",
@@ -62,9 +63,29 @@ async test "runner concatenates text and forwards model/agent/prompt args" {
   for i = 0; i < expected.length(); i = i + 1 {
     assert_true(args[i] is String(arg) && arg == expected[i])
   }
-  @fs.remove(dir) catch {
-    _ => ()
+}
+
+///|
+async test "runner streams stdin larger than the pipe buffer" {
+  let runner = OpencodeRunner::new(
+    bin="bun",
+    bin_args=[fixture_path],
+    env=fake_env([("FAKE_MODE", "aligned"), ("FAKE_PREFIX", "L")]),
+  )
+  let sb = StringBuilder()
+  for i = 0; i < 20_000; i = i + 1 {
+    sb.write_string("0123456789")
   }
+  let segments : Array[TranslateSegment] = [{ index: 0, text: sb.to_string(), }]
+  let result = runner.run_once(
+    "p",
+    build_stdin_payload(segments),
+    None,
+    None,
+    None,
+  )
+  debug_inspect(result.exit_code, content="Some(0)")
+  assert_true(result.text.contains("L:0123456789"))
 }
 
 ///|

@@ -106,10 +106,10 @@ pub async fn OpencodeRunner::call_raw(
   let argv : Array[String] = []
   argv.append(self.bin_args[:])
   argv.append(args[:])
-  let dir = @fs.tmpdir(prefix="oc-host")
-  let stdin_path = dir + "/stdin.json"
-  @fs.write_file(stdin_path, stdin)
-  let child_in = @process.redirect_from_file(stdin_path)
+  // Stream the request to the child through a pipe instead of a temp file:
+  // nothing is written to disk, and the child sees EOF as soon as the writer
+  // closes its end.
+  let (child_in, child_stdin) = @process.write_to_process()
   let (out_read, out_write) = @process.read_from_process()
   let (err_read, err_write) = @process.read_from_process()
   let mut timed_out = false
@@ -123,6 +123,16 @@ pub async fn OpencodeRunner::call_raw(
     let err_task = group.spawn(() => {
       defer err_read.close()
       @utf8.decode_lossy(err_read.read_all().binary()[:])
+    })
+    group.spawn_bg(() => {
+      defer child_stdin.close()
+      if stdin.length() > 0 {
+        child_stdin.write(@utf8.encode(stdin)) catch {
+          // The child may exit before reading all of its input; a broken pipe
+          // here is expected and harmless.
+          _ => ()
+        }
+      }
     })
     try {
       let code = @async.with_timeout(limit, () => {
@@ -146,12 +156,6 @@ pub async fn OpencodeRunner::call_raw(
     err_write.close()
     (out_task.wait(), err_task.wait())
   })
-  try {
-    @fs.remove(stdin_path)
-    @fs.remove(dir)
-  } catch {
-    _ => ()
-  }
   let events = parse_jsonl(stdout)
   {
     exit_code,
