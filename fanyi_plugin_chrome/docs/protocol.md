@@ -14,7 +14,7 @@ options 页（设置 + 诊断）
 
 - **content script**：收集页面文本、内联插入译文、监听动态内容、撤销。
 - **service worker**：持有原生消息端口，转发请求与进度，注册右键菜单/快捷键/工具栏动作，按设置动态注册内容脚本。
-- **native host**（`host/`）：批量调用 `opencode run --format json`，做缓存、排队、错误映射与分帧。
+- **native host**（`host/`、`host_mbt/`、`host_rs/`）：三个等价的实现（Bun/JS、MoonBit、Rust），批量调用 `opencode run --format json`，做缓存、排队、错误映射与分帧。
 - **options 页**：设置模型/目标语言/批量大小/启用站点，并展示主机与 opencode 状态。
 
 ## 帧格式

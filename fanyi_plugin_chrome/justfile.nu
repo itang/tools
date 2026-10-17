@@ -41,6 +41,10 @@ def moonbit-host-exe [] {
 }
 def has-moon [] { (which moon | length) > 0 }
 
+def rust-host-dir [] { ([(root) host_rs] | path join) }
+def rust-host-exe [] { ([(rust-host-dir) target release $HOST_EXE_NAME] | path join) }
+def has-cargo [] { (which cargo | length) > 0 }
+
 # copy the compiled host executable to the shared bin directory.
 def install-host-bin [] {
     mkdir $HOST_INSTALL_DIR
@@ -52,6 +56,13 @@ def install-host-bin [] {
 def install-moonbit-host-bin [] {
     mkdir $HOST_INSTALL_DIR
     cp --force (moonbit-host-exe) (host-installed-exe)
+    print $"installed (host-installed-exe)"
+}
+
+# copy the compiled Rust host executable to the shared bin directory.
+def install-rust-host-bin [] {
+    mkdir $HOST_INSTALL_DIR
+    cp --force (rust-host-exe) (host-installed-exe)
     print $"installed (host-installed-exe)"
 }
 
@@ -221,6 +232,40 @@ def 'main check-host-moonbit' [] {
     }
 }
 
+# compile the Rust native messaging host (parallel implementation).
+def 'main build-host-rs' [] {
+    do-with 'build-host-rs' {||
+        if not (has-cargo) {
+            print 'skip build-host-rs: 未安装 cargo'
+        } else {
+            in-dir (rust-host-dir) {|| ^cargo build --release }
+            print $"built (rust-host-exe)"
+        }
+    }
+}
+
+# run the Rust host test suite.
+def 'main test-host-rs' [] {
+    do-with 'test-host-rs' {||
+        if not (has-cargo) {
+            print 'skip test-host-rs: 未安装 cargo'
+        } else {
+            in-dir (rust-host-dir) {|| ^cargo test }
+        }
+    }
+}
+
+# type check the Rust host.
+def 'main check-host-rs' [] {
+    do-with 'check-host-rs' {||
+        if not (has-cargo) {
+            print 'skip check-host-rs: 未安装 cargo'
+        } else {
+            in-dir (rust-host-dir) {|| ^cargo check }
+        }
+    }
+}
+
 # previews the production build locally.
 def 'main preview' [] {
     do-with 'build' {||
@@ -261,6 +306,22 @@ def 'main install-host-mbt' [] {
                 in-dir (moonbit-host-dir) {|| ^moon build --target native --release }
             }
             install-moonbit-host-bin
+            register-host-manifest
+            print '注意：Chrome 主机名共用，此操作会替换当前安装的主机（可用 install-host 切换回 JS 版）'
+        }
+    }
+}
+
+# build and register the Rust host under the shared Chrome host name.
+def 'main install-host-rs' [] {
+    do-with 'install-host-rs' {||
+        if not (has-cargo) {
+            print 'skip install-host-rs: 未安装 cargo'
+        } else {
+            if not ((rust-host-exe) | path exists) {
+                in-dir (rust-host-dir) {|| ^cargo build --release }
+            }
+            install-rust-host-bin
             register-host-manifest
             print '注意：Chrome 主机名共用，此操作会替换当前安装的主机（可用 install-host 切换回 JS 版）'
         }

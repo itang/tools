@@ -9,6 +9,7 @@ opencode 网页翻译由两部分组成：一个 Chrome（MV3）扩展，以及�
 - 本地 `opencode` CLI 可用（在终端中 `opencode --version` 有输出），且至少有一个可用模型
 - [Bun](https://bun.sh)（用于构建主机与扩展）
 - [Nushell](https://www.nushell.sh)（用于运行 `justfile.nu` 任务）
+- 可选：Cargo/Rust 工具链（仅在使用 Rust 版主机时需要）
 
 ## 安装步骤
 
@@ -19,6 +20,11 @@ nu justfile.nu build-host     # 编译主机为单个可执行文件到 host/dis
 nu justfile.nu install-host   # 复制可执行文件到 D:/dev-env/bin、写入主机清单并在注册表中注册
 nu justfile.nu build          # 构建扩展到 extension/dist
 ```
+
+> 主机有三个等价实现：Bun/JS（`host/`）、MoonBit（`host_mbt/`）与 Rust（`host_rs/`）。
+> 三者协议一致、共用同一个 Chrome 主机名，安装任一个都会替换当前注册的可执行文件。
+> 使用 `nu justfile.nu install-host-rs`（或 `install-host-mbt`）可切换到 Rust / MoonBit 版，
+> `nu justfile.nu install-host` 则切回 JS 版。
 
 然后在 Chrome 中：
 
