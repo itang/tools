@@ -22,10 +22,35 @@ import { describeElement, isBlockTag, shouldSkipElement } from "./extract.js";
 const TOKEN = /\[\[(\/)?(\d+)\]\]|\{\{(br|\d+)\}\}/g;
 const ANY_TOKEN = /\[\[\/?\d+\]\]|\{\{(?:br|\d+)\}\}/g;
 const TRANS_SELECTOR = "[data-oc-trans], [data-oc-trans-ui]";
+const PRE_WHITESPACE = new Set(["pre", "pre-wrap", "pre-line", "break-spaces"]);
 
 /** Collapse runs of whitespace to a single space (keeps single spaces). */
 export function collapseText(text) {
   return String(text ?? "").replace(/\s+/g, " ");
+}
+
+/**
+ * Whether an element preserves newlines (`white-space: pre` / `pre-wrap` /
+ * `pre-line` / `break-spaces`). Pages like x.com render their line breaks as
+ * literal `\n` inside such elements rather than as `<br>`.
+ */
+export function significantWhitespace(element) {
+  const view = element?.ownerDocument?.defaultView;
+  if (!view || typeof view.getComputedStyle !== "function") return false;
+  try {
+    const value = String(view.getComputedStyle(element).whiteSpace || "").toLowerCase();
+    return PRE_WHITESPACE.has(value);
+  } catch {
+    return false;
+  }
+}
+
+/** Keep newlines as line-break tokens; collapse only horizontal whitespace. */
+function significantText(raw) {
+  return String(raw ?? "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/\n/g, "{{br}}")
+    .replace(/[^\S\n]+/g, " ");
 }
 
 /** Remove every markup token, turning `{{br}}` into a newline. */
@@ -52,14 +77,20 @@ export function buildMarkup(element) {
   function walk(parent) {
     let markup = "";
     let plain = "";
+    const pre = significantWhitespace(parent);
 
     for (const child of parent.childNodes) {
       if (child.nodeType === 3) {
         const raw = String(child.data ?? "");
         if (raw.includes("[[") || raw.includes("{{")) conflict = true;
-        const text = collapseText(raw);
-        markup += text;
-        plain += text;
+        if (pre) {
+          const marked = significantText(raw);
+          if (marked.includes("{{br}}")) structured = true;
+          markup += marked;
+        } else {
+          markup += collapseText(raw);
+        }
+        plain += collapseText(raw);
         continue;
       }
       if (child.nodeType !== 1) continue;

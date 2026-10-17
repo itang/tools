@@ -27,6 +27,19 @@ describe("structure markup", () => {
     expect(built.plain).toBe("Line one Line two");
   });
 
+  test("preserves literal newlines in preformatted text", () => {
+    const div = makeElement('<div style="white-space: pre-wrap">Line one\nLine two</div>');
+    const built = buildMarkup(div);
+
+    expect(built.markup).toBe("Line one{{br}}Line two");
+    expect(built.plain).toBe("Line one Line two");
+  });
+
+  test("collapses insignificant newlines", () => {
+    const p = makeElement("<p>Line one\nLine two</p>");
+    expect(buildMarkup(p).markup).toBe("Line one Line two");
+  });
+
   test("keeps skip-tag content verbatim and drops decorative nodes", () => {
     const p = makeElement("<p>Use <code>x = 1</code> then <img src=\"a.png\"></p>");
     const built = buildMarkup(p);

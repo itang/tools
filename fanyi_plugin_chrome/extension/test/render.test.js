@@ -63,6 +63,14 @@ describe("inline bilingual rendering", () => {
     expect(shadow.querySelector("b")).toBeNull();
   });
 
+  test("renders line-break tokens even with no inline markers", () => {
+    const doc = makeDoc('<!doctype html><body><p id="p">x</p></body>');
+    insertTranslation(doc, doc.getElementById("p"), "第一行{{br}}第二行");
+
+    const text = doc.querySelector(`[${TRANS_ATTR}]`).shadowRoot.querySelector(".text");
+    expect(text.textContent).toBe("第一行\n第二行");
+  });
+
   test("revert removes injected nodes and markers", () => {
     const doc = makeDoc('<!doctype html><body><p id="a">one</p><p id="b">two</p></body>');
     insertTranslation(doc, doc.getElementById("a"), "一");
