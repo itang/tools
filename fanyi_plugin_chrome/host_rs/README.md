@@ -70,6 +70,14 @@ nu justfile.nu build-host-rs   # cargo build --release
 These tasks are additive; the Bun and MoonBit host tasks are unchanged. Each
 guarded task prints a skip message if `cargo` is not installed.
 
+To check that this crate stays wire-compatible with the Bun and MoonBit hosts,
+run the shared protocol conformance suite (it builds each available host and
+drives it over the frame protocol):
+
+```sh
+nu justfile.nu test-host-conformance
+```
+
 ## Configuration (environment)
 
 | Variable | Default | Purpose |

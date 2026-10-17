@@ -15,13 +15,14 @@ extern "C" fn current_pid() -> Int32 = "getpid"
 
 ///|
 /// Report host status plus `opencode` availability and version.
-pub async fn check_health(runner : &Runner, bin : String) -> Json {
+pub async fn check_health(runner : &Runner) -> Json {
   let host : Json = {
     "ok": true,
     "version": host_version,
     "protocol": PROTOCOL_VERSION,
     "pid": current_pid(),
   }
+  let bin = runner.bin()
   let result = runner.run_raw(["--version"], "", Some(15_000))
   let opencode : Json = match result.spawn_error {
     Some(_) =>

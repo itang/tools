@@ -156,16 +156,15 @@ pub async fn OpencodeRunner::call_raw(
     err_write.close()
     (out_task.wait(), err_task.wait())
   })
-  let events = parse_jsonl(stdout)
   {
     exit_code,
     stdout,
     stderr,
     spawn_error,
     timed_out,
-    events,
-    text: extract_text(events),
-    error_events: extract_error_events(events),
+    events: [],
+    text: "",
+    error_events: [],
   }
 }
 
@@ -199,19 +198,36 @@ pub async fn OpencodeRunner::call_once(
   if prompt.length() > 0 {
     args.push(prompt)
   }
-  self.call_raw(args, stdin, timeout_ms)
+  let result = self.call_raw(args, stdin, timeout_ms)
+  let events = parse_jsonl(result.stdout)
+  {
+    exit_code: result.exit_code,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    spawn_error: result.spawn_error,
+    timed_out: result.timed_out,
+    events,
+    text: extract_text(events),
+    error_events: extract_error_events(events),
+  }
 }
 
 ///|
 /// A runner able to execute `opencode` invocations. The trait lets tests
 /// inject a stub without spawning a process.
 pub(open) trait Runner {
+  fn bin(Self) -> String
   async fn run_raw(Self, Array[String], String, Int32?) -> RunResult
   async fn run_once(Self, String, String, String?, String?, Int32?) -> RunResult
 }
 
 ///|
 pub extend OpencodeRunner with Runner::{run_raw, run_once}
+
+///|
+pub impl Runner for OpencodeRunner with fn bin(self) -> String {
+  self.bin
+}
 
 ///|
 pub impl Runner for OpencodeRunner with fn run_raw(

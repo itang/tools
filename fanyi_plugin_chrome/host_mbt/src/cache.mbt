@@ -7,7 +7,7 @@ pub fn normalize_text(text : String) -> String {
   let mut started = false
   let mut pending = false
   for c in text {
-    if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+    if c.is_whitespace() {
       if started {
         pending = true
       }

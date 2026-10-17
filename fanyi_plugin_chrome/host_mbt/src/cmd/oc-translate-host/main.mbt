@@ -80,7 +80,7 @@ async fn main {
     defer write_lock.release()
     @stdio.stdout.write(@host.encode_frame(frame))
   }
-  let dispatcher = @host.Dispatcher::new(engine, runner, runner.bin(), emit)
+  let dispatcher = @host.Dispatcher::new(engine, runner, emit)
   @async.with_task_group(group => {
     let decoder = @host.FrameDecoder::new()
     let mut eof = false

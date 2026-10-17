@@ -44,6 +44,8 @@ def has-moon [] { (which moon | length) > 0 }
 def rust-host-dir [] { ([(root) host_rs] | path join) }
 def rust-host-exe [] { ([(rust-host-dir) target release $HOST_EXE_NAME] | path join) }
 def has-cargo [] { (which cargo | length) > 0 }
+def conformance-script [] { ([(host-dir) scripts conformance.js] | path join) }
+def fake-opencode-fixture [] { ([(host-dir) test fixtures fake-opencode.js] | path join) }
 
 # copy the compiled host executable to the shared bin directory.
 def install-host-bin [] {
@@ -262,6 +264,34 @@ def 'main check-host-rs' [] {
             print 'skip check-host-rs: 未安装 cargo'
         } else {
             in-dir (rust-host-dir) {|| ^cargo check }
+        }
+    }
+}
+
+# run the frame-protocol conformance suite against every available host build.
+def 'main test-host-conformance' [] {
+    do-with 'test-host-conformance' {||
+        let script = (conformance-script)
+        let fixture = (fake-opencode-fixture)
+
+        print '— conformance: js —'
+        build-host-bin
+        ^bun $script (host-exe) --fixture $fixture --label 'js (host/dist)'
+
+        if not (has-moon) {
+            print 'skip conformance: moonbit（未安装 moon）'
+        } else {
+            in-dir (moonbit-host-dir) {|| ^moon build --target native --release }
+            print '— conformance: moonbit —'
+            ^bun $script (moonbit-host-exe) --fixture $fixture --label 'moonbit (host_mbt)'
+        }
+
+        if not (has-cargo) {
+            print 'skip conformance: rust（未安装 cargo）'
+        } else {
+            in-dir (rust-host-dir) {|| ^cargo build --release }
+            print '— conformance: rust —'
+            ^bun $script (rust-host-exe) --fixture $fixture --label 'rust (host_rs)'
         }
     }
 }

@@ -6,6 +6,11 @@ test "normalize text collapses runs of whitespace" {
 }
 
 ///|
+test "normalize text collapses unicode whitespace like nbsp" {
+  debug_inspect(normalize_text("a\u{00A0}\u{3000}b"), content="\"a b\"")
+}
+
+///|
 test "cache key distinguishes target language and model" {
   assert_true(
     cache_key("zh-CN", "m1", "hello") != cache_key("zh-CN", "m2", "hello"),

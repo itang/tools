@@ -119,6 +119,11 @@ fn StubRunner::new(
 }
 
 ///|
+impl Runner for StubRunner with fn bin(_self) -> String {
+  "opencode"
+}
+
+///|
 impl Runner for StubRunner with fn run_once(
   self,
   _prompt,

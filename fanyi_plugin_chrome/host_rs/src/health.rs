@@ -1,13 +1,13 @@
 //! Health check: host status plus local opencode availability.
 
-use crate::opencode::OpencodeRunner;
+use crate::opencode::Runner;
 use crate::protocol::{ErrorCode, PROTOCOL_VERSION};
 use serde_json::{json, Value};
 
 pub const HOST_VERSION: &str = "0.1.0";
 
 /// Report host metadata and whether the local `opencode` CLI is usable.
-pub async fn check_health(runner: &OpencodeRunner) -> Value {
+pub async fn check_health(runner: &impl Runner) -> Value {
     let host = json!({
         "ok": true,
         "version": HOST_VERSION,
@@ -16,7 +16,7 @@ pub async fn check_health(runner: &OpencodeRunner) -> Value {
     });
 
     let result = runner
-        .run_raw(&["--version".to_string()], "", Some(15_000))
+        .run_raw(vec!["--version".to_string()], String::new(), Some(15_000))
         .await;
 
     let opencode = if result.spawn_error.is_some() {
@@ -50,6 +50,7 @@ pub async fn check_health(runner: &OpencodeRunner) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::opencode::OpencodeRunner;
 
     #[tokio::test]
     async fn reports_missing_opencode() {

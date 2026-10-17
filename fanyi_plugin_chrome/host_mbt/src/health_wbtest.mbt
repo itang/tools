@@ -11,7 +11,7 @@ fn version_runner(version : String) -> StubRunner {
 
 ///|
 async test "health reports the opencode version on success" {
-  let health = check_health(version_runner("opencode v2.0.29\n"), "opencode")
+  let health = check_health(version_runner("opencode v2.0.29\n"))
   assert_true(
     health
     is {
@@ -28,7 +28,7 @@ async test "health reports a missing opencode binary" {
     _args,
     _stdin,
   ) => raw_result(None, "", "", Some("ENOENT")))
-  let health = check_health(runner, "opencode")
+  let health = check_health(runner)
   assert_true(
     health
     is { "opencode": { "ok": False, "error": "OPENCODE_MISSING", .. }, .. },
@@ -41,7 +41,7 @@ async test "health reports a non-zero version exit" {
     _args,
     _stdin,
   ) => raw_result(Some(3), "", "broken", None))
-  let health = check_health(runner, "opencode")
+  let health = check_health(runner)
   assert_true(
     health is { "opencode": { "ok": False, "error": "HOST_ERROR", .. }, .. },
   )

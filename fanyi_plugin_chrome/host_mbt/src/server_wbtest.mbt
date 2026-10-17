@@ -10,7 +10,7 @@ fn test_dispatcher(
   let runner = StubRunner::new(on_once, on_raw)
   let engine = TranslationEngine::new(runner, default_model="")
   let emit : async (Json) -> Unit = frame => frames.push(frame)
-  Dispatcher::new(engine, runner, "opencode", emit)
+  Dispatcher::new(engine, runner, emit)
 }
 
 ///|

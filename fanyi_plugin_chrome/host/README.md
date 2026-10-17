@@ -38,6 +38,14 @@ executable to `host/dist`, and `install-host` copies it to
 `D:\dev-env\bin\oc-translate-host.exe` before registering that copied path in the
 Chrome host manifest.
 
+`scripts/conformance.js` is a language-neutral protocol conformance suite. It
+drives any host executable over the frame protocol and asserts the responses;
+run it against every available host build with:
+
+```sh
+nu justfile.nu test-host-conformance
+```
+
 ## Manual round-trip
 
 `scripts/probe.js` speaks the frame protocol to the built executable:

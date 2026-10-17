@@ -81,7 +81,6 @@ fn parse_options(options : Json?) -> TranslateOptions {
 pub struct Dispatcher {
   engine : TranslationEngine
   runner : &Runner
-  bin : String
   emit : async (Json) -> Unit
 }
 
@@ -90,10 +89,9 @@ pub struct Dispatcher {
 pub fn Dispatcher::new(
   engine : TranslationEngine,
   runner : &Runner,
-  bin : String,
   emit : async (Json) -> Unit,
 ) -> Dispatcher {
-  { engine, runner, bin, emit, }
+  { engine, runner, emit, }
 }
 
 ///|
@@ -106,7 +104,7 @@ pub async fn Dispatcher::dispatch(self : Dispatcher, request : Json) -> Unit {
   let mut seq = 0
   match request {
     { "type": "health", .. } => {
-      let data = check_health(self.runner, self.bin)
+      let data = check_health(self.runner)
       (self.emit)({
         "id": id,
         "seq": seq,

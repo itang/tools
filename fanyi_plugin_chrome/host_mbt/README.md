@@ -72,6 +72,13 @@ These tasks are additive; the existing Bun host tasks (`build-host`,
 `test`, ...) are unchanged. Each guarded task prints a skip message if `moon`
 is not installed.
 
+To check that this host stays wire-compatible with the Bun and Rust hosts, run
+the shared protocol conformance suite from the repository root:
+
+```sh
+nu justfile.nu test-host-conformance
+```
+
 ## Configuration (environment)
 
 | Variable | Default | Purpose |

@@ -1,5 +1,6 @@
 //! Thin wrapper around the local `opencode` CLI.
 
+use crate::protocol::BoxFuture;
 use serde_json::Value;
 use std::process::Stdio;
 use std::time::Duration;
@@ -73,13 +74,38 @@ pub struct RunOnceResult {
     pub error_events: Vec<Value>,
 }
 
+/// Abstraction over the opencode CLI. It lets the engine and health check run
+/// against a stub in tests without spawning a process.
+pub trait Runner: Send + Sync {
+    /// The executable this runner invokes.
+    fn bin(&self) -> &str;
+
+    /// Run an arbitrary argument list, writing `stdin` and enforcing a timeout
+    /// that kills the child process.
+    fn run_raw<'a>(
+        &'a self,
+        args: Vec<String>,
+        stdin: String,
+        timeout_ms: Option<u64>,
+    ) -> BoxFuture<'a, RunResult>;
+
+    /// Invoke `opencode run --format json` for one translation prompt.
+    fn run_once<'a>(
+        &'a self,
+        prompt: String,
+        stdin: String,
+        model: Option<String>,
+        agent: Option<String>,
+        timeout_ms: Option<u64>,
+    ) -> BoxFuture<'a, RunOnceResult>;
+}
+
 /// Spawns the `opencode` binary and captures its output.
 #[derive(Clone)]
 pub struct OpencodeRunner {
     bin: String,
     bin_args: Vec<String>,
     timeout_ms: u64,
-    env: Vec<(String, String)>,
 }
 
 impl OpencodeRunner {
@@ -89,25 +115,12 @@ impl OpencodeRunner {
             bin: bin.into(),
             bin_args,
             timeout_ms,
-            env: Vec::new(),
         }
-    }
-
-    /// Extra environment variables for the child process.
-    #[allow(dead_code)]
-    pub fn with_env(mut self, env: Vec<(String, String)>) -> Self {
-        self.env = env;
-        self
-    }
-
-    /// The executable this runner invokes.
-    pub fn bin(&self) -> &str {
-        &self.bin
     }
 
     /// Run an arbitrary `opencode` argument list, writing `stdin` and enforcing
     /// a timeout that kills the child process.
-    pub async fn run_raw(
+    pub async fn call_raw(
         &self,
         args: &[String],
         stdin: &str,
@@ -121,8 +134,14 @@ impl OpencodeRunner {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
-        for (key, value) in &self.env {
-            command.env(key, value);
+
+        // Avoid flashing a console window when Chrome (a GUI process) launches
+        // this host and the host in turn spawns the console-mode opencode.
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+            command.as_std_mut().creation_flags(CREATE_NO_WINDOW);
         }
 
         let mut child = match command.spawn() {
@@ -187,7 +206,7 @@ impl OpencodeRunner {
     }
 
     /// Invoke `opencode run --format json` for one translation prompt.
-    pub async fn run_once(
+    pub async fn call_once(
         &self,
         prompt: &str,
         stdin: &str,
@@ -211,7 +230,7 @@ impl OpencodeRunner {
             args.push(prompt.to_string());
         }
 
-        let run = self.run_raw(&args, stdin, timeout_ms).await;
+        let run = self.call_raw(&args, stdin, timeout_ms).await;
         let events = parse_jsonl(&run.stdout);
         let text = extract_text(&events);
         let error_events = extract_error_events(&events);
@@ -221,6 +240,41 @@ impl OpencodeRunner {
             text,
             error_events,
         }
+    }
+}
+
+impl Runner for OpencodeRunner {
+    fn bin(&self) -> &str {
+        &self.bin
+    }
+
+    fn run_raw<'a>(
+        &'a self,
+        args: Vec<String>,
+        stdin: String,
+        timeout_ms: Option<u64>,
+    ) -> BoxFuture<'a, RunResult> {
+        Box::pin(async move { self.call_raw(&args, &stdin, timeout_ms).await })
+    }
+
+    fn run_once<'a>(
+        &'a self,
+        prompt: String,
+        stdin: String,
+        model: Option<String>,
+        agent: Option<String>,
+        timeout_ms: Option<u64>,
+    ) -> BoxFuture<'a, RunOnceResult> {
+        Box::pin(async move {
+            self.call_once(
+                &prompt,
+                &stdin,
+                model.as_deref(),
+                agent.as_deref(),
+                timeout_ms,
+            )
+            .await
+        })
     }
 }
 

@@ -221,6 +221,25 @@ fn unknown_request_type_is_bad_request() {
 }
 
 #[test]
+fn streams_a_large_request_through_the_child_pipe() {
+    // ~200 KB, larger than any single OS pipe buffer, so stdin must be streamed.
+    let text = "0123456789".repeat(20_000);
+    let frames = run_host(
+        &[("FAKE_MODE", "aligned")],
+        &[json!({
+            "id": "big",
+            "type": "translate",
+            "segments": [{ "index": 0, "text": text }],
+            "options": {}
+        })],
+    );
+
+    let translate = terminal(&frames, "big");
+    let translated = translate["translations"][0]["text"].as_str().unwrap();
+    assert_eq!(translated, format!("T:{text}"));
+}
+
+#[test]
 fn the_fake_passes_model_and_agent_through() {
     let args_file = std::env::temp_dir().join("host_rs_fake_args.json");
     if args_file.exists() {
