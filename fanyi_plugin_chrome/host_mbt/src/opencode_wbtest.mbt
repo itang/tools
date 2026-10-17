@@ -14,16 +14,15 @@ test "extract error events picks structured errors" {
   let events = parse_jsonl(
     "{\"type\":\"error\",\"error\":{\"type\":\"x\",\"message\":\"y\"}}",
   )
-  debug_inspect(
-    get_str_field(extract_error_events(events)[0], "message"),
-    content="Some(\"y\")",
-  )
+  assert_true(extract_error_events(events)[0] is { "message": "y", .. })
 }
 
-///| The fake opencode fixture, relative to the module root.
+///|
+/// The fake opencode fixture, relative to the module root.
 let fixture_path : String = "test/fixtures/fake-opencode.js"
 
-///| Environment map for driving the fake fixture.
+///|
+/// Environment map for driving the fake fixture.
 fn fake_env(pairs : Array[(String, String)]) -> Map[String, String] {
   Map::from_array(pairs)
 }
@@ -38,8 +37,8 @@ async test "runner concatenates text and forwards model/agent/prompt args" {
     env=fake_env([("FAKE_MODE", "aligned"), ("FAKE_ARGS_FILE", args_file)]),
   )
   let segments : Array[TranslateSegment] = [
-    { index: 0, text: "hello" },
-    { index: 1, text: "world" },
+    { index: 0, text: "hello", },
+    { index: 1, text: "world", },
   ]
   let result = runner.run_once(
     "PROMPT",
@@ -51,26 +50,19 @@ async test "runner concatenates text and forwards model/agent/prompt args" {
   debug_inspect(result.exit_code, content="Some(0)")
   assert_true(result.text.contains("hello"))
   assert_true(result.text.contains("world"))
-  let args = as_array(
-    parse_json_option(@fs.read_file(args_file).text()).unwrap(),
-  ).unwrap()
+  let args = match parse_json_option(@fs.read_file(args_file).text()) {
+    Some(Array(args)) => args
+    _ => []
+  }
   let expected = [
-    "run",
-    "--format",
-    "json",
-    "--model",
-    "prov/model#high",
-    "--agent",
-    "translator",
+    "run", "--format", "json", "--model", "prov/model#high", "--agent", "translator",
     "PROMPT",
   ]
   debug_inspect(args.length(), content="8")
   for i = 0; i < expected.length(); i = i + 1 {
-    assert_true(as_string(args[i]) == Some(expected[i]))
+    assert_true(args[i] is String(arg) && arg == expected[i])
   }
-  try {
-    @fs.remove(dir)
-  } catch {
+  @fs.remove(dir) catch {
     _ => ()
   }
 }

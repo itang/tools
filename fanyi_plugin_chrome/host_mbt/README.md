@@ -18,7 +18,7 @@ moon.mod                    Module descriptor (depends on moonbitlang/async)
 src/
   protocol.mbt   Protocol constants, error codes and shared shapes
   framing.mbt    Length-prefixed JSON framing (encode/decode/chunk)
-  json_util.mbt  Small JSON read/build helpers
+  json_util.mbt  Tolerant JSON parsing helper (reads/builds use JSON patterns)
   opencode.mbt   Spawns the opencode CLI and parses its --format json output
   batch.mbt      Batch prompt contract, response parsing and alignment
   cache.mbt      LRU translation cache (keyed by language + model + text hash)

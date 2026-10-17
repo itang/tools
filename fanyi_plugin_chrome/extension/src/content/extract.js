@@ -28,7 +28,11 @@ export const SKIP_TAGS = new Set([
   "MATH",
 ]);
 
-/** Tags that may act as a translation unit (oddly includes inline containers). */
+/**
+ * Block-level tags that can act as a translation unit. Inline containers are
+ * deliberately excluded: they are captured as structure markers inside their
+ * enclosing block (see `markup.js`) so a block is translated exactly once.
+ */
 export const BLOCK_TAGS = new Set([
   "P",
   "DIV",
@@ -48,16 +52,6 @@ export const BLOCK_TAGS = new Set([
   "DD",
   "DT",
   "SUMMARY",
-  "LABEL",
-  "SPAN",
-  "A",
-  "CITE",
-  "EM",
-  "STRONG",
-  "B",
-  "I",
-  "SMALL",
-  "MARK",
 ]);
 
 /** Tags rendered inline, so their translation should stay inline too. */

@@ -1,6 +1,7 @@
 ///| White-box tests for the request dispatcher.
 
-///| Build a dispatcher over a stub runner, collecting emitted frames.
+///|
+/// Build a dispatcher over a stub runner, collecting emitted frames.
 fn test_dispatcher(
   frames : Array[Json],
   on_once : (String, String?) -> RunResult,
@@ -12,15 +13,10 @@ fn test_dispatcher(
   Dispatcher::new(engine, runner, "opencode", emit)
 }
 
-///| A single-segment translate request with the given id.
+///|
+/// A single-segment translate request with the given id.
 fn translate_request(id : String) -> Json {
-  Json::object({
-    "id": Json::string(id),
-    "type": Json::string("translate"),
-    "segments": Json::array([
-      Json::object({ "index": json_int(0), "text": Json::string("a") }),
-    ]),
-  })
+  { "id": id, "type": "translate", "segments": [{ "index": 0, "text": "a" }] }
 }
 
 ///|
@@ -31,19 +27,16 @@ async test "dispatcher health emits one terminal frame" {
     (stdin, _model) => translate_all_result(stdin),
     (_args, _stdin) => raw_result(Some(0), "opencode v2.0.29\n", "", None),
   )
-  dispatcher.dispatch(
-    Json::object({ "id": Json::string("1"), "type": Json::string("health") }),
-  )
+  dispatcher.dispatch(({ "id": "1", "type": "health" } : Json))
   debug_inspect(frames.length(), content="1")
-  debug_inspect(get_str_field(frames[0], "type"), content="Some(\"health\")")
-  debug_inspect(
-    get_field(frames[0], "last").unwrap().stringify(),
-    content="\"true\"",
-  )
-  let opencode = get_field(get_field(frames[0], "data").unwrap(), "opencode").unwrap()
-  debug_inspect(
-    get_str_field(opencode, "version"),
-    content="Some(\"opencode v2.0.29\")",
+  assert_true(
+    frames[0]
+    is {
+      "type": "health",
+      "last": True,
+      "data": { "opencode": { "version": "opencode v2.0.29", .. }, .. },
+      ..
+    },
   )
 }
 
@@ -55,13 +48,10 @@ async test "dispatcher rejects an unknown request type" {
     (stdin, _model) => translate_all_result(stdin),
     (_args, _stdin) => ok_result(""),
   )
-  dispatcher.dispatch(
-    Json::object({ "id": Json::string("2"), "type": Json::string("nope") }),
-  )
+  dispatcher.dispatch(({ "id": "2", "type": "nope" } : Json))
   debug_inspect(frames.length(), content="1")
-  debug_inspect(
-    get_str_field(get_field(frames[0], "error").unwrap(), "code"),
-    content="Some(\"BAD_REQUEST\")",
+  assert_true(
+    frames[0] is { "type": "error", "error": { "code": "BAD_REQUEST", .. }, .. },
   )
 }
 
@@ -74,21 +64,15 @@ async test "dispatcher emits progress then a terminal translate frame" {
     (_args, _stdin) => ok_result(""),
   )
   dispatcher.dispatch(translate_request("3"))
-  let progress = frames.filter(
-    frame => get_str_field(frame, "type") == Some("progress"),
-  )
+  let progress = frames.filter(frame => frame is { "type": "progress", .. })
   assert_true(progress.length() >= 1)
-  let terminal = frames.filter(
-    frame =>
-      get_str_field(frame, "type") == Some("translate") &&
-      get_field(frame, "last").unwrap().stringify() == "true",
-  )
+  let terminal = frames.filter(frame => {
+    frame is { "type": "translate", "last": True, .. }
+  })
   debug_inspect(terminal.length(), content="1")
-  let translations = as_array(
-    get_field(terminal[0], "translations").unwrap(),
-  ).unwrap()
-  debug_inspect(translations.length(), content="1")
-  debug_inspect(get_str_field(translations[0], "text"), content="Some(\"T:a\")")
+  assert_true(
+    terminal[0] is { "translations": [{ "text": "T:a", .. }, ..], .. },
+  )
 }
 
 ///|
@@ -100,18 +84,11 @@ async test "dispatcher turns an engine HostError into an error frame" {
     (_args, _stdin) => ok_result(""),
   )
   dispatcher.dispatch(translate_request("4"))
-  let errors = frames.filter(
-    frame => get_str_field(frame, "type") == Some("error"),
-  )
+  let errors = frames.filter(frame => frame is { "type": "error", .. })
   debug_inspect(errors.length(), content="1")
-  debug_inspect(get_str_field(errors[0], "type"), content="Some(\"error\")")
-  debug_inspect(
-    get_field(errors[0], "last").unwrap().stringify(),
-    content="\"true\"",
-  )
-  debug_inspect(
-    get_str_field(get_field(errors[0], "error").unwrap(), "code"),
-    content="Some(\"MODEL_UNAVAILABLE\")",
+  assert_true(
+    errors[0]
+    is { "last": True, "error": { "code": "MODEL_UNAVAILABLE", .. }, .. },
   )
 }
 
@@ -124,16 +101,8 @@ async test "dispatcher yields an empty terminal frame for no segments" {
     (_args, _stdin) => ok_result(""),
   )
   dispatcher.dispatch(
-    Json::object({
-      "id": Json::string("5"),
-      "type": Json::string("translate"),
-      "segments": Json::array([]),
-    }),
+    ({ "id": "5", "type": "translate", "segments": [] } : Json),
   )
   debug_inspect(frames.length(), content="1")
-  debug_inspect(get_str_field(frames[0], "type"), content="Some(\"translate\")")
-  let translations = as_array(
-    get_field(frames[0], "translations").unwrap(),
-  ).unwrap()
-  debug_inspect(translations.length(), content="0")
+  assert_true(frames[0] is { "type": "translate", "translations": [], .. })
 }

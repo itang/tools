@@ -1,8 +1,9 @@
 ///| White-box tests for the batch translation contract.
 
-///| A fixed three-segment batch for alignment tests.
+///|
+/// A fixed three-segment batch for alignment tests.
 fn test_segments() -> Array[TranslateSegment] {
-  [{ index: 0, text: "a" }, { index: 1, text: "b" }, { index: 2, text: "c" }]
+  [{ index: 0, text: "a", }, { index: 1, text: "b", }, { index: 2, text: "c", }]
 }
 
 ///|
@@ -10,10 +11,10 @@ test "parse translation response tolerates fences and prose" {
   let fenced = parse_translation_response(
     "```json\n{\"0\":\"A\",\"1\":\"B\"}\n```",
   )
-  debug_inspect(as_string(fenced.get("0").unwrap()), content="Some(\"A\")")
-  debug_inspect(as_string(fenced.get("1").unwrap()), content="Some(\"B\")")
+  assert_true(fenced.get("0") is Some("A"))
+  assert_true(fenced.get("1") is Some("B"))
   let prose = parse_translation_response("Here you go: {\"0\":\"A\"} — done")
-  debug_inspect(as_string(prose.get("0").unwrap()), content="Some(\"A\")")
+  assert_true(prose.get("0") is Some("A"))
 }
 
 ///|
@@ -32,11 +33,7 @@ test "align translations handles exact, partial and extra keys" {
   let segments = test_segments()
   let aligned = align_translations(
     segments,
-    Map::from_array([
-      ("0", Json::string("A")),
-      ("1", Json::string("B")),
-      ("2", Json::string("C")),
-    ]),
+    Map::from_array([("0", Json("A")), ("1", Json("B")), ("2", Json("C"))]),
   )
   debug_inspect(
     aligned.results.map(result => result.text.unwrap()),
@@ -45,11 +42,7 @@ test "align translations handles exact, partial and extra keys" {
   debug_inspect(aligned.missing.length(), content="0")
   let partial = align_translations(
     segments,
-    Map::from_array([
-      ("0", Json::string("A")),
-      ("2", Json::string("C")),
-      ("9", Json::string("X")),
-    ]),
+    Map::from_array([("0", Json("A")), ("2", Json("C")), ("9", Json("X"))]),
   )
   debug_inspect(partial.missing.map(segment => segment.index), content="[1]")
   debug_inspect(partial.extra, content="[\"9\"]")
@@ -58,8 +51,8 @@ test "align translations handles exact, partial and extra keys" {
 ///|
 async test "translate batch retries missing segments once and marks unrecovered" {
   let segments : Array[TranslateSegment] = [
-    { index: 0, text: "a" },
-    { index: 1, text: "b" },
+    { index: 0, text: "a", },
+    { index: 1, text: "b", },
   ]
   let mut calls = 0
   let results = translate_batch(segments, _batch => {
@@ -78,8 +71,8 @@ async test "translate batch retries missing segments once and marks unrecovered"
 ///|
 async test "translate batch recovers omitted segments on retry" {
   let segments : Array[TranslateSegment] = [
-    { index: 0, text: "a" },
-    { index: 1, text: "b" },
+    { index: 0, text: "a", },
+    { index: 1, text: "b", },
   ]
   let mut calls = 0
   let results = translate_batch(segments, _batch => {

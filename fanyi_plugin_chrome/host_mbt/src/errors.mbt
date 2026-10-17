@@ -1,50 +1,51 @@
 ///| Error classification for opencode failures.
 
-///| Error carrying one of the stable protocol error codes.
+///|
+/// Error carrying one of the stable protocol error codes.
 pub(all) suberror HostError {
   HostError(ErrorCode, String)
 }
 
-///| The stable code carried by a `HostError`.
+///|
+/// The stable code carried by a `HostError`.
 pub fn HostError::code(self : HostError) -> ErrorCode {
   match self {
     HostError(code, _) => code
   }
 }
 
-///| The human readable message carried by a `HostError`.
+///|
+/// The human readable message carried by a `HostError`.
 pub fn HostError::message(self : HostError) -> String {
   match self {
     HostError(_, message) => message
   }
 }
 
-///| Lowercased haystack built from an error event's message, body and type.
+///|
+/// Lowercased haystack built from an error event's message, body and type.
 fn error_haystack(error : Json) -> String {
   let parts : Array[String] = []
-  for key in ["message", "type"] {
-    match get_str_field(error, key) {
-      Some(value) => parts.push(value)
-      None => ()
-    }
+  if error is { "message": String(message), .. } {
+    parts.push(message)
   }
-  match get_field(error, "response") {
-    Some(response) =>
-      match get_str_field(response, "body") {
-        Some(body) => parts.push(body)
-        None => ()
-      }
-    None => ()
+  if error is { "type": String(kind), .. } {
+    parts.push(kind)
+  }
+  if error is { "response": { "body": String(body), .. }, .. } {
+    parts.push(body)
   }
   parts.join(" ").to_lower()
 }
 
-///| Match a message against a substring, case-insensitively.
+///|
+/// Match a message against a substring, case-insensitively.
 fn contains_ci(haystack : String, needle : String) -> Bool {
   haystack.to_lower().contains(needle.to_lower())
 }
 
-///| Decide whether an opencode error event describes a region restriction.
+///|
+/// Decide whether an opencode error event describes a region restriction.
 pub fn looks_like_region_error(error : Json) -> Bool {
   let haystack = error_haystack(error)
   contains_ci(haystack, "not available in your country") ||
@@ -53,7 +54,17 @@ pub fn looks_like_region_error(error : Json) -> Bool {
   contains_ci(haystack, "unsupported_country")
 }
 
-///| Map the outcome of an opencode invocation to a `HostError`, or `None` when
+///|
+/// The `message` field of an error event, or `fallback` when it is missing.
+fn error_message(error : Json, fallback : String) -> String {
+  match error {
+    { "message": String(message), .. } => message
+    _ => fallback
+  }
+}
+
+///|
+/// Map the outcome of an opencode invocation to a `HostError`, or `None` when
 /// the invocation succeeded.
 pub fn map_opencode_failure(result : RunResult) -> HostError? {
   match result.spawn_error {
@@ -68,32 +79,35 @@ pub fn map_opencode_failure(result : RunResult) -> HostError? {
   }
   for event in result.error_events {
     if looks_like_region_error(event) {
-      let message = match get_str_field(event, "message") {
-        Some(message) => message
-        None => "当前模型在你的区域不可用，请在设置中更换模型"
-      }
-      return Some(HostError(ModelUnavailable, message))
+      return Some(
+        HostError(
+          ModelUnavailable,
+          error_message(
+            event, "当前模型在你的区域不可用，请在设置中更换模型",
+          ),
+        ),
+      )
     }
   }
   for event in result.error_events {
-    let event_type = match get_str_field(event, "type") {
-      Some(value) => value
-      None => ""
-    }
-    if event_type.contains("auth") {
-      let message = match get_str_field(event, "message") {
-        Some(message) => message
-        None => "opencode 认证失败，请先登录或配置 provider"
-      }
-      return Some(HostError(AuthRequired, message))
+    if event is { "type": String(kind), .. } && kind.contains("auth") {
+      return Some(
+        HostError(
+          AuthRequired,
+          error_message(
+            event, "opencode 认证失败，请先登录或配置 provider",
+          ),
+        ),
+      )
     }
   }
   if !result.error_events.is_empty() {
-    let message = match get_str_field(result.error_events[0], "message") {
-      Some(message) => message
-      None => "opencode 返回了错误"
-    }
-    return Some(HostError(HostFailure, message))
+    return Some(
+      HostError(
+        HostFailure,
+        error_message(result.error_events[0], "opencode 返回了错误"),
+      ),
+    )
   }
   match result.exit_code {
     Some(0) => None

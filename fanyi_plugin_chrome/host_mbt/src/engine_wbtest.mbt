@@ -1,8 +1,9 @@
 ///| White-box tests for the translation engine.
 
-///| Options with no explicit model, language or agent.
+///|
+/// Options with no explicit model, language or agent.
 fn engine_options() -> TranslateOptions {
-  { target_lang: "", model: "", agent: None, timeout_ms: None }
+  { target_lang: "", model: "", agent: None, timeout_ms: None, }
 }
 
 ///|
@@ -22,12 +23,12 @@ async test "engine serves a repeated segment from cache" {
     default_model="",
   )
   let first = engine.translate(
-    [{ index: 0, text: "hello" }],
+    [{ index: 0, text: "hello", }],
     engine_options(),
     _progress => (),
   )
   let second = engine.translate(
-    [{ index: 5, text: "hello" }],
+    [{ index: 5, text: "hello", }],
     engine_options(),
     _progress => (),
   )
@@ -49,7 +50,7 @@ async test "engine deduplicates identical text within one request" {
   )
   let engine = TranslationEngine::new(runner, default_model="")
   let results = engine.translate(
-    [{ index: 0, text: "same" }, { index: 1, text: "same" }],
+    [{ index: 0, text: "same", }, { index: 1, text: "same", }],
     engine_options(),
     _progress => (),
   )
@@ -68,11 +69,11 @@ async test "engine surfaces region errors as MODEL_UNAVAILABLE" {
   )
   let engine = TranslationEngine::new(runner, default_model="")
   let mut caught : ErrorCode? = None
-  try {
-    ignore(
-      engine.translate([{ index: 0, text: "x" }], engine_options(), _progress => ()),
-    )
-  } catch {
+  ignore(
+    engine.translate([{ index: 0, text: "x", }], engine_options(), _progress => {
+      ()
+    }),
+  ) catch {
     HostError::HostError(code, _) => caught = Some(code)
     _ => ()
   }
@@ -81,16 +82,14 @@ async test "engine surfaces region errors as MODEL_UNAVAILABLE" {
 
 ///|
 async test "engine marks segments the model omits as INCOMPLETE" {
-  let runner = StubRunner::new(
-    (_stdin, _model) => ok_result("{}"),
-    (_args, _stdin) => ok_result(""),
-  )
+  let runner = StubRunner::new((_stdin, _model) => ok_result("{}"), (
+    _args,
+    _stdin,
+  ) => ok_result(""))
   let engine = TranslationEngine::new(runner, default_model="")
-  let results = engine.translate(
-    [{ index: 0, text: "a" }],
-    engine_options(),
-    _progress => (),
-  )
+  let results = engine.translate([{ index: 0, text: "a", }], engine_options(), _progress => {
+    ()
+  })
   debug_inspect(results[0].error.unwrap().name(), content="\"INCOMPLETE\"")
 }
 
@@ -106,7 +105,9 @@ async test "engine falls back to the default model" {
   )
   let engine = TranslationEngine::new(runner, default_model="fallback/model")
   ignore(
-    engine.translate([{ index: 0, text: "hello" }], engine_options(), _progress => ()),
+    engine.translate([{ index: 0, text: "hello", }], engine_options(), _progress => {
+      ()
+    }),
   )
   debug_inspect(models[0], content="\"fallback/model\"")
 }
@@ -124,7 +125,7 @@ async test "engine prefers an explicit request model over the default" {
   let engine = TranslationEngine::new(runner, default_model="fallback/model")
   ignore(
     engine.translate(
-      [{ index: 0, text: "hello" }],
+      [{ index: 0, text: "hello", }],
       {
         target_lang: "",
         model: "prov/explicit#high",
@@ -140,13 +141,13 @@ async test "engine prefers an explicit request model over the default" {
 ///|
 async test "engine reports progress and preserves input order" {
   let phases : Array[String] = []
-  let runner = StubRunner::new(
-    (stdin, _model) => translate_all_result(stdin),
-    (_args, _stdin) => ok_result(""),
-  )
+  let runner = StubRunner::new((stdin, _model) => translate_all_result(stdin), (
+    _args,
+    _stdin,
+  ) => ok_result(""))
   let engine = TranslationEngine::new(runner, default_model="")
   let results = engine.translate(
-    [{ index: 10, text: "a" }, { index: 20, text: "b" }],
+    [{ index: 10, text: "a", }, { index: 20, text: "b", }],
     engine_options(),
     progress => phases.push(progress.phase),
   )

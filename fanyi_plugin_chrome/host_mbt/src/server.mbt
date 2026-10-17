@@ -1,120 +1,83 @@
 ///| Request dispatcher: turns protocol requests into response frames.
 
-///| Build an outbound frame object with `id`/`seq`/`last` plus `fields`.
-fn make_frame(
-  id : String,
-  seq : Int,
-  last : Bool,
-  fields : Array[(String, Json)],
-) -> Json {
-  let map : Map[String, Json] = Map([])
-  map.set("id", Json::string(id))
-  map.set("seq", json_int(seq))
-  map.set("last", Json::boolean(last))
-  for field in fields {
-    map.set(field.0, field.1)
-  }
-  Json::object(map)
-}
-
-///| Build an error response frame.
+///|
+/// Build an error response frame.
 fn error_frame(
   id : String,
-  seq : Int,
+  seq : Int32,
   code : ErrorCode,
   message : String,
 ) -> Json {
-  make_frame(id, seq, true, [
-    ("type", Json::string("error")),
-    (
-      "error",
-      Json::object({
-        "code": Json::string(code.name()),
-        "message": Json::string(message),
-      }),
-    ),
-  ])
+  {
+    "id": id,
+    "seq": seq,
+    "last": true,
+    "type": "error",
+    "error": { "code": code.name(), "message": message },
+  }
 }
 
-///| Render translation results as a JSON array.
+///|
+/// Render translation results as a JSON array.
 pub fn translations_json(results : Array[TranslationResult]) -> Json {
   Json::array(
     results.map(result => {
       match result.text {
-        Some(text) =>
-          Json::object({
-            "index": json_int(result.index),
-            "text": Json::string(text),
-          })
+        Some(text) => { "index": result.index, "text": text }
         None =>
-          Json::object({
-            "index": json_int(result.index),
-            "error": Json::string(
-              match result.error {
-                Some(code) => code.name()
-                None => HostFailure.name()
-              },
-            ),
-          })
+          {
+            "index": result.index,
+            "error": result.error.unwrap_or(HostFailure).name(),
+          }
       }
     }),
   )
 }
 
-///| Normalize a request's `segments` field into usable segments.
+///|
+/// Normalize a request's `segments` field into usable segments.
 pub fn normalize_segments(value : Json?) -> Array[TranslateSegment] {
   let segments : Array[TranslateSegment] = []
-  match value {
-    Some(json) =>
-      match as_array(json) {
-        Some(items) =>
-          for item in items {
-            match get_str_field(item, "text") {
-              Some(text) =>
-                if text.length() > 0 {
-                  let index = match get_int_field(item, "index") {
-                    Some(index) => index
-                    None => segments.length()
-                  }
-                  segments.push({ index, text })
-                }
-              None => ()
-            }
-          }
-        None => ()
-      }
-    None => ()
+  guard value is Some(Array(items)) else { return segments }
+  for item in items {
+    guard item is { "text": String(text), .. } && text.length() > 0 else {
+      continue
+    }
+    let index = if item is { "index": Number(value, ..), .. } {
+      value.to_int()
+    } else {
+      segments.length()
+    }
+    segments.push({ index, text, })
   }
   segments
 }
 
-///| Read the `options` field of a translate request.
-fn parse_options(request : Json) -> TranslateOptions {
-  let options = get_field(request, "options")
+///|
+/// Read the optional `options` object of a translate request.
+fn parse_options(options : Json?) -> TranslateOptions {
   let target_lang = match options {
-    Some(options) => get_str_field(options, "targetLang").unwrap_or("")
-    None => ""
+    Some({ "targetLang": String(target_lang), .. }) => target_lang
+    _ => ""
   }
   let model = match options {
-    Some(options) => get_str_field(options, "model").unwrap_or("")
-    None => ""
+    Some({ "model": String(model), .. }) => model
+    _ => ""
   }
   let agent = match options {
-    Some(options) =>
-      match get_str_field(options, "agent") {
-        Some(agent) if agent.length() > 0 => Some(agent)
-        _ => None
-      }
-    None => None
+    Some({ "agent": String(agent), .. }) if agent.length() > 0 => Some(agent)
+    _ => None
   }
   let timeout_ms = match options {
-    Some(options) => get_int_field(options, "timeoutMs")
-    None => None
+    Some({ "timeoutMs": Number(timeout_ms, ..), .. }) =>
+      Some(timeout_ms.to_int())
+    _ => None
   }
-  { target_lang, model, agent, timeout_ms }
+  { target_lang, model, agent, timeout_ms, }
 }
 
-///| Turns protocol requests into response frames.
+///|
+/// Turns protocol requests into response frames.
 pub struct Dispatcher {
   engine : TranslationEngine
   runner : &Runner
@@ -122,62 +85,63 @@ pub struct Dispatcher {
   emit : async (Json) -> Unit
 }
 
-///| Create a dispatcher.
+///|
+/// Create a dispatcher.
 pub fn Dispatcher::new(
   engine : TranslationEngine,
   runner : &Runner,
   bin : String,
   emit : async (Json) -> Unit,
 ) -> Dispatcher {
-  { engine, runner, bin, emit }
+  { engine, runner, bin, emit, }
 }
 
-///| Dispatch one request, emitting one or more response frames.
-pub async fn Dispatcher::dispatch(
-  self : Dispatcher,
-  request : Json,
-) -> Unit {
-  let id = get_str_field(request, "id").unwrap_or("")
+///|
+/// Dispatch one request, emitting one or more response frames.
+pub async fn Dispatcher::dispatch(self : Dispatcher, request : Json) -> Unit {
+  let id = match request {
+    { "id": String(id), .. } => id
+    _ => ""
+  }
   let mut seq = 0
-  let kind = get_str_field(request, "type").unwrap_or("")
-  match kind {
-    "health" => {
+  match request {
+    { "type": "health", .. } => {
       let data = check_health(self.runner, self.bin)
-      (self.emit)(
-        make_frame(id, seq, true, [
-          ("type", Json::string("health")),
-          ("data", data),
-        ]),
-      )
+      (self.emit)({
+        "id": id,
+        "seq": seq,
+        "last": true,
+        "type": "health",
+        "data": data,
+      })
     }
-    "translate" => {
-      let segments = normalize_segments(get_field(request, "segments"))
+    { "type": "translate", "segments"? : segments, "options"? : options, .. } => {
+      let segments = normalize_segments(segments)
       if segments.is_empty() {
-        (self.emit)(
-          make_frame(id, seq, true, [
-            ("type", Json::string("translate")),
-            ("translations", Json::array([])),
-          ]),
-        )
+        (self.emit)({
+          "id": id,
+          "seq": seq,
+          "last": true,
+          "type": "translate",
+          "translations": Json::array([]),
+        })
         return
       }
-      let options = parse_options(request)
-      let outcome : Array[TranslationResult]? = try {
-        Some(
-          self
-            .engine
-            .translate(segments, options, progress => {
-              let frame = make_frame(id, seq, false, [
-                ("type", Json::string("progress")),
-                ("phase", Json::string(progress.phase)),
-                ("completed", json_int(progress.completed)),
-                ("total", json_int(progress.total)),
-              ])
-              seq = seq + 1
-              (self.emit)(frame)
-            }),
-        )
-      } catch {
+      let options = parse_options(options)
+      let outcome : Array[TranslationResult]? = Some(
+        self.engine.translate(segments, options, progress => {
+          (self.emit)({
+            "id": id,
+            "seq": seq,
+            "last": false,
+            "type": "progress",
+            "phase": progress.phase,
+            "completed": progress.completed,
+            "total": progress.total,
+          })
+          seq = seq + 1
+        }),
+      ) catch {
         HostError::HostError(code, message) => {
           (self.emit)(error_frame(id, seq, code, message))
           None
@@ -189,21 +153,22 @@ pub async fn Dispatcher::dispatch(
       }
       match outcome {
         Some(translations) => {
-          let render = chunk => {
-            make_frame(id, 0, false, [
-              ("type", Json::string("translate")),
-              ("translations", translations_json(chunk)),
-            ])
+          let render : (Array[TranslationResult]) -> Json = chunk => {
+            "id": id,
+            "seq": 0,
+            "last": false,
+            "type": "translate",
+            "translations": translations_json(chunk),
           }
           let chunks = chunk_items(translations, render, MAX_FRAME_BYTES)
           for position = 0; position < chunks.length(); position = position + 1 {
-            let chunk = chunks[position]
-            (self.emit)(
-              make_frame(id, seq, position == chunks.length() - 1, [
-                ("type", Json::string("translate")),
-                ("translations", translations_json(chunk)),
-              ]),
-            )
+            (self.emit)({
+              "id": id,
+              "seq": seq,
+              "last": position == chunks.length() - 1,
+              "type": "translate",
+              "translations": translations_json(chunks[position]),
+            })
             seq = seq + 1
           }
         }
@@ -211,10 +176,10 @@ pub async fn Dispatcher::dispatch(
       }
     }
     _ => {
-      let message = if kind.length() > 0 {
-        "未知请求类型：\{kind}"
-      } else {
-        "请求格式不正确"
+      let message = match request {
+        { "type": String(kind), .. } if kind.length() > 0 =>
+          "未知请求类型：\{kind}"
+        _ => "请求格式不正确"
       }
       (self.emit)(error_frame(id, seq, BadRequest, message))
     }

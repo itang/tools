@@ -38,9 +38,13 @@ options 页（设置 + 诊断）
 
 ```json
 { "id": "uuid", "type": "translate",
-  "segments": [{ "index": 0, "text": "Hello world" }],
+  "segments": [{ "index": 0, "text": "Read [[0]]this[[/0]] now" }],
   "options": { "targetLang": "zh-CN", "model": "opencode/...", "agent": "translator" } }
 ```
+
+`segments[].text` 可能包含内联结构标记（`[[n]]`/`[[/n]]`、`{{n}}`、`{{br}}`，见
+`docs/content-script.md` 的「结构标记」）。主机把它们当作普通文本原样传输，并在提示词中要求模型
+逐字保留；主机侧不做解析，只负责分帧与对齐。
 
 ```json
 { "id": "uuid", "type": "health" }

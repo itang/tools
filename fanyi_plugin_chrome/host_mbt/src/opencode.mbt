@@ -1,6 +1,7 @@
 ///| Thin wrapper around the local `opencode` CLI.
 
-///| Parse newline-delimited JSON (the `--format json` output) into events.
+///|
+/// Parse newline-delimited JSON (the `--format json` output) into events.
 /// Non-JSON lines are ignored so stray logs never break parsing.
 pub fn parse_jsonl(text : String) -> Array[Json] {
   let events : Array[Json] = []
@@ -17,46 +18,34 @@ pub fn parse_jsonl(text : String) -> Array[Json] {
   events
 }
 
-///| Whether an event carries the given `type` discriminator.
-fn event_is_type(event : Json, kind : String) -> Bool {
-  match get_str_field(event, "type") {
-    Some(value) => value == kind
-    None => false
-  }
-}
-
-///| Concatenate the `text` parts of the event stream into the model answer.
+///|
+/// Concatenate the `text` parts of the event stream into the model answer.
 pub fn extract_text(events : Array[Json]) -> String {
   let out = StringBuilder()
   for event in events {
-    if event_is_type(event, "text") {
-      match get_field(event, "part") {
-        Some(part) =>
-          match get_str_field(part, "text") {
-            Some(text) => out.write_string(text)
-            None => ()
-          }
-        None => ()
-      }
+    guard event is { "type": "text", "part": { "text": String(text), .. }, .. } else {
+      continue
     }
+    out.write_string(text)
   }
   out.to_string()
 }
 
-///| Collect structured `type: "error"` events.
+///|
+/// Collect structured `type: "error"` events.
 pub fn extract_error_events(events : Array[Json]) -> Array[Json] {
   events.filter_map(event => {
-    if event_is_type(event, "error") {
-      get_field(event, "error")
-    } else {
-      None
+    match event {
+      { "type": "error", "error": error, .. } => Some(error)
+      _ => None
     }
   })
 }
 
-///| The captured outcome of one `opencode` invocation.
+///|
+/// The captured outcome of one `opencode` invocation.
 pub(all) struct RunResult {
-  exit_code : Int?
+  exit_code : Int32?
   stdout : String
   stderr : String
   spawn_error : String?
@@ -66,21 +55,23 @@ pub(all) struct RunResult {
   error_events : Array[Json]
 }
 
-///| Spawns the `opencode` binary and captures its output.
+///|
+/// Spawns the `opencode` binary and captures its output.
 pub struct OpencodeRunner {
   bin : String
   bin_args : Array[String]
-  timeout_ms : Int
+  timeout_ms : Int32
   env : Map[String, String]
 }
 
-///| Create a runner. `bin` defaults to the `OPENCODE_BIN` environment
+///|
+/// Create a runner. `bin` defaults to the `OPENCODE_BIN` environment
 /// variable or `opencode`.
 pub fn OpencodeRunner::new(
   bin? : String,
-  bin_args? : Array[String] = [],
-  timeout_ms? : Int = 120_000,
-  env? : Map[String, String] = Map([]),
+  bin_args~ : Array[String] = [],
+  timeout_ms~ : Int32 = 120_000,
+  env~ : Map[String, String] = Map([]),
 ) -> OpencodeRunner {
   let resolved = match bin {
     Some(bin) => bin
@@ -90,21 +81,23 @@ pub fn OpencodeRunner::new(
         None => "opencode"
       }
   }
-  { bin: resolved, bin_args, timeout_ms, env }
+  { bin: resolved, bin_args, timeout_ms, env, }
 }
 
-///| The executable this runner invokes.
+///|
+/// The executable this runner invokes.
 pub fn OpencodeRunner::bin(self : OpencodeRunner) -> String {
   self.bin
 }
 
-///| Run an arbitrary `opencode` argument list, writing `stdin` and enforcing a
+///|
+/// Run an arbitrary `opencode` argument list, writing `stdin` and enforcing a
 /// timeout that kills the child process.
 pub async fn OpencodeRunner::call_raw(
   self : OpencodeRunner,
   args : Array[String],
   stdin : String,
-  timeout_ms : Int?,
+  timeout_ms : Int32?,
 ) -> RunResult {
   let limit = match timeout_ms {
     Some(value) => value
@@ -121,7 +114,7 @@ pub async fn OpencodeRunner::call_raw(
   let (err_read, err_write) = @process.read_from_process()
   let mut timed_out = false
   let mut spawn_error : String? = None
-  let mut exit_code : Int? = None
+  let mut exit_code : Int32? = None
   let (stdout, stderr) = @async.with_task_group(group => {
     let out_task = group.spawn(() => {
       defer out_read.close()
@@ -172,14 +165,15 @@ pub async fn OpencodeRunner::call_raw(
   }
 }
 
-///| Invoke `opencode run --format json` for one translation prompt.
+///|
+/// Invoke `opencode run --format json` for one translation prompt.
 pub async fn OpencodeRunner::call_once(
   self : OpencodeRunner,
   prompt : String,
   stdin : String,
   model : String?,
   agent : String?,
-  timeout_ms : Int?,
+  timeout_ms : Int32?,
 ) -> RunResult {
   let args : Array[String] = ["run", "--format", "json"]
   match model {
@@ -204,23 +198,12 @@ pub async fn OpencodeRunner::call_once(
   self.call_raw(args, stdin, timeout_ms)
 }
 
-///| A runner able to execute `opencode` invocations. The trait lets tests
+///|
+/// A runner able to execute `opencode` invocations. The trait lets tests
 /// inject a stub without spawning a process.
 pub(open) trait Runner {
-  async fn run_raw(
-    Self,
-    Array[String],
-    String,
-    Int?,
-  ) -> RunResult
-  async fn run_once(
-    Self,
-    String,
-    String,
-    String?,
-    String?,
-    Int?,
-  ) -> RunResult
+  async fn run_raw(Self, Array[String], String, Int32?) -> RunResult
+  async fn run_once(Self, String, String, String?, String?, Int32?) -> RunResult
 }
 
 ///|

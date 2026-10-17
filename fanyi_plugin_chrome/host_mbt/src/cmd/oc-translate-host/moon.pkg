@@ -1,8 +1,8 @@
 import {
   "fanyi/oc-translate-host" @host,
-  "moonbitlang/async" @async,
-  "moonbitlang/async/stdio" @stdio,
-  "moonbitlang/core/env" @env,
+  "moonbitlang/async",
+  "moonbitlang/async/stdio",
+  "moonbitlang/core/env",
 }
 
 pkgtype(kind: "executable")

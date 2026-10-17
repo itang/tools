@@ -1,10 +1,10 @@
 import {
-  "moonbitlang/async" @async,
-  "moonbitlang/async/fs" @fs,
-  "moonbitlang/async/process" @process,
-  "moonbitlang/async/semaphore" @semaphore,
-  "moonbitlang/core/buffer" @buffer,
-  "moonbitlang/core/encoding/utf8" @utf8,
-  "moonbitlang/core/env" @env,
-  "moonbitlang/core/json" @json,
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/process",
+  "moonbitlang/async/semaphore",
+  "moonbitlang/core/buffer",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
 }

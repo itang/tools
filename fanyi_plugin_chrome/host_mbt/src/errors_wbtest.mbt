@@ -28,10 +28,7 @@ test "region error maps to MODEL_UNAVAILABLE" {
 
 ///|
 test "authentication error maps to AUTH_REQUIRED" {
-  let event = Json::object({
-    "type": Json::string("provider.auth"),
-    "message": Json::string("Unauthorized"),
-  })
+  let event : Json = { "type": "provider.auth", "message": "Unauthorized" }
   let result = failed_result(Some(1), "", [event])
   debug_inspect(
     map_opencode_failure(result).unwrap().code().name(),

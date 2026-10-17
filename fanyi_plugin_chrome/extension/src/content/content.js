@@ -9,7 +9,7 @@ import { messageForCode } from "../shared/constants.js";
 import { isSiteEnabled, loadSettings } from "../shared/settings.js";
 import { isTranslatableText, normalizeText } from "./extract.js";
 import { hasTranslations, insertTranslation, revertAll } from "./render.js";
-import { collectUnits, hashText, unitForElement } from "./units.js";
+import { collectUnits, unitForElement, unitKey } from "./units.js";
 import { createStatusUI } from "./status-ui.js";
 
 const ANCHOR_SELECTOR = "p,li,div,blockquote,article,section,h1,h2,h3,h4,h5,h6,span,td";
@@ -83,7 +83,7 @@ async function translateUnits(units) {
 
   for (let offset = 0; offset < units.length; offset += batchSize) {
     const batch = units.slice(offset, offset + batchSize);
-    const segments = batch.map((unit, index) => ({ index, text: unit.text }));
+    const segments = batch.map((unit, index) => ({ index, text: unit.segment }));
     status.progress(offset, units.length);
 
     const response = await requestHost({ type: "translate", segments, options: buildOptions() });
@@ -98,7 +98,7 @@ async function translateUnits(units) {
       if (!unit.element.isConnected) continue;
       const result = byIndex.get(index);
       if (result?.text) {
-        insertTranslation(document, unit.element, result.text, { inline: unit.inline });
+        insertTranslation(document, unit.element, result.text, { inline: unit.inline, markers: unit.markers });
         translated += 1;
       }
       // Record success and failure alike so the observer never loops on a
@@ -161,7 +161,7 @@ async function translateSelection() {
     }
     const anchor = element.closest?.(ANCHOR_SELECTOR) || element;
     insertTranslation(document, anchor, translation, { inline: false });
-    state.processed.set(anchor, hashText(normalizeText(anchor.textContent)));
+    state.processed.set(anchor, unitKey(anchor));
     status.show("已翻译选中内容");
   } finally {
     state.translating = false;

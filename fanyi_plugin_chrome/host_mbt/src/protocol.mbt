@@ -4,18 +4,22 @@
 /// Chrome limits host -> extension frames to 1 MB, so responses may be split
 /// across multiple frames (see `framing.mbt` / `server.mbt`).
 
-///| Maximum size of a single frame the host may send to the extension (1 MB).
-pub const MAX_FRAME_BYTES : Int = 1024 * 1024
+///|
+/// Maximum size of a single frame the host may send to the extension (1 MB).
+pub const MAX_FRAME_BYTES : Int32 = 1024 * 1024
 
-///| Host protocol version; bumped on incompatible frame changes.
-pub const PROTOCOL_VERSION : Int = 1
+///|
+/// Host protocol version; bumped on incompatible frame changes.
+pub const PROTOCOL_VERSION : Int32 = 1
 
-///| Model used when a request does not carry one (override with the
+///|
+/// Model used when a request does not carry one (override with the
 /// `TRANSLATE_MODEL` environment variable; set it to an empty string to let
 /// opencode pick its own default).
 pub let default_model : String = "opencode/deepseek-v4.1-flash-free"
 
-///| Stable set of error codes returned to the extension.
+///|
+/// Stable set of error codes returned to the extension.
 pub(all) enum ErrorCode {
   OpencodeMissing
   AuthRequired
@@ -26,7 +30,8 @@ pub(all) enum ErrorCode {
   BadRequest
 }
 
-///| The wire spelling of an error code (also used in response frames).
+///|
+/// The wire spelling of an error code (also used in response frames).
 pub fn ErrorCode::name(self : ErrorCode) -> String {
   match self {
     OpencodeMissing => "OPENCODE_MISSING"
@@ -39,43 +44,49 @@ pub fn ErrorCode::name(self : ErrorCode) -> String {
   }
 }
 
-///| A single source segment to translate.
+///|
+/// A single source segment to translate.
 pub(all) struct TranslateSegment {
-  index : Int
+  index : Int32
   text : String
 }
 
-///| Options attached to a `translate` request.
+///|
+/// Options attached to a `translate` request.
 pub(all) struct TranslateOptions {
   target_lang : String
   model : String
   agent : String?
-  timeout_ms : Int?
+  timeout_ms : Int32?
 }
 
-///| Progress reported while a batch request runs.
+///|
+/// Progress reported while a batch request runs.
 pub(all) struct Progress {
   phase : String
-  completed : Int
-  total : Int
+  completed : Int32
+  total : Int32
 }
 
-///| One per-segment translation outcome: either `text` or `error` is set.
+///|
+/// One per-segment translation outcome: either `text` or `error` is set.
 pub(all) struct TranslationResult {
-  index : Int
+  index : Int32
   text : String?
   error : ErrorCode?
 }
 
-///| A successful translation result.
-pub fn TranslationResult::ok(index : Int, text : String) -> TranslationResult {
-  { index, text: Some(text), error: None }
+///|
+/// A successful translation result.
+pub fn TranslationResult::ok(index : Int32, text : String) -> TranslationResult {
+  { index, text: Some(text), error: None, }
 }
 
-///| A failed translation result carrying a stable error code.
+///|
+/// A failed translation result carrying a stable error code.
 pub fn TranslationResult::failed(
-  index : Int,
+  index : Int32,
   error : ErrorCode,
 ) -> TranslationResult {
-  { index, text: None, error: Some(error) }
+  { index, text: None, error: Some(error), }
 }

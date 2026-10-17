@@ -79,9 +79,13 @@ Request:
 
 ```json
 { "id": "1", "type": "translate",
-  "segments": [{ "index": 0, "text": "Hello world" }],
+  "segments": [{ "index": 0, "text": "Read [[0]]this[[/0]] now" }],
   "options": { "targetLang": "zh-CN", "model": "opencode/...", "agent": "translator" } }
 ```
+
+`segments[].text` may carry inline-structure markers (`[[n]]`/`[[/n]]`, `{{n}}`,
+`{{br}}`). The host treats them as plain text: it transports them untouched and
+instructs the model to preserve them verbatim. See `docs/content-script.md`.
 
 Responses (one or more frames per request id):
 

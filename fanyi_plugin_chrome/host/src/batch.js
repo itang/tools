@@ -12,6 +12,9 @@ export function buildInstruction(targetLang) {
   return [
     "You are a translation engine.",
     `Translate the "text" field of every item in the JSON array provided on stdin into ${targetLang}.`,
+    "Some texts contain markup tokens: [[n]] and [[/n]] wrap an inline element, {{n}} is an opaque node, {{br}} is a line break.",
+    "Keep every token byte-for-byte, in the same order; never translate, drop, renumber, duplicate or add tokens.",
+    "Translate only the natural language between tokens.",
     "Preserve proper nouns, @handles, #hashtags, URLs, numbers and code as-is.",
     "Do not translate text that is already in the target language.",
     'Respond with ONLY a JSON object mapping each item index (as a string) to its translation, e.g. {"0":"...","1":"..."}.',

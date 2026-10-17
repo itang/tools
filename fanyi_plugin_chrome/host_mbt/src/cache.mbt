@@ -1,6 +1,7 @@
 ///| Translation result cache with LRU eviction.
 
-///| Collapse whitespace so cosmetic differences share a cache entry.
+///|
+/// Collapse whitespace so cosmetic differences share a cache entry.
 pub fn normalize_text(text : String) -> String {
   let sb = StringBuilder()
   let mut started = false
@@ -22,7 +23,8 @@ pub fn normalize_text(text : String) -> String {
   sb.to_string()
 }
 
-///| Stable content hash (FNV-1a, 64-bit, rendered as hexadecimal) for a
+///|
+/// Stable content hash (FNV-1a, 64-bit, rendered as hexadecimal) for a
 /// normalized string.
 pub fn hash_text(text : String) -> String {
   let mut hash : UInt64 = 0xcbf29ce484222325
@@ -32,33 +34,39 @@ pub fn hash_text(text : String) -> String {
   hash.to_string(radix=16)
 }
 
-///| Cache key for one (language, model, text) triple.
+///|
+/// Cache key for one (language, model, text) triple.
 pub fn cache_key(target_lang : String, model : String, text : String) -> String {
   target_lang + "\u{0000}" + model + "\u{0000}" + hash_text(text)
 }
 
-///| A least-recently-used cache mapping cache keys to translations.
+///|
+/// A least-recently-used cache mapping cache keys to translations.
 pub struct LruCache {
-  max : Int
+  max : Int32
   map : Map[String, String]
 }
 
-///| Create an LRU cache holding at most `max` entries.
-pub fn LruCache::new(max : Int) -> LruCache {
-  { max: if max < 1 { 1 } else { max }, map: Map([]) }
+///|
+/// Create an LRU cache holding at most `max` entries.
+pub fn LruCache::new(max : Int32) -> LruCache {
+  { max: if max < 1 { 1 } else { max }, map: Map([]), }
 }
 
-///| Number of cached entries.
-pub fn LruCache::size(self : LruCache) -> Int {
+///|
+/// Number of cached entries.
+pub fn LruCache::size(self : LruCache) -> Int32 {
   self.map.length()
 }
 
-///| Whether a key is present (without refreshing its recency).
+///|
+/// Whether a key is present (without refreshing its recency).
 pub fn LruCache::has(self : LruCache, key : String) -> Bool {
   self.map.contains(key)
 }
 
-///| Look up a key, refreshing its recency on a hit.
+///|
+/// Look up a key, refreshing its recency on a hit.
 pub fn LruCache::get(self : LruCache, key : String) -> String? {
   match self.map.get(key) {
     Some(value) => {
@@ -70,12 +78,9 @@ pub fn LruCache::get(self : LruCache, key : String) -> String? {
   }
 }
 
-///| Insert a key/value pair, evicting the least recently used entries.
-pub fn LruCache::set(
-  self : LruCache,
-  key : String,
-  value : String,
-) -> Unit {
+///|
+/// Insert a key/value pair, evicting the least recently used entries.
+pub fn LruCache::set(self : LruCache, key : String, value : String) -> Unit {
   self.map.remove(key)
   self.map.set(key, value)
   while self.map.length() > self.max {

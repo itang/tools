@@ -13,7 +13,9 @@ test "cache key distinguishes target language and model" {
   assert_true(
     cache_key("zh-CN", "m1", "hello") != cache_key("en", "m1", "hello"),
   )
-  assert_true(cache_key("zh-CN", "m1", "a  b") == cache_key("zh-CN", "m1", "a b"))
+  assert_true(
+    cache_key("zh-CN", "m1", "a  b") == cache_key("zh-CN", "m1", "a b"),
+  )
 }
 
 ///|

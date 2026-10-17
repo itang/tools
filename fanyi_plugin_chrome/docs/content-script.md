@@ -5,12 +5,32 @@
 
 ## 翻译单元的选择
 
-脚本用 `TreeWalker` 遍历所有文本节点，对每个文本节点向上找到最近的「翻译单元」元素
-（`extension/src/content/units.js` 的 `chooseUnit`）：从 `parentElement` 起，向上寻找第一个
-`BLOCK_TAGS` 中的标签。`BLOCK_TAGS` 既包含块级标签（`P`/`DIV`/`LI`/`H1..H6`/`BLOCKQUOTE`/
-`ARTICLE`/`SECTION`/`TD`…），也包含常见内联容器（`SPAN`/`A`/`EM`/`STRONG`…），因此会尽量选到最内层的容器。
+脚本用 `TreeWalker` 遍历文本节点，对每个文本节点向上找到最近的「翻译单元」元素
+（`extension/src/content/units.js` 的 `chooseUnit`）：
 
-若元素标签属于 `INLINE_TAGS`，其译文以 `inline-block` 内联展示，否则以块级展示。
+- 优先取最近的**块级**祖先（`BLOCK_TAGS`：`P`/`DIV`/`LI`/`TD`/`TH`/`BLOCKQUOTE`/`H1..H6`/
+  `ARTICLE`/`SECTION`/`FIGCAPTION`/`DD`/`DT`/`SUMMARY`）；
+- 若没有任何块级祖先（裸内联文本），退回最外层内联容器（`INLINE_TAGS`）。
+
+块内的内联容器（`SPAN`/`B`/`EM`/`A`/`CODE`…）不再各自成为单元，而是作为该块的**结构标记**
+参与翻译（见下节），因此一个块只翻译一次，不会重复。
+
+若单元标签属于 `INLINE_TAGS`，其译文以 `inline-block` 内联展示，否则以块级展示。
+
+## 结构标记（保留原文格式）
+
+`extension/src/content/markup.js` 在发送前把块级单元序列化成保留内联结构的字符串：
+
+- `[[n]] … [[/n]]`：第 `n` 个可翻译内联元素（`<b>`/`<em>`/`<a>`/`<span>`…），内部文本参与翻译；
+- `{{n}}`：第 `n` 个原样保留的内联节点（如 `<code>`/`<pre>`），不翻译；
+- `{{br}}`：换行（`<br>`）。
+
+嵌套的块级元素**不**纳入内联标记：它们是各自的翻译单元，因此段落/列表项/表格单元格各自成段，
+父单元不会重复翻译子块文本。若文本本身已含有 `[[` 或 `{{`，该单元退回纯文本发送。
+
+主机提示词要求模型逐字保留这些标记及其顺序；渲染时 `render.js` 的 `parseMarked` 依据标记，
+用原始元素（连同 `class`/`style`/`href` 等属性）克隆出结构一致的 DOM。若模型丢弃或打乱了标记，
+自动退回纯文本渲染，译文不会丢失。
 
 ## 跳过规则
 
@@ -27,12 +47,15 @@
 
 `extension/src/content/render.js`：
 
-- `insertTranslation` 在原文元素**之后**插入一个 `<oc-translation>` 兄弟节点，使用
-  `attachShadow({ mode: "open" })` 隔离样式（站点 CSS 与译文字体/颜色互不影响），并给原文元素
-  标记 `data-oc-done`。
+- `insertTranslation` 给原文元素标记 `data-oc-done`，并渲染一个 `<oc-translation>` 节点：
+  - **块级单元**：译文节点追加在单元**内部**（`element.append`），从而继承列表编号、单元格对齐、
+    缩进等块级布局；
+  - **内联单元**：作为 `inline-block` 兄弟节点插入原文**之后**。
+- 译文内容位于 `attachShadow({ mode: "open" })` 内，隔离站点 CSS；影子树中按结构标记还原内联结构
+  （`b`/`em`/`a`/`br`…），译文的排版与原文结构保持一致。
 - 原文**不会**被替换或删除。
 - `revertAll` 移除所有 `[data-oc-trans]` 节点并清除 `data-oc-done` 标记。
-- 对应测试：`extension/test/render.test.js`。
+- 对应测试：`extension/test/render.test.js`、`extension/test/markup.test.js`。
 
 ## 去重与动态内容
 
