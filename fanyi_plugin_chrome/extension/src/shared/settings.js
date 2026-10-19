@@ -2,7 +2,10 @@
 
 import { DEFAULT_BATCH_SIZE, DEFAULT_MODEL, DEFAULT_TARGET_LANG } from "./constants.js";
 
+export const BACKENDS = Object.freeze(["opencode", "youdao"]);
+
 export const DEFAULT_SETTINGS = Object.freeze({
+  backend: "opencode",
   model: DEFAULT_MODEL,
   agent: "",
   targetLang: DEFAULT_TARGET_LANG,
@@ -23,6 +26,7 @@ export function normalizeSettings(stored) {
   };
   if (!stored || typeof stored !== "object") return base;
 
+  if (BACKENDS.includes(stored.backend)) base.backend = stored.backend;
   if (typeof stored.model === "string") base.model = stored.model.trim();
   if (typeof stored.agent === "string") base.agent = stored.agent.trim();
   if (typeof stored.targetLang === "string" && stored.targetLang.trim()) {

@@ -8,9 +8,36 @@ import { HOST_NAME } from "./shared/constants.js";
 import { MSG } from "./shared/messages.js";
 import { createFrameAccumulator } from "./shared/host-frames.js";
 import { enabledOrigins, loadSettings } from "./shared/settings.js";
+import { createYoudaoClient } from "./shared/youdao.js";
 
 const CONTENT_SCRIPT_ID = "oc-translate-content";
 const CONTENT_FILE = "content.js";
+
+// --- Youdao backend (no native host needed) ----------------------------------
+
+/** @type {ReturnType<typeof createYoudaoClient> | null} */
+let youdaoClient = null;
+
+async function ensureYoudaoClient() {
+  if (youdaoClient) return youdaoClient;
+  const stored = await chrome.storage.local.get("youdaoUuid");
+  let uuid = typeof stored.youdaoUuid === "string" && stored.youdaoUuid ? stored.youdaoUuid : "";
+  if (!uuid) {
+    uuid = crypto.randomUUID().replaceAll("-", "");
+    await chrome.storage.local.set({ youdaoUuid: uuid });
+  }
+  youdaoClient = createYoudaoClient({ uuid });
+  return youdaoClient;
+}
+
+async function youdaoRequest(request, onProgress) {
+  const client = await ensureYoudaoClient();
+  if (request.type === "translate") {
+    return client.translateSegments(request.segments || [], request.options?.targetLang, onProgress);
+  }
+  if (request.type === "health") return client.health();
+  return { error: { code: "BAD_REQUEST", message: `未知请求类型：${request.type}` } };
+}
 
 // --- Native messaging client -------------------------------------------------
 
@@ -100,7 +127,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   };
 
-  hostRequest(message.request, onProgress)
+  const dispatch = (async () => {
+    const settings = await loadSettings();
+    if (settings.backend === "youdao") return youdaoRequest(message.request, onProgress);
+    return hostRequest(message.request, onProgress);
+  })();
+
+  dispatch
     .then((result) => {
       setBadge(tabId, "");
       sendResponse(result);

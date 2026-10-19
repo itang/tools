@@ -6,6 +6,7 @@ import { loadSettings, saveSettings } from "../shared/settings.js";
 
 const els = {
   form: document.getElementById("settings"),
+  backend: document.getElementById("backend"),
   model: document.getElementById("model"),
   agent: document.getElementById("agent"),
   targetLang: document.getElementById("targetLang"),
@@ -81,6 +82,7 @@ async function setSite(host, enabled) {
 
 async function render() {
   const settings = await loadSettings();
+  els.backend.value = settings.backend;
   els.model.value = settings.model;
   els.agent.value = settings.agent;
   els.targetLang.value = settings.targetLang;
@@ -91,6 +93,7 @@ async function render() {
 els.form.addEventListener("submit", async (event) => {
   event.preventDefault();
   await saveSettings({
+    backend: els.backend.value,
     model: els.model.value,
     agent: els.agent.value,
     targetLang: els.targetLang.value,
@@ -110,9 +113,15 @@ els.addSite.addEventListener("click", async () => {
 
 els.check.addEventListener("click", async () => {
   els.status.textContent = "检查中…";
+  const settings = await loadSettings();
   const result = await requestHost({ type: "health" });
   if (result.error) {
-    els.status.textContent = `本地主机不可用：${messageForCode(result.error.code)}\n${result.error.message ?? ""}`;
+    const label = settings.backend === "youdao" ? "有道接口不可用" : "本地主机不可用";
+    els.status.textContent = `${label}：${messageForCode(result.error.code)}\n${result.error.message ?? ""}`;
+    return;
+  }
+  if (settings.backend === "youdao") {
+    els.status.textContent = `有道接口：${result.health?.youdao?.ok ? "可用" : "不可用"}`;
     return;
   }
   const { host, opencode } = result.health;

@@ -29,6 +29,8 @@ export const ERROR_MESSAGES = Object.freeze({
   HOST_ERROR: "本地翻译服务出错。",
   BAD_REQUEST: "翻译请求格式错误。",
   HOST_UNAVAILABLE: "无法连接本地翻译主机，请先运行安装任务：nu justfile.nu install-host",
+  YOUDAO_FAILED: "有道翻译接口请求失败，请稍后重试。",
+  YOUDAO_UNAVAILABLE: "无法访问有道翻译接口，请检查网络或稍后重试。",
 });
 
 /** Map an error code to a localised message. */

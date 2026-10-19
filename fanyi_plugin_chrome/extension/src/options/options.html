@@ -27,12 +27,20 @@
   <body>
     <h1>opencode 网页翻译</h1>
     <p class="muted">
-      翻译通过本地 <code>opencode run</code> 命令完成。页面文本只会经你在 opencode 中配置的 provider 传输，扩展本身不发送任何数据到其他服务器。
+      默认通过本地 <code>opencode run</code> 命令完成翻译：页面文本只会经你在 opencode 中配置的 provider 传输，扩展本身不发送任何数据到其他服务器。
+      也可以在下方切换到「有道翻译」引擎：请求由扩展直接转发到 fanyi.youdao.com 的公开网页接口，无需安装本地主机。
     </p>
 
     <form id="settings">
       <label>
-        模型（留空使用 opencode 默认模型）
+        翻译引擎
+        <select id="backend">
+          <option value="opencode">本地 opencode（默认，经 native host）</option>
+          <option value="youdao">有道翻译（在线接口，无需本地主机）</option>
+        </select>
+      </label>
+      <label>
+        模型（留空使用 opencode 默认模型；仅有道引擎时忽略）
         <input id="model" type="text" placeholder="opencode/deepseek-v4.1-flash-free" />
       </label>
       <label>
@@ -67,7 +75,7 @@
     <section>
       <h2>诊断</h2>
       <div class="row">
-        <button type="button" id="check" class="secondary">检查本地主机与 opencode</button>
+        <button type="button" id="check" class="secondary">检查当前引擎可用性</button>
       </div>
       <pre id="status" class="muted">尚未检查。</pre>
     </section>

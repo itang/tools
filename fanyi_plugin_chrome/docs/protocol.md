@@ -13,9 +13,9 @@ options 页（设置 + 诊断）
 ```
 
 - **content script**：收集页面文本、内联插入译文、监听动态内容、撤销。
-- **service worker**：持有原生消息端口，转发请求与进度，注册右键菜单/快捷键/工具栏动作，按设置动态注册内容脚本。
+- **service worker**：持有原生消息端口，转发请求与进度，注册右键菜单/快捷键/工具栏动作，按设置动态注册内容脚本。按设置的 `backend` 分发：`opencode`（默认）走原生主机；`youdao` 时直接 `fetch` 有道网页接口（`extension/src/shared/youdao.js`），返回同样的 `{translations}` / `{error}` 形状，不经过 host。
 - **native host**（`host/`、`host_mbt/`、`host_rs/`）：三个等价的实现（Bun/JS、MoonBit、Rust），批量调用 `opencode run --format json`，做缓存、排队、错误映射与分帧。
-- **options 页**：设置模型/目标语言/批量大小/启用站点，并展示主机与 opencode 状态。
+- **options 页**：设置引擎/模型/目标语言/批量大小/启用站点，并展示当前引擎状态。
 
 ## 帧格式
 
@@ -73,6 +73,8 @@ options 页（设置 + 诊断）
 | `HOST_ERROR` | 其它 opencode 失败或主机内部错误 |
 | `BAD_REQUEST` | 请求格式错误或类型未知 |
 | `HOST_UNAVAILABLE` | 扩展侧无法连接本地主机（非主机返回，由扩展产生） |
+| `YOUDAO_FAILED` | 有道引擎请求失败（由扩展产生，见 `docs/settings.md`） |
+| `YOUDAO_UNAVAILABLE` | 有道引擎无法取得接口密钥（由扩展产生） |
 
 ## 主机环境变量
 
