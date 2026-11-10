@@ -1,0 +1,8 @@
+.nsh/
+target/
+dist/
+
+.scratch/
+
+_build/
+.mooncakes/

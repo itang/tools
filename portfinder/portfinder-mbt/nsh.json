@@ -1,0 +1,13 @@
+{
+  "name": "portradar",
+  "id": "com.example.portradar",
+  "icon": "assets/icon.png",
+  "version": "1.0.0",
+  "build": 1,
+  "capabilities": {
+    "process": {
+      "execute": ["powershell", "ss", "lsof", "ps", "taskkill", "kill"]
+    },
+    "clipboard": true
+  }
+}

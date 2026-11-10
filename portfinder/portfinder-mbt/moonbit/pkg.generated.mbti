@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "testnsh/portfinder_ui"
+
+// Values
+pub fn app(Host) -> Node
+
+// Errors
+
+// Types and methods
+#external
+pub type Host
+
+#external
+pub type Node
+
+#external
+pub type Signal
+
+// Type aliases
+
+// Traits
