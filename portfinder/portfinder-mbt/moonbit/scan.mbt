@@ -11,9 +11,7 @@ priv struct Entry {
 // `port`. The address uses `$($a)` rather than `${a}` so the script has no
 // `${` sequence, which the JS backend would read as its own interpolation.
 fn windows_port_script(port : Int) -> String {
-  "$OutputEncoding=[Console]::OutputEncoding=[Text.Encoding]::UTF8; $p=" +
-  port.to_string() +
-  ";\n" +
+  "$OutputEncoding=[Console]::OutputEncoding=[Text.Encoding]::UTF8; $p=\{port};\n" +
   (
     #|Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $n=''; try { $n=(Get-Process -Id $_.OwningProcess -ErrorAction Stop).ProcessName } catch {}; $a=$_.LocalAddress; if ($a.Contains(':')) { $a='[' + $a + ']' }; "$n|$($_.OwningProcess)|TCP|Listen|$($a):$($_.LocalPort)" };
     #|Get-NetUDPEndpoint -LocalPort $p -ErrorAction SilentlyContinue | ForEach-Object { $n=''; try { $n=(Get-Process -Id $_.OwningProcess -ErrorAction Stop).ProcessName } catch {}; $a=$_.LocalAddress; if ($a.Contains(':')) { $a='[' + $a + ']' }; "$n|$($_.OwningProcess)|UDP||$($a):$($_.LocalPort)" }; exit 0
@@ -22,15 +20,11 @@ fn windows_port_script(port : Int) -> String {
 
 // Splits one line of `lsof`/`ss` output into its non-empty fields.
 fn words(line : StringView) -> Array[StringView] {
-  let fields : Array[StringView] = []
-  for chunk in line.split(" ") {
-    for part in chunk.split("\t") {
-      if !part.is_empty() {
-        fields.push(part)
-      }
-    }
-  }
-  fields
+  line
+    .split(" ")
+    .flat_map(fn(chunk) { chunk.split("\t") })
+    .filter(fn(part) { !part.is_empty() })
+    .to_array()
 }
 
 // True when `addr` names `port` (`*:8080`, `0.0.0.0:8080`, `[::1]:8080`).
@@ -52,15 +46,7 @@ fn lsof_entries(text : String, port : Int) -> Array[Entry] {
       continue
     }
     let fields = words(line)
-    let mut proto_at = -1
-    let mut index = 0
-    for field in fields {
-      if field == "TCP" || field == "UDP" {
-        proto_at = index
-        break
-      }
-      index = index + 1
-    }
+    let proto_at = fields.search_by(fn(field) { field == "TCP" || field == "UDP" }).unwrap_or(-1)
     if proto_at < 0 || proto_at + 1 >= fields.length() {
       continue
     }
@@ -70,7 +56,7 @@ fn lsof_entries(text : String, port : Int) -> Array[Entry] {
     }
     entries.push({
       name: fields[0].to_owned(),
-      pid: if fields.length() > 1 { parse_number(fields[1]) } else { 0 },
+      pid: parse_number(fields[1]),
       proto: fields[proto_at].to_owned(),
       addr,
     })
@@ -144,16 +130,9 @@ fn Host::run_quiet(
 
 // The macOS/Linux fallback: TCP listeners and UDP bindings from lsof.
 fn Host::scan_lsof(self : Host, port : Int, done : (Array[Entry]) -> Unit) -> Unit {
-  let entries : Array[Entry] = []
   self.run_quiet("lsof", ["-nP", "-iTCP:\{port}", "-sTCP:LISTEN"], 8000, fn(tcp) {
     self.run_quiet("lsof", ["-nP", "-iUDP:\{port}"], 8000, fn(udp) {
-      for entry in lsof_entries(tcp, port) {
-        entries.push(entry)
-      }
-      for entry in lsof_entries(udp, port) {
-        entries.push(entry)
-      }
-      done(entries)
+      done(lsof_entries(tcp, port) + lsof_entries(udp, port))
     })
   })
 }

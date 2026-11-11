@@ -5,7 +5,7 @@
 ## 环境要求
 
 - Windows 10 1809 及以上 / Windows 11，WebView2 Runtime（Windows 11 自带）
-- [nsh](https://nsh.run) 0.4.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）
+- [nsh](https://nsh.run) 0.5.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）
 - MoonBit 工具链（`moon`）
 - 生成安装包使用 Windows 自带的 IExpress，无需额外安装
 
@@ -67,7 +67,7 @@ dist\PortRadarSetup-1.0.0.exe /Q
 ```
 App.tsx              入口：把 nsh:rt、process、nsh/base、nsh/desktop 注入 MoonBit app
 assets/icon.png      应用图标（同时嵌入 exe 与安装包快捷方式）
-nsh.json             应用名、id、版本、图标和 process / clipboard 能力清单
+nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）和能力清单
 moonbit/             MoonBit 实现
   app.mbt            界面、查询、过滤与交互
   scan.mbt           进程/端口扫描与命令解析
@@ -86,7 +86,8 @@ dist/                安装包产物（不提交）
 - 清空：把端口和名称两个条件一起清空，端口占用提示栏随之隐藏，列表刷新为无条件全量数据。
 - 检查器中的路径可直接拖选复制，右侧「复制」按钮一键写入剪贴板。
 - 列表支持按进程、PID、端口、CPU、内存、运行时长排序；「结束」会弹出确认框，确认后才结束进程。
-- 权限：`nsh.json` 的 `capabilities.process.execute` 只放行了 `powershell`、`ss`、`lsof`、`ps`、`taskkill`、`kill` 这些扫描与结束进程所需的命令；`capabilities.clipboard` 仅用于复制路径。
+- 窗口：标题、1000×720 初始尺寸和 44pt 隐藏标题栏写在 `nsh.json` 的 `window` 里；应用自绘标题栏，系统的最小化/最大化/关闭按钮留在右侧。
+- 权限：`nsh.json` 的 `capabilities.process.execute` 只放行了 `powershell`、`ss`、`lsof`、`ps`、`taskkill`、`kill` 这些扫描与结束进程所需的命令；`capabilities.clipboard` 仅用于复制路径；`capabilities.statusBar` 是 nsh 0.5 在声明了 `capabilities` 时应用默认状态栏样式所需，桌面上不影响界面。
 
 ## 开发调试
 

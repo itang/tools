@@ -11,18 +11,7 @@ fn txt(host : Host, class : String, content : String) -> Node {
 }
 
 fn port_list(raw : String) -> String {
-  let mut label = ""
-  for part in raw.split(",") {
-    let port = part.trim().to_owned()
-    if port.is_empty() {
-      continue
-    }
-    if label != "" {
-      label = label + ", "
-    }
-    label = label + port
-  }
-  label
+  raw.split(",").map(fn(part) { part.trim() }).filter(fn(part) { !part.is_empty() }).join(", ")
 }
 
 // A process may listen on TCP and bind UDP at once, so the column says which
@@ -69,25 +58,9 @@ fn addr_family(addr : String) -> String {
   if addr.is_empty() {
     return ""
   }
-  let mut bracket = false
-  let mut colons = 0
-  let mut star = false
-  let mut first = true
-  for char in addr {
-    if first && char == '[' {
-      bracket = true
-    }
-    if char == ':' {
-      colons = colons + 1
-    }
-    if char == '*' {
-      star = true
-    }
-    first = false
-  }
-  if bracket || colons > 1 {
+  if addr.has_prefix("[") || addr.split(":").count() > 2 {
     "IPv6"
-  } else if star {
+  } else if addr.contains("*") {
     ""
   } else {
     "IPv4"
@@ -132,12 +105,7 @@ fn since_label(seconds : Int) -> String {
 }
 
 fn first_port(raw : String) -> Int {
-  let parts = raw.split(",").to_array()
-  if parts.is_empty() {
-    0
-  } else {
-    parse_number(parts[0].trim())
-  }
+  parse_number(raw.split(",").nth(0).unwrap_or("").trim())
 }
 
 fn min_port(proc : ProcessRow) -> Int {
@@ -187,23 +155,13 @@ fn compare_rows(a : ProcessRow, b : ProcessRow, key : String) -> Int {
     "ports" => min_port(a) - min_port(b)
     "cpu" => compare_metric(a.cpu_x10, b.cpu_x10)
     "mem" => compare_metric(a.mem_kb, b.mem_kb)
-    "uptime" => {
-      let order = compare_start(a, b)
-      if order == 0 { 0 } else { -order }
-    }
+    "uptime" => -compare_start(a, b)
     _ => min_port(a) - min_port(b)
   }
 }
 
 fn index_of_pid(rows : Array[ProcessRow], pid : Int) -> Int {
-  let mut index = 0
-  for row in rows {
-    if row.pid == pid {
-      return index
-    }
-    index = index + 1
-  }
-  -1
+  rows.search_by(fn(row) { row.pid == pid }).unwrap_or(-1)
 }
 
 // The rows the query condition leaves: a case-insensitive substring of the
@@ -213,13 +171,7 @@ fn visible_rows(procs : Array[ProcessRow], filter : String) -> Array[ProcessRow]
   if needle.is_empty() {
     return procs
   }
-  let rows : Array[ProcessRow] = []
-  for proc in procs {
-    if proc.name.to_lower().contains(needle) {
-      rows.push(proc)
-    }
-  }
-  rows
+  procs.filter(fn(proc) { proc.name.to_lower().contains(needle) })
 }
 
 // The list's default order (by first port) and the user's sort share one
@@ -237,11 +189,8 @@ fn answer_text(entries : Array[Entry], port : Int) -> String {
   }
   let owners : Array[String] = []
   let pids : Array[Int] = []
-  let mut any_tcp = false
+  let any_tcp = entries.any(fn(entry) { entry.proto == "TCP" })
   for entry in entries {
-    if entry.proto == "TCP" {
-      any_tcp = true
-    }
     if !(pids.contains(entry.pid)) {
       pids.push(entry.pid)
       if entry.name.is_empty() {
@@ -256,17 +205,12 @@ fn answer_text(entries : Array[Entry], port : Int) -> String {
 }
 
 fn address_detail(entries : Array[Entry]) -> String {
-  let items : Array[String] = []
-  for entry in entries {
-    if items.length() < 3 {
-      items.push(entry_short(entry))
-    }
-  }
-  let mut text = items.join(" · ")
+  let text = entries.iter().take(3).map(entry_short).to_array().join(" · ")
   if entries.length() > 3 {
-    text = text + " 等"
+    text + " 等"
+  } else {
+    text
   }
-  text
 }
 
 fn answer_strip(
@@ -287,9 +231,7 @@ fn answer_strip(
   )
   let dot = if status == 3 {
     "w-2 h-2 rounded-full shrink-0 bg-destructive"
-  } else if status == 1 {
-    "w-2 h-2 rounded-full shrink-0 bg-muted-foreground"
-  } else if entries.is_empty() {
+  } else if status == 1 || entries.is_empty() {
     "w-2 h-2 rounded-full shrink-0 bg-muted-foreground"
   } else {
     "w-2 h-2 rounded-full shrink-0 bg-primary"
@@ -749,29 +691,19 @@ fn inspector_view(
     host.append(socket_line, txt(host, "text-xs text-muted-foreground", "监听地址不可用"))
     return box
   }
-  let mut owns_port = false
-  for entry in entries {
-    if entry.pid == proc.pid {
-      owns_port = true
-    }
-  }
+  let owns_port = entries.any(fn(entry) { entry.pid == proc.pid })
   let label = if owns_port { "端口 \{port}" } else { "监听地址" }
   host.append(socket_line, txt(host, "shrink-0 text-xs text-muted-foreground", label))
-  let mut shown = 0
-  for pair in pairs {
-    if shown >= 3 {
-      break
-    }
+  for pair in pairs.iter().take(3) {
     host.append(socket_line, socket_chip(host, pair))
-    shown = shown + 1
   }
-  if pairs.length() > shown {
+  if pairs.length() > 3 {
     host.append(
       socket_line,
       txt(
         host,
         "shrink-0 text-xs text-muted-foreground",
-        "+" + (pairs.length() - shown).to_string(),
+        "+" + (pairs.length() - 3).to_string(),
       ),
     )
   }
@@ -831,9 +763,9 @@ pub fn app(host : Host) -> Node {
   let mut table_name_width = 176
   let mut table_ports_width = 244
 
-  // The app draws its own bar; the platform keeps its caption buttons in
-  // the area `title_bar_metrics` reports (Windows' three, macOS' three).
-  host.set_title_bar(44)
+  // nsh.json hides the system title bar and sets the bar height; the
+  // platform keeps its caption buttons in the area `title_bar_metrics`
+  // reports (Windows' three, macOS' traffic lights).
   let metrics = host.title_bar_metrics()
   let bar_height = if metrics[0] > 0 { metrics[0] } else { 44 }
   let platform = host.platform()
@@ -1213,9 +1145,9 @@ pub fn app(host : Host) -> Node {
   host.append(content, body)
   host.append(root, content)
 
-  // A roomy fixed default; everything below the toolbar stretches with the
-  // window, so a resize or the maximize button gives the table the room.
-  host.set_window_size(1000, 720)
+  // The window opens at nsh.json's size; everything below the toolbar
+  // stretches with it, so a resize or the maximize button gives the table
+  // the room.
   host.on_layout(table_slot, fn(width, height) {
     if width > 0 && height > 0 {
       let (next_height, next_name, next_ports) = table_metrics(width, height)

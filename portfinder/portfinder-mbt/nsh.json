@@ -4,10 +4,16 @@
   "icon": "assets/icon.png",
   "version": "1.0.0",
   "build": 1,
+  "window": {
+    "title": "端口雷达",
+    "defaultSize": { "width": 1000, "height": 720 },
+    "titleBar": { "style": "hidden", "height": 44 }
+  },
   "capabilities": {
     "process": {
       "execute": ["powershell", "ss", "lsof", "ps", "taskkill", "kill"]
     },
-    "clipboard": true
+    "clipboard": true,
+    "statusBar": true
   }
 }

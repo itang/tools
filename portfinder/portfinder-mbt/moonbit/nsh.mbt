@@ -168,22 +168,12 @@ extern "js" fn Host::confirm_destructive(
 extern "js" fn Host::app_icon(self : Host, class : String) -> Node =
   #| (h, class_name) => h.rt.component(h.Image, { src: h.icon, class: class_name })
 
-// The app draws its own title bar: `height` is the bar's height in points,
-// and the platform keeps its own caption buttons in `titleBar()`'s area.
-extern "js" fn Host::set_title_bar(self : Host, height : Int) -> Unit =
-  #| (h, height) => {
-  #|   h.Window.setTitleBar({ style: "hidden", height });
-  #| }
-
 // `[height, left, right]` of the hidden title bar's area, in points.
 extern "js" fn Host::title_bar_metrics(self : Host) -> FixedArray[Int] =
   #| (h) => {
   #|   const t = h.titleBar();
   #|   return [Math.round(t.height), Math.round(t.left), Math.round(t.right)];
   #| }
-
-extern "js" fn Host::set_window_size(self : Host, width : Int, height : Int) -> Unit =
-  #| (h, width, height) => h.Window.setFrame({ size: { width, height } })
 
 // Lets a press on `node` drag the window, as a title bar would.
 extern "js" fn Host::drag_window(self : Host, node : Node) -> Unit =
