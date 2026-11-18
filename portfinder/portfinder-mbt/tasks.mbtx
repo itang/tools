@@ -5,13 +5,10 @@ import { "moonbitlang/core/async" }
 import { "moonbitlang/core/async/process" }
 ---
 
-/// 用 Path::join 拼路径，避免手写平台相关的反斜杠。支持多段，一次拼接。
-fn under(root~: String, parts~: Array[String]) -> String {
-  let mut p = @path.Path(root)
-  for part in parts {
-    p = @path.Path::join(p, @path.Path(part))
-  }
-  p.to_string()
+/// 用 Path::join 拼路径，避免手写平台相关的反斜杠。相对段可直接写 `/` 分隔，
+/// join 会按当前平台归一化（Windows 上变成 `\`）。
+fn under(root~: String, rel~: String) -> String {
+  @path.Path::join(@path.Path(root), @path.Path(rel)).to_string()
 }
 
 /// 检查退出码，非 0 则打印错误并以相同退出码终止。exit 是泛型函数，可直接作为表达式。
@@ -36,7 +33,7 @@ async fn step(label~: String, cmd~: String, args~: Array[String], cwd~: String?)
 
 /// 编译 MoonBit（App.tsx 引用 release 产物，必须用 --release）。label 供各命令标注步骤序号。
 async fn build_moonbit(label~: String, root~: String) -> Unit {
-  step(label~, cmd="moon", args=["build", "--release"], cwd=Some(under(root~, parts=["moonbit"])))
+  step(label~, cmd="moon", args=["build", "--release"], cwd=Some(under(root~, rel="moonbit")))
 }
 
 /// 制作安装包：编译 MoonBit → 跑测试 → 打 nsh 包 → 生成安装程序。
@@ -53,10 +50,10 @@ async fn publish(root~: String) -> Unit {
   step(
     label="[4/4] 生成安装程序",
     cmd="powershell",
-    args=["-ExecutionPolicy", "Bypass", "-File", under(root~, parts=["installer", "make-installer.ps1"])],
+    args=["-ExecutionPolicy", "Bypass", "-File", under(root~, rel="installer/make-installer.ps1")],
     cwd=Some(root),
   )
-  println("完成：安装包位于 \{under(root~, parts=["dist"])}")
+  println("完成：安装包位于 \{under(root~, rel="dist")}")
 }
 
 /// 开发模式：先编译 MoonBit（App.tsx 引用 release 产物），再运行 nsh run，退出码透传。
