@@ -87,7 +87,8 @@ dist/                安装包产物（不提交）
 - 检查器中的路径可直接拖选复制，右侧「复制」按钮一键写入剪贴板。
 - 列表支持按进程、PID、端口、CPU、内存、运行时长排序；「结束」会弹出确认框，确认后才结束进程。
 - 窗口：标题、1000×720 初始尺寸和 44pt 隐藏标题栏写在 `nsh.json` 的 `window` 里；应用自绘标题栏，系统的最小化/最大化/关闭按钮留在右侧。
-- 权限：`nsh.json` 的 `capabilities.process.execute` 只放行了 `powershell`、`ss`、`lsof`、`ps`、`taskkill`、`kill` 这些扫描与结束进程所需的命令；`capabilities.clipboard` 仅用于复制路径；`capabilities.statusBar` 是 nsh 0.5 在声明了 `capabilities` 时应用默认状态栏样式所需，桌面上不影响界面。
+- 权限：Windows 下扫描进程、查端口、结束进程都由 Rust 原生实现，不经过命令行，因此 `capabilities.process.execute` 只保留 macOS/Linux 需要的 `ss`、`lsof`、`ps`、`kill`；`capabilities.clipboard` 仅用于复制路径；`capabilities.statusBar` 是 nsh 0.5 在声明了 `capabilities` 时应用默认状态栏样式所需，桌面上不影响界面。
+- SYSTEM 进程与受保护进程的 CPU/内存：以管理员身份运行时会尝试启用 `SeDebugPrivilege` 读取；仍读不到的显示为「受限」（`System`、PPL 进程即使提权也无法读取，这是 Windows 限制）。
 
 ## 开发调试
 

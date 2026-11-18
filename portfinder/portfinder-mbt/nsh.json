@@ -12,7 +12,7 @@
   },
   "capabilities": {
     "process": {
-      "execute": ["powershell", "ss", "lsof", "ps", "taskkill", "kill"]
+      "execute": ["ss", "lsof", "ps", "kill"]
     },
     "clipboard": true,
     "statusBar": true
