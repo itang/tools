@@ -4,6 +4,7 @@
   "icon": "assets/icon.png",
   "version": "1.0.0",
   "build": 1,
+  "rust": ".",
   "window": {
     "title": "端口雷达",
     "defaultSize": { "width": 1000, "height": 720 },

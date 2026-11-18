@@ -48,6 +48,47 @@ extern "js" fn Signal::bump(self : Signal) -> Unit =
   #|   signal.set(signal() + 1);
   #| }
 
+// nsh/base's Progress bar: indeterminate for scans of unknown length. The
+// caller supplies the outer/track/indicator classes so the app owns the look.
+extern "js" fn Host::progress(
+  self : Host,
+  class : String,
+  track_class : String,
+  indicator_class : String,
+) -> Node =
+  #| (h, cls, track, ind) => h.rt.component(h.base.Progress, {
+  #|   class: cls,
+  #|   indeterminate: true,
+  #|   trackClass: track,
+  #|   indicatorClass: ind,
+  #|   accessibilityLabel: "正在处理",
+  #| })
+
+// Native (Rust/Win32) port lookup and process termination on Windows. They
+// replace the old powershell / taskkill child processes. The Rust scanPort
+// resolves with `name|pid|proto|state|addr` lines; killProcess resolves with
+// a boolean for success.
+extern "js" fn Host::native_port(
+  self : Host,
+  port : Int,
+  done : (String) -> Unit,
+  fail : (String) -> Unit,
+) -> Unit =
+  #| (h, port, done, fail) => {
+  #|   h.scanPort(port).then(done, (e) => fail(e && e.message ? e.message : String(e)));
+  #| }
+
+extern "js" fn Host::native_kill(
+  self : Host,
+  pid : Int,
+  done : (Bool) -> Unit,
+  fail : (String) -> Unit,
+) -> Unit =
+  #| (h, pid, done, fail) => {
+  #|   try { done(h.killProcess(pid)) }
+  #|   catch (e) { fail(e && e.message ? e.message : String(e)) }
+  #| }
+
 // `process.run`: the executable plus its arguments, resolved with the exit
 // code and captured output. The lookup commands themselves, their output
 // parsing and every decision around them live in MoonBit; this is only the

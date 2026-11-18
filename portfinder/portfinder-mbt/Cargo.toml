@@ -1,0 +1,11 @@
+[package]
+name = "nsh-app-portradar"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+nsh-core = "0.5.1"
+nsh-base = "0.5.1"

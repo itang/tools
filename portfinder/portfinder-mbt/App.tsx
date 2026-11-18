@@ -6,7 +6,13 @@ import * as base from "nsh/base";
 import { titleBar } from "nsh/desktop";
 import icon from "./assets/icon.png";
 import { app } from "./moonbit/_build/js/release/build/portfinder_ui.js";
+import { Scanner } from "portradar/native";
 
 mount(() =>
-  app({ rt, signal, process, base, platform: platform(), titleBar, List, Image, Clipboard, icon }),
+  app({
+    rt, signal, process, base, platform: platform(), titleBar, List, Image, Clipboard, icon,
+    scan: () => Scanner.scanProcesses(),
+    scanPort: (port: number) => Scanner.scanPort(port),
+    killProcess: (pid: number) => Scanner.killProcess(pid),
+  }),
 );

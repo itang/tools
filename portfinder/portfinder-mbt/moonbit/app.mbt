@@ -31,6 +31,9 @@ fn ports_label(tcp : String, udp : String) -> String {
 }
 
 fn cpu_label(cpu_x10 : Int) -> String {
+  if cpu_x10 == -2 {
+    return "受限"
+  }
   if cpu_x10 < 0 {
     return "—"
   }
@@ -38,6 +41,9 @@ fn cpu_label(cpu_x10 : Int) -> String {
 }
 
 fn mem_label(mem_kb : Int) -> String {
+  if mem_kb == -2 {
+    return "受限"
+  }
   if mem_kb < 0 {
     return "—"
   }
@@ -229,21 +235,31 @@ fn answer_strip(
     "view",
     "min-h-9 flex-row items-center gap-2 rounded-md bg-muted px-3 py-2",
   )
-  let dot = if status == 3 {
-    "w-2 h-2 rounded-full shrink-0 bg-destructive"
-  } else if status == 1 || entries.is_empty() {
-    "w-2 h-2 rounded-full shrink-0 bg-muted-foreground"
-  } else {
-    "w-2 h-2 rounded-full shrink-0 bg-primary"
-  }
-  host.append(strip, el(host, "view", dot))
   if status == 1 {
+    // An indeterminate bar keeps moving while the native port query runs on
+    // a background thread, so the UI stays responsive and the motion is seen.
+    host.append(
+      strip,
+      host.progress(
+        "w-28 shrink-0",
+        "h-1.5 w-full rounded-full bg-border",
+        "h-1.5 w-1/3 rounded-full bg-primary",
+      ),
+    )
     host.append(
       strip,
       txt(host, "flex-1 text-sm text-muted-foreground", "正在查询端口 \{port} …"),
     )
     return strip
   }
+  let dot = if status == 3 {
+    "w-2 h-2 rounded-full shrink-0 bg-destructive"
+  } else if entries.is_empty() {
+    "w-2 h-2 rounded-full shrink-0 bg-muted-foreground"
+  } else {
+    "w-2 h-2 rounded-full shrink-0 bg-primary"
+  }
+  host.append(strip, el(host, "view", dot))
   if status == 3 {
     host.append(
       strip,
@@ -279,6 +295,26 @@ fn table_state(host : Host, message : String, is_error : Bool) -> Node {
     "text-sm text-muted-foreground"
   }
   host.append(box, txt(host, class, message))
+  box
+}
+
+// Loading state for the process table: an indeterminate bar that animates
+// while the native scan runs on a background thread, plus a short label.
+fn table_progress(host : Host, message : String) -> Node {
+  let box = el(
+    host,
+    "view",
+    "h-[140px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background",
+  )
+  host.append(
+    box,
+    host.progress(
+      "w-56",
+      "h-1.5 w-full rounded-full bg-border",
+      "h-1.5 w-1/3 rounded-full bg-primary",
+    ),
+  )
+  host.append(box, txt(host, "text-sm text-muted-foreground", message))
   box
 }
 
@@ -502,7 +538,7 @@ fn list_view(
   on_kill : (ProcessRow) -> Unit,
 ) -> Node {
   if status == 1 {
-    return table_state(host, "正在读取系统进程表 …", false)
+    return table_progress(host, "正在读取系统进程表 …")
   }
   if status == 3 {
     return table_state(host, "进程列表获取失败：\{error}", true)
@@ -796,6 +832,11 @@ pub fn app(host : Host) -> Node {
     proc_sequence = proc_sequence + 1
     let current = proc_sequence
     proc_inflight = proc_inflight + 1
+    // Show the animated loading state for every refresh, not just the first
+    // load, so a manual refresh reports progress until the new rows arrive.
+    proc_status = 1
+    proc_error = ""
+    proc_version.bump()
     host.scan_processes(
       fn(text) {
         proc_inflight = proc_inflight - 1
@@ -828,7 +869,10 @@ pub fn app(host : Host) -> Node {
             proc_status = 3
             proc_version.bump()
           } else {
-            // Keep the rows in view and report the failed refresh beside them.
+            // Keep the rows in view and report the failed refresh beside
+            // them. Restore the loaded state that the refresh switched away.
+            proc_status = 2
+            proc_version.bump()
             notice = "进程列表刷新失败：\{message}"
             notice_version.bump()
           }

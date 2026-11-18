@@ -7,17 +7,6 @@ priv struct Entry {
   addr : String
 }
 
-// The PowerShell lookup: one `name|pid|proto|state|addr` line per listener on
-// `port`. The address uses `$($a)` rather than `${a}` so the script has no
-// `${` sequence, which the JS backend would read as its own interpolation.
-fn windows_port_script(port : Int) -> String {
-  "$OutputEncoding=[Console]::OutputEncoding=[Text.Encoding]::UTF8; $p=\{port};\n" +
-  (
-    #|Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $n=''; try { $n=(Get-Process -Id $_.OwningProcess -ErrorAction Stop).ProcessName } catch {}; $a=$_.LocalAddress; if ($a.Contains(':')) { $a='[' + $a + ']' }; "$n|$($_.OwningProcess)|TCP|Listen|$($a):$($_.LocalPort)" };
-    #|Get-NetUDPEndpoint -LocalPort $p -ErrorAction SilentlyContinue | ForEach-Object { $n=''; try { $n=(Get-Process -Id $_.OwningProcess -ErrorAction Stop).ProcessName } catch {}; $a=$_.LocalAddress; if ($a.Contains(':')) { $a='[' + $a + ']' }; "$n|$($_.OwningProcess)|UDP||$($a):$($_.LocalPort)" }; exit 0
-  )
-}
-
 // Splits one line of `lsof`/`ss` output into its non-empty fields.
 fn words(line : StringView) -> Array[StringView] {
   line
@@ -147,17 +136,9 @@ fn Host::scan_port(
 ) -> Unit {
   let os = self.platform()
   if os == "windows" {
-    self.run_command(
-      "powershell",
-      ["-NoProfile", "-NonInteractive", "-Command", windows_port_script(port)],
-      8000,
-      fn(code, stdout, _stderr) {
-        if code != 0 {
-          fail("系统查询命令失败（退出码 \{code}）")
-        } else {
-          done(parse_entries(stdout))
-        }
-      },
+    self.native_port(
+      port,
+      fn(text) { done(parse_entries(text)) },
       fail,
     )
     return
@@ -189,12 +170,10 @@ fn Host::kill_process(
   fail : (String) -> Unit,
 ) -> Unit {
   if self.platform() == "windows" {
-    self.run_command(
-      "taskkill",
-      ["/PID", "\{pid}", "/F"],
-      8000,
-      fn(code, _stdout, _stderr) {
-        if code == 0 {
+    self.native_kill(
+      pid,
+      fn(ok) {
+        if ok {
           done()
         } else {
           fail("进程可能已退出，或需要更高权限")
@@ -241,8 +220,10 @@ priv struct ProcessRow {
 }
 
 // Lists every process behind a listening TCP socket or UDP endpoint. Windows
-// reads CIM and the performance counters, macOS pairs lsof with ps, Linux
-// pairs ss with ps; a permission limit only empties fields. Rows are
+// uses a native Rust module compiled into the host: it reads the Win32 TCP/UDP
+// tables and process snapshots directly, so no PowerShell or child process is
+// spawned and the nsh process allow-list does not apply. macOS pairs lsof with
+// ps, Linux pairs ss with ps; a permission limit only empties fields. Rows are
 // `pid|name|ppid|path|tcp_ports|udp_ports|started_s|cpu_x10|mem_kb|listeners`,
 // the listeners being `PROTO addr` items joined by `;`.
 extern "js" fn Host::scan_processes(
@@ -281,51 +262,7 @@ extern "js" fn Host::scan_processes(
   #|     );
   #|   const os = h.platform;
   #|   if (os === "windows") {
-  #|     const script = `$OutputEncoding=[Console]::OutputEncoding=[Text.Encoding]::UTF8; $ErrorActionPreference='SilentlyContinue';
-  #| $cores=[Environment]::ProcessorCount; if (-not $cores) { $cores=1 }
-  #| $procs=@{}; Get-CimInstance Win32_Process | ForEach-Object { $procs[[int]$_.ProcessId]=$_ };
-  #| $perf=@{}; Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | ForEach-Object { $perf[[int]$_.IDProcess]=$_.PercentProcessorTime };
-  #| $tcp=@{}; $udp=@{}; $addrs=@{};
-  #| Get-NetTCPConnection -State Listen | ForEach-Object {
-  #|   $k=[int]$_.OwningProcess;
-  #|   if (-not $tcp.ContainsKey($k)) { $tcp[$k]=New-Object System.Collections.Generic.HashSet[int] };
-  #|   if (-not $addrs.ContainsKey($k)) { $addrs[$k]=New-Object System.Collections.Generic.HashSet[string] };
-  #|   [void]$tcp[$k].Add([int]$_.LocalPort);
-  #|   $a=$_.LocalAddress; if ($a.Contains(':')) { $a='[' + $a + ']' };
-  #|   [void]$addrs[$k].Add("TCP $($a):$($_.LocalPort)")
-  #| };
-  #| Get-NetUDPEndpoint | ForEach-Object {
-  #|   $k=[int]$_.OwningProcess;
-  #|   if (-not $udp.ContainsKey($k)) { $udp[$k]=New-Object System.Collections.Generic.HashSet[int] };
-  #|   if (-not $addrs.ContainsKey($k)) { $addrs[$k]=New-Object System.Collections.Generic.HashSet[string] };
-  #|   [void]$udp[$k].Add([int]$_.LocalPort);
-  #|   $a=$_.LocalAddress; if ($a.Contains(':')) { $a='[' + $a + ']' };
-  #|   [void]$addrs[$k].Add("UDP $($a):$($_.LocalPort)")
-  #| };
-  #| $rows=@();
-  #| foreach ($k in (@($tcp.Keys) + @($udp.Keys) | Sort-Object -Unique)) {
-  #|   $c=$procs[$k]; $name=''; $ppid=''; $path=''; $started=''; $mem=''; $cpu='';
-  #|   if ($c) {
-  #|     $name=$c.Name; $ppid=[string]$c.ParentProcessId; $path=$c.ExecutablePath;
-  #|     if ($c.CreationDate) { $started=[string]([DateTimeOffset]$c.CreationDate).ToUnixTimeSeconds() };
-  #|     if ($c.WorkingSetSize) { $mem=[int][math]::Round([double]$c.WorkingSetSize/1024) }
-  #|   };
-  #|   if ($perf.ContainsKey($k)) { $cpu=[int][math]::Round([math]::Min(100.0,[double]$perf[$k]/$cores)*10) };
-  #|   $tl=@(); if ($tcp.ContainsKey($k)) { $tl=@($tcp[$k] | Sort-Object) };
-  #|   $ul=@(); if ($udp.ContainsKey($k)) { $ul=@($udp[$k] | Sort-Object) };
-  #|   $al=@(); if ($addrs.ContainsKey($k)) { $al=@($addrs[$k] | Sort-Object) };
-  #|   $rows += [pscustomobject]@{ pid=$k; name=$name; ppid=$ppid; path=$path; tcp=($tl -join ','); udp=($ul -join ','); started=$started; cpu=$cpu; mem=$mem; addrs=($al -join ';') }
-  #| };
-  #| $rows | Sort-Object { if ($_.tcp) { [int](($_.tcp -split ',')[0]) } else { [int](($_.udp -split ',')[0]) } } | ForEach-Object { "$($_.pid)|$($_.name)|$($_.ppid)|$($_.path)|$($_.tcp)|$($_.udp)|$($_.started)|$($_.cpu)|$($_.mem)|$($_.addrs)" }; exit 0`;
-  #|     h.process
-  #|       .run("powershell", ["-NoProfile", "-NonInteractive", "-Command", script], { timeoutMs: 20000 })
-  #|       .then((out) => {
-  #|         if (out.code !== 0) {
-  #|           fail("系统进程列表查询失败（退出码 " + out.code + "）");
-  #|         } else {
-  #|           done(keep(out.stdout));
-  #|         }
-  #|       }, failed);
+  #|     h.scan().then((text) => done(keep(text)), failed);
   #|     return;
   #|   }
   #|   const run = (name, args) =>
@@ -559,19 +496,31 @@ fn parse_processes(text : String) -> Array[ProcessRow] {
     }
     let fields = line.split("|").to_array()
     if fields.length() >= 10 {
-      let mem = parse_number(fields[8])
-      rows.push({
-        pid: parse_number(fields[0]),
-        name: fields[1].trim().to_owned(),
-        ppid: parse_number(fields[2]),
-        path: fields[3].trim().to_owned(),
-        tcp_ports: fields[4].trim().to_owned(),
-        udp_ports: fields[5].trim().to_owned(),
-        started_s: parse_number(fields[6]),
-        cpu_x10: parse_x10(fields[7]),
-        mem_kb: if mem > 0 { mem } else { -1 },
-        listeners: fields[9].trim().to_owned(),
-      })
+    let mem = parse_number(fields[8])
+    let cpu_text = fields[7].trim()
+    let mem_text = fields[8].trim()
+    // "!" is emitted when a process is visible but its handle cannot be
+    // opened; -2 renders as "受限" instead of the ambiguous "—".
+    let cpu_x10 = if cpu_text == "!" { -2 } else { parse_x10(cpu_text) }
+    let mem_kb = if mem_text == "!" {
+      -2
+    } else if mem > 0 {
+      mem
+    } else {
+      -1
+    }
+    rows.push({
+      pid: parse_number(fields[0]),
+      name: fields[1].trim().to_owned(),
+      ppid: parse_number(fields[2]),
+      path: fields[3].trim().to_owned(),
+      tcp_ports: fields[4].trim().to_owned(),
+      udp_ports: fields[5].trim().to_owned(),
+      started_s: parse_number(fields[6]),
+      cpu_x10: cpu_x10,
+      mem_kb: mem_kb,
+      listeners: fields[9].trim().to_owned(),
+    })
     }
   }
   rows
