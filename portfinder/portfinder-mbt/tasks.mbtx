@@ -1,8 +1,27 @@
 ---
 import { "moonbitlang/core/env" }
+import { "moonbitlang/core/path" }
 import { "moonbitlang/core/async" }
 import { "moonbitlang/core/async/process" }
 ---
+
+/// 用 Path::join 拼路径，避免手写平台相关的反斜杠。支持多段，一次拼接。
+fn under(root~: String, parts~: Array[String]) -> String {
+  let mut p = @path.Path(root)
+  for part in parts {
+    p = @path.Path::join(p, @path.Path(part))
+  }
+  p.to_string()
+}
+
+/// 检查退出码，非 0 则打印错误并以相同退出码终止。exit 是泛型函数，可直接作为表达式。
+fn check_exit(result~: @process.ProcessResult, label~: String) -> Unit {
+  let code = result.exit_code
+  if code != 0 {
+    println("[失败] \{label}（退出码 \{code}）")
+    @env.exit(code)
+  }
+}
 
 /// 执行一步命令：打印命令、继承标准输入输出，失败则以相同退出码终止脚本。
 async fn step(label~: String, cmd~: String, args~: Array[String], cwd~: String?) -> Unit {
@@ -12,16 +31,12 @@ async fn step(label~: String, cmd~: String, args~: Array[String], cwd~: String?)
     Some(dir) => @process.run(cmd, args, cwd=dir)
     None => @process.run(cmd, args)
   }
-  let code = result.exit_code
-  if code != 0 {
-    println("[失败] \{label}（退出码 \{code}）")
-    @env.exit(code)
-  }
+  check_exit(result~, label~)
 }
 
 /// 编译 MoonBit（App.tsx 引用 release 产物，必须用 --release）。label 供各命令标注步骤序号。
 async fn build_moonbit(label~: String, root~: String) -> Unit {
-  step(label~, cmd="moon", args=["build", "--release"], cwd=Some("\{root}\\moonbit"))
+  step(label~, cmd="moon", args=["build", "--release"], cwd=Some(under(root~, parts=["moonbit"])))
 }
 
 /// 制作安装包：编译 MoonBit → 跑测试 → 打 nsh 包 → 生成安装程序。
@@ -38,10 +53,10 @@ async fn publish(root~: String) -> Unit {
   step(
     label="[4/4] 生成安装程序",
     cmd="powershell",
-    args=["-ExecutionPolicy", "Bypass", "-File", "installer\\make-installer.ps1"],
+    args=["-ExecutionPolicy", "Bypass", "-File", under(root~, parts=["installer", "make-installer.ps1"])],
     cwd=Some(root),
   )
-  println("完成：安装包位于 dist\\")
+  println("完成：安装包位于 \{under(root~, parts=["dist"])}")
 }
 
 /// 开发模式：先编译 MoonBit（App.tsx 引用 release 产物），再运行 nsh run，退出码透传。
@@ -50,19 +65,17 @@ async fn dev(root~: String) -> Unit {
   build_moonbit(label="[1/2] 编译 MoonBit (release)", root~)
   println("[2/2] 启动 nsh run（按 Ctrl+C 退出）")
   let result = @process.run("nsh", ["run"], cwd=root)
-  let code = result.exit_code
-  println("nsh run 已退出（退出码 \{code}）")
-  if code != 0 {
-    @env.exit(code)
-  }
+  println("nsh run 已退出（退出码 \{result.exit_code}）")
+  check_exit(result~, label="nsh run")
 }
 
 fn usage() -> Unit {
-  println("PortRadar 任务脚本")
-  println("用法：")
-  println("  moon run tasks.mbtx publish       制作安装包")
-  println("  moon run tasks.mbtx dev           编译 MoonBit 并开发模式下运行")
-  println("  moon run tasks.mbtx build:moonbit 仅编译 MoonBit (release)")
+  let text = #|PortRadar 任务脚本
+    #|用法：
+    #|  moon run tasks.mbtx publish       制作安装包
+    #|  moon run tasks.mbtx dev           编译 MoonBit 并开发模式下运行
+    #|  moon run tasks.mbtx build:moonbit 仅编译 MoonBit (release)
+  println(text)
 }
 
 async fn main {
