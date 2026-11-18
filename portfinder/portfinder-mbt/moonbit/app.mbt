@@ -746,6 +746,50 @@ fn inspector_view(
   box
 }
 
+// The three appearances the app offers: follow the system, always light,
+// always dark. The labels are the user's words; the values are nsh's.
+fn appearance_label(mode : String) -> String {
+  if mode == "light" {
+    "浅色"
+  } else if mode == "dark" {
+    "深色"
+  } else {
+    "自动"
+  }
+}
+
+// A segmented control in the title bar: the current appearance reads as the
+// raised segment, the other two are quiet until hovered. A press picks one.
+fn appearance_switch(host : Host, mode : String, pick : (String) -> Unit) -> Node {
+  let group = el(
+    host,
+    "view",
+    "flex-row items-center gap-0.5 rounded-md border border-border bg-muted/60 p-0.5",
+  )
+  for option in ["system", "light", "dark"] {
+    let active = option == mode
+    let button_class = if active {
+      "rounded bg-primary/15 px-2 py-0.5"
+    } else {
+      "rounded px-2 py-0.5 hover:bg-background/50 active:opacity-90"
+    }
+    let label_class = if active {
+      "text-xs font-medium text-primary"
+    } else {
+      "text-xs text-muted-foreground"
+    }
+    host.append(
+      group,
+      host.button(
+        button_class,
+        txt(host, label_class, appearance_label(option)),
+        fn() { pick(option) },
+      ),
+    )
+  }
+  group
+}
+
 fn footer_view(host : Host, count : Int, filter : String, notice : String) -> Node {
   let line = el(host, "view", "h-5 flex-row items-center overflow-hidden")
   if notice != "" {
@@ -798,6 +842,10 @@ pub fn app(host : Host) -> Node {
   let mut table_height = 30 + 9 * 32 + 2
   let mut table_name_width = 176
   let mut table_ports_width = 244
+  // The appearance the user picked: nsh follows it from `appearance`'s own
+  // signal, and `appearance_version` rebuilds the title bar's control.
+  let appearance_version = host.new_signal(0)
+  let mut appearance = "system"
 
   // nsh.json hides the system title bar and sets the bar height; the
   // platform keeps its caption buttons in the area `title_bar_metrics`
@@ -950,6 +998,19 @@ pub fn app(host : Host) -> Node {
     notice_version.bump()
   }
 
+  // Picking an appearance switches the platform's scheme at once and keeps
+  // the choice for the next launch; the control rebuilds to show it. The
+  // stored value is the mode itself (`system` included), so following the
+  // system again is a choice like the other two.
+  let apply_appearance = fn(mode : String) {
+    if mode != appearance {
+      appearance = mode
+      host.set_color_scheme(mode)
+      host.save_preference("appearance", mode)
+      appearance_version.bump()
+    }
+  }
+
   // Both conditions run together: the port lookup answers the strip, the
   // name narrows the list. Changing the name drops the old selection first,
   // then the lookup re-selects its owner when it passes the condition.
@@ -1066,6 +1127,15 @@ pub fn app(host : Host) -> Node {
   host.append(bar_left, host.app_icon("w-[20px] h-[20px]"))
   host.append(bar_left, txt(host, "text-xs text-muted-foreground", "端口雷达"))
   host.append(bar, bar_left)
+  // The appearance control sits at the bar's trailing edge, left of the
+  // platform's own caption buttons (the bar's right padding keeps clear of
+  // them), so it reads as part of the window chrome.
+  let bar_right = el(host, "view", "flex-row items-center gap-2")
+  host.insert(bar_right, fn() {
+    let _ = appearance_version.get()
+    appearance_switch(host, appearance, apply_appearance)
+  })
+  host.append(bar, bar_right)
   host.append(root, bar)
 
   let content = el(host, "view", "flex-1 flex-col p-4 overflow-hidden")
@@ -1203,6 +1273,18 @@ pub fn app(host : Host) -> Node {
         table_ports_width = next_ports
         layout_version.bump()
       }
+    }
+  })
+
+  // The last choice comes back with the window. Reading it is asynchronous,
+  // so the first frame shows the system's appearance and switches when the
+  // stored value arrives; an unknown or missing value leaves `system`.
+  host.load_preference("appearance", fn(value) {
+    let known = value == "light" || value == "dark" || value == "system"
+    if known && value != appearance {
+      appearance = value
+      host.set_color_scheme(value)
+      appearance_version.bump()
     }
   })
 

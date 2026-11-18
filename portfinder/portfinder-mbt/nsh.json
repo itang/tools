@@ -5,6 +5,21 @@
   "version": "1.0.0",
   "build": 1,
   "rust": ".",
+  "appearance": "system",
+  "theme": {
+    "cssVars": {
+      "light": {
+        "primary": "#2563eb",
+        "primary-foreground": "#ffffff",
+        "ring": "#2563eb"
+      },
+      "dark": {
+        "primary": "#3b82f6",
+        "primary-foreground": "#ffffff",
+        "ring": "#3b82f6"
+      }
+    }
+  },
   "window": {
     "title": "端口雷达",
     "defaultSize": { "width": 1000, "height": 720 },

@@ -220,6 +220,36 @@ extern "js" fn Host::title_bar_metrics(self : Host) -> FixedArray[Int] =
 extern "js" fn Host::drag_window(self : Host, node : Node) -> Unit =
   #| (h, node) => h.rt.prop(node, "desktop", { windowDrag: true })
 
+// The appearance the app shows: `"system"` follows the platform's, `"light"`
+// and `"dark"` pin it. It switches `colorScheme()`, the `dark:` classes and
+// every `nsh/base` component's theme in the same frame.
+extern "js" fn Host::set_color_scheme(self : Host, scheme : String) -> Unit =
+  #| (h, scheme) => h.setColorScheme(scheme)
+
+// The app's key-value storage (`Storage` in `nsh`), kept across launches. A
+// missing key, or a failed read, reports an empty string.
+extern "js" fn Host::load_preference(
+  self : Host,
+  key : String,
+  done : (String) -> Unit,
+) -> Unit =
+  #| (h, key, done) => {
+  #|   h.Storage.getItem(key).then(
+  #|     (value) => done(value === null ? "" : value),
+  #|     () => done(""),
+  #|   );
+  #| }
+
+// Writes a preference; a full or unavailable storage leaves the app as it is.
+extern "js" fn Host::save_preference(
+  self : Host,
+  key : String,
+  value : String,
+) -> Unit =
+  #| (h, key, value) => {
+  #|   h.Storage.setItem(key, value).catch(() => {});
+  #| }
+
 // Reports `node`'s laid-out size in points whenever it changes.
 extern "js" fn Host::on_layout(
   self : Host,

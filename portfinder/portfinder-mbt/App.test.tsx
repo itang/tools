@@ -50,3 +50,25 @@ test("清空 clears both conditions and the port answer", async () => {
   expect(app.count("text:进程名")).toBeGreaterThan(0);
   expect(app.count("text:端口号")).toBeGreaterThan(0);
 });
+
+test("主题切换记住选择并可以回到跟随系统", async () => {
+  // The stored choice is restored on launch, so the control starts on 深色.
+  const app = await open("./App.tsx", {
+    width: 1000,
+    height: 720,
+    storage: { appearance: "dark" },
+  });
+  expect(app.texts()).toContain("自动");
+  expect(app.texts()).toContain("浅色");
+  expect(app.texts()).toContain("深色");
+
+  await app.press("text:浅色");
+  await app.waitUntil(() => app.storage().appearance === "light", { timeout: 5000 });
+
+  await app.press("text:自动");
+  await app.waitUntil(() => app.storage().appearance === "system", { timeout: 5000 });
+
+  // 自动 follows the system: the appearance the platform reports switches.
+  await app.setColorScheme("dark");
+  expect(app.texts()).toContain("自动");
+});
