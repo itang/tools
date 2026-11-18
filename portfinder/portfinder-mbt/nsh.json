@@ -4,6 +4,7 @@
   "icon": "assets/icon.png",
   "version": "1.0.0",
   "build": 1,
+  "nsh": "^0.6.0",
   "rust": ".",
   "appearance": "system",
   "theme": {
@@ -26,6 +27,7 @@
     "titleBar": { "style": "hidden", "height": 44 }
   },
   "capabilities": {
+    "application": true,
     "process": {
       "execute": ["ss", "lsof", "ps", "kill"]
     },

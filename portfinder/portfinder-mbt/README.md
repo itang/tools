@@ -5,7 +5,7 @@
 ## 环境要求
 
 - Windows 10 1809 及以上 / Windows 11，WebView2 Runtime（Windows 11 自带）
-- [nsh](https://nsh.run) 0.5.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）
+- [nsh](https://nsh.run) 0.6.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.6.0"` 由 CLI 校验，低于该版本会直接报错
 - MoonBit 工具链（`moon`）
 - 生成安装包使用 Windows 自带的 IExpress，无需额外安装
 
@@ -28,6 +28,8 @@ nsh package --target windows
 # 4. 把便携包封装成安装程序
 powershell -ExecutionPolicy Bypass -File installer\make-installer.ps1
 ```
+
+这四步也可以一次跑完：`moon run tasks.mbtx publish`（另有 `dev`、`build:moonbit` 两个子命令，`--help` 看用法）。
 
 产物：
 
@@ -68,6 +70,7 @@ dist\PortRadarSetup-1.0.0.exe /Q
 App.tsx              入口：把 nsh:rt、process、nsh/base、nsh/desktop 注入 MoonBit app
 assets/icon.png      应用图标（同时嵌入 exe 与安装包快捷方式）
 nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）、外观与主题色、能力清单
+tasks.mbtx           任务脚本：编译、测试、打包、封装安装程序（moon run tasks.mbtx …）
 moonbit/             MoonBit 实现
   app.mbt            界面、查询、过滤与交互
   scan.mbt           进程/端口扫描与命令解析
@@ -88,7 +91,7 @@ dist/                安装包产物（不提交）
 - 列表支持按进程、PID、端口、CPU、内存、运行时长排序；「结束」会弹出确认框，确认后才结束进程。
 - 窗口：标题、1000×720 初始尺寸和 44pt 隐藏标题栏写在 `nsh.json` 的 `window` 里；应用自绘标题栏，系统的最小化/最大化/关闭按钮留在右侧。
 - 外观：标题栏右侧的「自动 / 浅色 / 深色」切换明暗主题；「自动」跟随系统，随系统深浅色实时变化。选择写入应用的键值存储（`appearance`），下次启动自动恢复，首次启动为「自动」。`nsh.json` 的 `appearance` 决定启动瞬间的初始外观，`theme.cssVars` 给出浅色与深色两套品牌色（当前为主色蓝 `#2563eb` / `#3b82f6`），其余令牌沿用 shadcn 的 neutral 主题。
-- 权限：Windows 下扫描进程、查端口、结束进程都由 Rust 原生实现，不经过命令行，因此 `capabilities.process.execute` 只保留 macOS/Linux 需要的 `ss`、`lsof`、`ps`、`kill`；`capabilities.clipboard` 仅用于复制路径；`capabilities.statusBar` 是 nsh 0.5 在声明了 `capabilities` 时应用默认状态栏样式所需，桌面上不影响界面。
+- 权限：Windows 下扫描进程、查端口、结束进程都由 Rust 原生实现，不经过命令行，因此 `capabilities.process.execute` 只保留 macOS/Linux 需要的 `ss`、`lsof`、`ps`、`kill`；`capabilities.application` 是 nsh 0.6 起的新要求——只要应用声明了 `capabilities`，主窗口、应用菜单、托盘、全局快捷键、退出/重启、登录时启动这些应用级能力就必须显式授予，否则运行期被拒；本应用不调用 `os.homedir()`，所以没有授予 `homeDir`；`capabilities.clipboard` 仅用于复制路径；`capabilities.statusBar` 是 nsh 在声明了 `capabilities` 时应用默认状态栏样式所需，桌面上不影响界面。
 - SYSTEM 进程与受保护进程的 CPU/内存：以管理员身份运行时会尝试启用 `SeDebugPrivilege` 读取；仍读不到的显示为「受限」（`System`、PPL 进程即使提权也无法读取，这是 Windows 限制）。
 
 ## 开发调试
