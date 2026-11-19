@@ -89,6 +89,32 @@ extern "js" fn Host::native_kill(
   #|   catch (e) { fail(e && e.message ? e.message : String(e)) }
   #| }
 
+// Windows' full process scan, the Rust `Scanner.scanProcesses()`. Like the
+// two bridges above this is one call into a native capability; the text it
+// resolves with is already the `|`-delimited row format `parse_processes`
+// reads, so all parsing stays in MoonBit.
+extern "js" fn Host::native_scan(
+  self : Host,
+  done : (String) -> Unit,
+  fail : (String) -> Unit,
+) -> Unit =
+  #| (h, done, fail) => {
+  #|   h.scan().then(done, (e) => fail(e && e.message ? e.message : String(e)));
+  #| }
+
+// The current wall clock as whole seconds since the Unix epoch, and the
+// local calendar fields of such a timestamp. These read a platform fact the
+// JS engine owns (the system clock and its timezone); every calculation —
+// uptime subtraction, padding, the date string — is done in MoonBit.
+extern "js" fn Host::now_s(self : Host) -> Int =
+  #| (h) => Math.floor(Date.now() / 1000)
+
+extern "js" fn Host::local_time_parts(self : Host, epoch_s : Int) -> FixedArray[Int] =
+  #| (h, epoch_s) => {
+  #|   const d = new Date(epoch_s * 1000);
+  #|   return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()];
+  #| }
+
 // `process.run`: the executable plus its arguments, resolved with the exit
 // code and captured output. The lookup commands themselves, their output
 // parsing and every decision around them live in MoonBit; this is only the

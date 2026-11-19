@@ -226,196 +226,496 @@ priv struct ProcessRow {
 // ps, Linux pairs ss with ps; a permission limit only empties fields. Rows are
 // `pid|name|ppid|path|tcp_ports|udp_ports|started_s|cpu_x10|mem_kb|listeners`,
 // the listeners being `PROTO addr` items joined by `;`.
-extern "js" fn Host::scan_processes(
+// Runs several lookup commands and calls `done` once with their stdout in
+// job order. A missing tool or a failed call contributes an empty string, so
+// the parsers see a uniform shape — the same `Promise.all` behaviour the JS
+// bridge used to provide, now expressed with the thin `run_command` bridge.
+fn Host::run_many(
+  self : Host,
+  jobs : FixedArray[(String, FixedArray[String])],
+  done : (FixedArray[String]) -> Unit,
+) -> Unit {
+  let n = jobs.length()
+  if n == 0 {
+    done([])
+    return
+  }
+  let outputs : Array[String] = Array::make(n, "")
+  let mut remaining = n
+  let finish_one = fn() {
+    remaining = remaining - 1
+    if remaining == 0 {
+      done(FixedArray::from_array(outputs))
+    }
+  }
+  for i = 0; i < n; i = i + 1 {
+    let (exe, args) = jobs[i]
+    self.run_command(
+      exe,
+      args,
+      20000,
+      fn(_code, stdout, _stderr) {
+        outputs[i] = stdout
+        finish_one()
+      },
+      fn(_message) { finish_one() },
+    )
+  }
+}
+
+// Collapses a native scan's text to non-empty, newline-joined rows, dropping
+// the stray `\r` Windows tools emit.
+fn keep_lines(text : String) -> String {
+  let lines : Array[String] = []
+  for raw in text.split("\n") {
+    let line = raw.trim()
+    if !line.is_empty() {
+      lines.push(line.to_owned())
+    }
+  }
+  lines.join("\n")
+}
+
+fn all_digits(value : StringView) -> Bool {
+  if value.is_empty() {
+    return false
+  }
+  for c in value {
+    let digit = c.to_int() - 48
+    if digit < 0 || digit > 9 {
+      return false
+    }
+  }
+  true
+}
+
+fn is_decimal(value : StringView) -> Bool {
+  if value.is_empty() {
+    return false
+  }
+  let mut dot = false
+  for c in value {
+    if c == '.' {
+      if dot {
+        return false
+      }
+      dot = true
+    } else {
+      let digit = c.to_int() - 48
+      if digit < 0 || digit > 9 {
+        return false
+      }
+    }
+  }
+  true
+}
+
+fn leading_digits(value : StringView) -> StringView {
+  let mut n : Int32 = 0
+  for c in value {
+    let digit = c.to_int() - 48
+    if digit < 0 || digit > 9 {
+      break
+    }
+    n = n + 1
+  }
+  value.get_view(end = n).unwrap_or("")
+}
+
+// Splits a ps line into leading whitespace fields, keeping the rest — the
+// command, which may contain spaces — as the final field. ps' `comm=` column
+// can hold a path with spaces, so a plain `words()` would lose it.
+fn ps_fields(line : StringView) -> Array[StringView] {
+  let fields : Array[StringView] = []
+  let mut rest = line
+  for _i = 0; _i < 5; _i = _i + 1 {
+    let trimmed = rest.trim_start()
+    if trimmed.is_empty() {
+      break
+    }
+    match trimmed.find_by(fn(c) { c == ' ' || c == '\t' }) {
+      Some(at) => {
+        fields.push(trimmed.get_view(end = at).unwrap_or(""))
+        rest = trimmed.get_view(start = at).unwrap_or("")
+      }
+      None => {
+        fields.push(trimmed)
+        rest = ""
+      }
+    }
+  }
+  let last = rest.trim()
+  if !last.is_empty() {
+    fields.push(last)
+  }
+  fields
+}
+
+// macOS `etime` (`1-02:03:04` or `02:03:04`) as whole seconds.
+fn parse_etime(text : StringView) -> Int {
+  let mut rest = text
+  let mut days = 0
+  match rest.find("-") {
+    Some(at) => {
+      days = parse_number(rest.get_view(end = at).unwrap_or(""))
+      rest = rest.get_view(start = at + 1).unwrap_or("")
+    }
+    None => ()
+  }
+  let mut seconds = 0
+  for part in rest.split(":") {
+    seconds = seconds * 60 + parse_number(part)
+  }
+  days * 86400 + seconds
+}
+
+fn port_after_last_colon(addr : StringView) -> StringView {
+  match addr.rev_find(":") {
+    Some(at) => addr.get_view(start = at + 1).unwrap_or("")
+    None => ""
+  }
+}
+
+// ADDRESS is lsof's NAME column (from field 8 on); words() already made
+// `(LISTEN)` its own token, so dropping a trailing one mirrors the regex.
+fn lsof_address(fields : Array[StringView]) -> String {
+  let n = fields.length()
+  let parts : Array[String] = []
+  for i = 8; i < n; i = i + 1 {
+    let token = fields[i]
+    if i == n - 1 && token == "(LISTEN)" {
+      continue
+    }
+    parts.push(token.to_owned())
+  }
+  parts.join(" ")
+}
+
+// Every `pid=NNNN` in an ss line, as the JS global regex did.
+fn ss_pids(line : StringView) -> Array[Int] {
+  let out : Array[Int] = []
+  for rest = line {
+    match rest.find("pid=") {
+      None => break
+      Some(at) => {
+        let tail = rest.get_view(start = at + 4).unwrap_or("")
+        let digits = leading_digits(tail)
+        if digits.is_empty() {
+          continue tail
+        }
+        out.push(parse_number(digits))
+        continue tail.get_view(start = digits.char_length()).unwrap_or("")
+      }
+    }
+  }
+  out
+}
+
+// Per-pid metadata the ps row supplies; ports and addresses accumulate in
+// their own maps because they are merged from two commands per platform.
+priv struct PsInfo {
+  ppid : String
+  name : String
+  path : String
+  started : String
+  cpu : String
+  mem : String
+}
+
+priv struct ScanRow {
+  first_port : Int
+  line : String
+}
+
+fn add_addr(addrs : Map[Int, Array[String]], pid : Int, label : String) -> Unit {
+  let list = match addrs.get(pid) {
+    Some(a) => a
+    None => {
+      let a : Array[String] = []
+      addrs.set(pid, a)
+      a
+    }
+  }
+  if !list.contains(label) {
+    list.push(label)
+  }
+}
+
+// lsof's `-iTCP -sTCP:LISTEN` / `-iUDP` output: COMMAND PID USER FD TYPE
+// DEVICE SIZE/OFF NODE NAME...
+fn add_lsof(
+  text : String,
+  proto : String,
+  tcp : Map[Int, Array[Int]],
+  udp : Map[Int, Array[Int]],
+  addrs : Map[Int, Array[String]],
+) -> Unit {
+  for raw in text.split("\n") {
+    let fields = words(raw)
+    if fields.length() < 9 || fields[0] == "COMMAND" {
+      continue
+    }
+    let pid = parse_number(fields[1])
+    if pid == 0 {
+      continue
+    }
+    let address = lsof_address(fields)
+    if address.contains("->") || !address.contains(":") {
+      continue
+    }
+    let port_view = port_after_last_colon(address)
+    if !all_digits(port_view) {
+      continue
+    }
+    let port = parse_number(port_view)
+    let ports = if proto == "TCP" { tcp } else { udp }
+    let list = match ports.get(pid) {
+      Some(p) => p
+      None => {
+        let p : Array[Int] = []
+        ports.set(pid, p)
+        p
+      }
+    }
+    if !list.contains(port) {
+      list.push(port)
+    }
+    add_addr(addrs, pid, proto + " " + address)
+  }
+}
+
+fn join_ports_sorted(ports : Array[Int]) -> String {
+  ports.sort()
+  ports.map(fn(p) { p.to_string() }).join(",")
+}
+
+// Turns the accumulated maps into the `|`-delimited rows parse_processes
+// reads, ordered by first port like the Rust scanner's output.
+fn emit_rows(
+  info : Map[Int, PsInfo],
+  tcp : Map[Int, Array[Int]],
+  udp : Map[Int, Array[Int]],
+  addrs : Map[Int, Array[String]],
+) -> String {
+  let pids : Array[Int] = []
+  for pid in tcp.keys() {
+    if !pids.contains(pid) {
+      pids.push(pid)
+    }
+  }
+  for pid in udp.keys() {
+    if !pids.contains(pid) {
+      pids.push(pid)
+    }
+  }
+  let rows : Array[ScanRow] = []
+  for pid in pids {
+    let tcp_ports = tcp.get(pid).unwrap_or([])
+    let udp_ports = udp.get(pid).unwrap_or([])
+    let tcp_text = join_ports_sorted(tcp_ports)
+    let udp_text = join_ports_sorted(udp_ports)
+    let first = if tcp_ports.length() > 0 {
+      tcp_ports[0]
+    } else if udp_ports.length() > 0 {
+      udp_ports[0]
+    } else {
+      0
+    }
+    let name = match info.get(pid) {
+      Some(p) => p.name
+      None => ""
+    }
+    let ppid = match info.get(pid) {
+      Some(p) => p.ppid
+      None => ""
+    }
+    let path = match info.get(pid) {
+      Some(p) => p.path
+      None => ""
+    }
+    let started = match info.get(pid) {
+      Some(p) => p.started
+      None => ""
+    }
+    let cpu = match info.get(pid) {
+      Some(p) => p.cpu
+      None => ""
+    }
+    let mem = match info.get(pid) {
+      Some(p) => p.mem
+      None => ""
+    }
+    let addr_text = addrs.get(pid).unwrap_or([]).join(";")
+    let line = "\{pid}|\{name}|\{ppid}|\{path}|\{tcp_text}|\{udp_text}|\{started}|\{cpu}|\{mem}|\{addr_text}"
+    rows.push({ first_port: first, line })
+  }
+  rows.sort_by(fn(a, b) { a.first_port - b.first_port })
+  rows.map(fn(r) { r.line }).join("\n")
+}
+
+// macOS: lsof (TCP listeners + UDP bindings) paired with ps. `etime` is a
+// wall-clock delta, so the current second turns it into a start timestamp.
+fn macos_rows(tcp_text : String, udp_text : String, ps_text : String, now_s : Int) -> String {
+  let info : Map[Int, PsInfo] = Map([])
+  for raw in ps_text.split("\n") {
+    let fields = ps_fields(raw)
+    if fields.length() < 6 {
+      continue
+    }
+    if !all_digits(fields[0]) || !all_digits(fields[1]) || !is_decimal(fields[4]) {
+      continue
+    }
+    let pid = parse_number(fields[0])
+    if pid == 0 {
+      continue
+    }
+    let comm = fields[5]
+    let name = match comm.rev_find("/") {
+      Some(at) => comm.get_view(start = at + 1).unwrap_or("").to_owned()
+      None => comm.to_owned()
+    }
+    let path = match comm.rev_find("/") {
+      Some(_) => comm.to_owned()
+      None => ""
+    }
+    let started = now_s - parse_etime(fields[2])
+    info.set(pid, {
+      ppid: fields[1].to_owned(),
+      name,
+      path,
+      started: started.to_string(),
+      cpu: parse_x10(fields[4]).to_string(),
+      mem: parse_number(fields[3]).to_string(),
+    })
+  }
+  let tcp : Map[Int, Array[Int]] = Map([])
+  let udp : Map[Int, Array[Int]] = Map([])
+  let addrs : Map[Int, Array[String]] = Map([])
+  add_lsof(tcp_text, "TCP", tcp, udp, addrs)
+  add_lsof(udp_text, "UDP", tcp, udp, addrs)
+  emit_rows(info, tcp, udp, addrs)
+}
+
+// Linux: ss paired with ps. `etimes` is already seconds; ps' `comm=` has no
+// path on Linux, so `path` stays empty.
+fn linux_rows(ss_text : String, ps_text : String, now_s : Int) -> String {
+  let info : Map[Int, PsInfo] = Map([])
+  for raw in ps_text.split("\n") {
+    let fields = ps_fields(raw)
+    if fields.length() < 6 {
+      continue
+    }
+    if !all_digits(fields[0]) || !all_digits(fields[1]) ||
+      !all_digits(fields[2]) || !is_decimal(fields[4]) {
+      continue
+    }
+    let pid = parse_number(fields[0])
+    if pid == 0 {
+      continue
+    }
+    let started = now_s - parse_number(fields[2])
+    info.set(pid, {
+      ppid: fields[1].to_owned(),
+      name: fields[5].to_owned(),
+      path: "",
+      started: started.to_string(),
+      cpu: parse_x10(fields[4]).to_string(),
+      mem: parse_number(fields[3]).to_string(),
+    })
+  }
+  let tcp : Map[Int, Array[Int]] = Map([])
+  let udp : Map[Int, Array[Int]] = Map([])
+  let addrs : Map[Int, Array[String]] = Map([])
+  for raw in ss_text.split("\n") {
+    let fields = words(raw)
+    if fields.length() < 5 {
+      continue
+    }
+    let proto = fields[0].to_owned().to_upper()
+    if proto != "TCP" && proto != "UDP" {
+      continue
+    }
+    let local_addr = fields[4]
+    let port_view = port_after_last_colon(local_addr)
+    if !all_digits(port_view) {
+      continue
+    }
+    let port = parse_number(port_view)
+    let ports = if proto == "TCP" { tcp } else { udp }
+    for pid in ss_pids(raw) {
+      let list = match ports.get(pid) {
+        Some(p) => p
+        None => {
+          let p : Array[Int] = []
+          ports.set(pid, p)
+          p
+        }
+      }
+      if !list.contains(port) {
+        list.push(port)
+      }
+      add_addr(addrs, pid, proto + " " + local_addr.to_owned())
+    }
+  }
+  emit_rows(info, tcp, udp, addrs)
+}
+
+// Runs the platform's port lookup and reports the listeners it finds; a
+// permission-limited lookup reports the socket with an empty name and pid 0.
+fn Host::scan_processes(
   self : Host,
   done : (String) -> Unit,
   fail : (String) -> Unit,
-) -> Unit =
-  #| (h, done, fail) => {
-  #|   const failed = (e) => fail(e && e.message ? e.message : String(e));
-  #|   const keep = (text) =>
-  #|     text.split(/\r?\n/).filter((line) => line.trim() !== "").join("\n");
-  #|   const nowSeconds = Math.floor(Date.now() / 1000);
-  #|   const firstPort = (r) =>
-  #|     Number(String(r.tcp).split(",")[0]) ||
-  #|     Number(String(r.udp).split(",")[0]) ||
-  #|     0;
-  #|   const emit = (rows) =>
-  #|     done(
-  #|       rows
-  #|         .sort((a, b) => firstPort(a) - firstPort(b))
-  #|         .map((r) =>
-  #|           [
-  #|             r.pid,
-  #|             r.name === undefined ? "" : r.name,
-  #|             r.ppid === undefined ? "" : r.ppid,
-  #|             r.path === undefined ? "" : r.path,
-  #|             r.tcp === undefined ? "" : r.tcp,
-  #|             r.udp === undefined ? "" : r.udp,
-  #|             r.started === undefined ? "" : r.started,
-  #|             r.cpu === undefined ? "" : r.cpu,
-  #|             r.mem === undefined ? "" : r.mem,
-  #|             r.addrs === undefined ? "" : r.addrs,
-  #|           ].join("|"),
-  #|         )
-  #|         .join("\n"),
-  #|     );
-  #|   const os = h.platform;
-  #|   if (os === "windows") {
-  #|     h.scan().then((text) => done(keep(text)), failed);
-  #|     return;
-  #|   }
-  #|   const run = (name, args) =>
-  #|     h.process.run(name, args, { timeoutMs: 20000 }).then((out) => out.stdout).catch(() => "");
-  #|   const parseEtime = (text) => {
-  #|     let rest = text;
-  #|     let days = 0;
-  #|     if (rest.includes("-")) {
-  #|       const at = rest.indexOf("-");
-  #|       days = Number(rest.slice(0, at)) || 0;
-  #|       rest = rest.slice(at + 1);
-  #|     }
-  #|     let seconds = 0;
-  #|     for (const part of rest.split(":")) seconds = seconds * 60 + (Number(part) || 0);
-  #|     return days * 86400 + seconds;
-  #|   };
-  #|   if (os === "macos") {
-  #|     Promise.all([
-  #|       run("lsof", ["-nP", "-iTCP", "-sTCP:LISTEN"]),
-  #|       run("lsof", ["-nP", "-iUDP"]),
-  #|       run("ps", ["-axo", "pid=,ppid=,etime=,rss=,pcpu=,comm="]),
-  #|     ]).then(([tcp, udp, psOut]) => {
-  #|       const info = new Map();
-  #|       for (const line of psOut.split(/\r?\n/)) {
-  #|         const m = /^\s*(\d+)\s+(\d+)\s+(\S+)\s+(\d+)\s+([\d.]+)\s+(.+)$/.exec(line);
-  #|         if (!m) continue;
-  #|         const comm = m[6].trim();
-  #|         const slash = comm.lastIndexOf("/");
-  #|         info.set(Number(m[1]), {
-  #|           ppid: m[2],
-  #|           name: slash >= 0 ? comm.slice(slash + 1) : comm,
-  #|           path: slash >= 0 ? comm : "",
-  #|           etime: m[3],
-  #|           cpu: Math.round((Number(m[5]) || 0) * 10),
-  #|           mem: Number(m[4]) || 0,
-  #|         });
-  #|       }
-  #|       const tcpPorts = new Map();
-  #|       const udpPorts = new Map();
-  #|       const addrs = new Map();
-  #|       const add = (text, proto) => {
-  #|         for (const line of text.split(/\r?\n/)) {
-  #|           const t = line.trim().split(/\s+/);
-  #|           if (t.length < 9 || t[0] === "COMMAND") continue;
-  #|           const pid = Number(t[1]);
-  #|           if (!pid) continue;
-  #|           const address = t.slice(8).join(" ").replace(/\s+\(LISTEN\)$/, "");
-  #|           if (address.includes("->") || !address.includes(":")) continue;
-  #|           const port = address.slice(address.lastIndexOf(":") + 1);
-  #|           if (!/^\d+$/.test(port)) continue;
-  #|           const ports = proto === "TCP" ? tcpPorts : udpPorts;
-  #|           if (!ports.has(pid)) ports.set(pid, new Set());
-  #|           ports.get(pid).add(Number(port));
-  #|           if (!addrs.has(pid)) addrs.set(pid, new Set());
-  #|           addrs.get(pid).add(proto + " " + address);
-  #|         }
-  #|       };
-  #|       add(tcp, "TCP");
-  #|       add(udp, "UDP");
-  #|       const rows = [];
-  #|       for (const pid of new Set([...tcpPorts.keys(), ...udpPorts.keys()])) {
-  #|         const p = info.get(pid) || {};
-  #|         rows.push({
-  #|           pid,
-  #|           name: p.name || "",
-  #|           ppid: p.ppid || "",
-  #|           path: p.path || "",
-  #|           tcp: [...(tcpPorts.get(pid) || [])].sort((a, b) => a - b).join(","),
-  #|           udp: [...(udpPorts.get(pid) || [])].sort((a, b) => a - b).join(","),
-  #|           started: p.etime === undefined ? "" : nowSeconds - parseEtime(p.etime),
-  #|           cpu: p.cpu === undefined ? "" : p.cpu,
-  #|           mem: p.mem === undefined ? "" : p.mem,
-  #|           addrs: [...(addrs.get(pid) || [])].join(";"),
-  #|         });
-  #|       }
-  #|       emit(rows);
-  #|     }, failed);
-  #|     return;
-  #|   }
-  #|   Promise.all([
-  #|     run("ss", ["-H", "-l", "-n", "-t", "-u", "-p"]),
-  #|     run("ps", ["-eo", "pid=,ppid=,etimes=,rss=,pcpu=,comm="]),
-  #|   ]).then(([ssOut, psOut]) => {
-  #|     const info = new Map();
-  #|     for (const line of psOut.split(/\r?\n/)) {
-  #|       const m = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([\d.]+)\s+(.+)$/.exec(line);
-  #|       if (!m) continue;
-  #|       info.set(Number(m[1]), {
-  #|         ppid: m[2],
-  #|         name: m[6].trim(),
-  #|         etime: Number(m[3]),
-  #|         mem: Number(m[4]) || 0,
-  #|         cpu: Math.round((Number(m[5]) || 0) * 10),
-  #|       });
-  #|     }
-  #|     const tcpPorts = new Map();
-  #|     const udpPorts = new Map();
-  #|     const addrs = new Map();
-  #|     for (const line of ssOut.split(/\r?\n/)) {
-  #|       if (!line.trim()) continue;
-  #|       const parts = line.trim().split(/\s+/);
-  #|       const proto = (parts[0] || "").toUpperCase();
-  #|       if (proto !== "TCP" && proto !== "UDP") continue;
-  #|       const local = parts[4] || "";
-  #|       const port = local.slice(local.lastIndexOf(":") + 1);
-  #|       if (!/^\d+$/.test(port)) continue;
-  #|       const re = /pid=(\d+)/g;
-  #|       let m;
-  #|       while ((m = re.exec(line))) {
-  #|         const pid = Number(m[1]);
-  #|         const ports = proto === "TCP" ? tcpPorts : udpPorts;
-  #|         if (!ports.has(pid)) ports.set(pid, new Set());
-  #|         ports.get(pid).add(Number(port));
-  #|         if (!addrs.has(pid)) addrs.set(pid, new Set());
-  #|         addrs.get(pid).add(proto + " " + local);
-  #|       }
-  #|     }
-  #|     const rows = [];
-  #|     for (const pid of new Set([...tcpPorts.keys(), ...udpPorts.keys()])) {
-  #|       const p = info.get(pid) || {};
-  #|       rows.push({
-  #|         pid,
-  #|         name: p.name || "",
-  #|         ppid: p.ppid || "",
-  #|         path: "",
-  #|         tcp: [...(tcpPorts.get(pid) || [])].sort((a, b) => a - b).join(","),
-  #|         udp: [...(udpPorts.get(pid) || [])].sort((a, b) => a - b).join(","),
-  #|         started: p.etime === undefined ? "" : nowSeconds - p.etime,
-  #|         cpu: p.cpu === undefined ? "" : p.cpu,
-  #|         mem: p.mem === undefined ? "" : p.mem,
-  #|         addrs: [...(addrs.get(pid) || [])].join(";"),
-  #|       });
-  #|     }
-  #|     emit(rows);
-  #|   }, failed);
-  #| }
+) -> Unit {
+  let os = self.platform()
+  if os == "windows" {
+    self.native_scan(fn(text) { done(keep_lines(text)) }, fail)
+    return
+  }
+  let now_s = self.now_s()
+  if os == "macos" {
+    self.run_many(
+      [
+        ("lsof", ["-nP", "-iTCP", "-sTCP:LISTEN"]),
+        ("lsof", ["-nP", "-iUDP"]),
+        ("ps", ["-axo", "pid=,ppid=,etime=,rss=,pcpu=,comm="]),
+      ],
+      fn(out) { done(macos_rows(out[0], out[1], out[2], now_s)) },
+    )
+    return
+  }
+  self.run_many(
+    [
+      ("ss", ["-H", "-l", "-n", "-t", "-u", "-p"]),
+      ("ps", ["-eo", "pid=,ppid=,etimes=,rss=,pcpu=,comm="]),
+    ],
+    fn(out) { done(linux_rows(out[0], out[1], now_s)) },
+  )
+}
 
 // Seconds `started_s` has been running, or -1 when the start is unknown.
-extern "js" fn Host::running_seconds(self : Host, started_s : Int) -> Int =
-  #| (h, started) => {
-  #|   if (!started) return -1;
-  #|   return Math.max(0, Math.floor(Date.now() / 1000) - started);
-  #| }
+// The clock read is the only host fact; the subtraction is MoonBit.
+fn Host::running_seconds(self : Host, started_s : Int) -> Int {
+  if started_s == 0 {
+    -1
+  } else {
+    let delta = self.now_s() - started_s
+    if delta > 0 { delta } else { 0 }
+  }
+}
 
-// `started_s` as local `YYYY-MM-DD HH:MM`; an empty label when unknown.
-extern "js" fn Host::format_time(self : Host, started_s : Int) -> String =
-  #| (h, started) => {
-  #|   if (!started) return "";
-  #|   const d = new Date(started * 1000);
-  #|   const pad = (n) => String(n).padStart(2, "0");
-  #|   return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
-  #|     " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
-  #| }
+// `started_s` as local `YYYY-MM-DD HH:MM`; an empty label when unknown. The
+// timezone-aware calendar fields come from the host; padding and assembly
+// are MoonBit.
+fn Host::format_time(self : Host, started_s : Int) -> String {
+  if started_s == 0 {
+    ""
+  } else {
+    let parts = self.local_time_parts(started_s)
+    let pad = fn(n : Int) -> String { if n < 10 { "0\{n}" } else { "\{n}" } }
+    "\{parts[0]}-\{pad(parts[1])}-\{pad(parts[2])} \{pad(parts[3])}:\{pad(parts[4])}"
+  }
+}
 
 fn parse_number(value : StringView) -> Int {
   let mut number = 0
