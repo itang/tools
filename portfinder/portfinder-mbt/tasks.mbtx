@@ -5,10 +5,13 @@ import { "moonbitlang/core/async" }
 import { "moonbitlang/core/async/process" }
 ---
 
+using @path {type Path};
+
 /// 用 Path::join 拼路径，避免手写平台相关的反斜杠。相对段可直接写 `/` 分隔，
 /// join 会按当前平台归一化（Windows 上变成 `\`）。
 fn under(root~: String, rel~: String) -> String {
-  @path.Path::join(@path.Path(root), @path.Path(rel)).to_string()
+  Path(root).join(Path(rel)).to_string()
+  //Path::join(Path(root), Path(rel)).to_string()
 }
 
 /// 检查退出码，非 0 则打印错误并以相同退出码终止。exit 是泛型函数，可直接作为表达式。
