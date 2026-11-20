@@ -7,5 +7,5 @@ publish = false
 [workspace]
 
 [dependencies]
-nsh-core = "0.6.0"
-nsh-base = "0.6.0"
+nsh-core = "0.6.1"
+nsh-base = "0.6.1"

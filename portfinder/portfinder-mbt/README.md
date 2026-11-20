@@ -5,7 +5,7 @@
 ## 环境要求
 
 - Windows 10 1809 及以上 / Windows 11，WebView2 Runtime（Windows 11 自带）
-- [nsh](https://nsh.run) 0.6.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.6.0"` 由 CLI 校验，低于该版本会直接报错
+- [nsh](https://nsh.run) 0.6.1（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.6.1"` 由 CLI 校验，低于该版本会直接报错
 - MoonBit 工具链（`moon`）
 - 生成安装包使用 Windows 自带的 IExpress，无需额外安装
 
