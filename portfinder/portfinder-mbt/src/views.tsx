@@ -386,7 +386,7 @@ export function AppView(props: { store: Store; icon: unknown }): JSX.Element {
       </View>
 
       <View class="flex-1 flex-col p-4 overflow-hidden">
-        <View class="w-full flex-1 flex flex-col gap-3 overflow-hidden">
+        <View class="w-full flex-1 flex flex-col gap-2 overflow-hidden">
           <View class="shrink-0 flex-row items-center gap-2">
             <Text class="text-xs text-muted-foreground">端口</Text>
             <NumberInput

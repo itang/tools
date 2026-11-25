@@ -281,8 +281,8 @@ export class Store {
 
   onTableLayout(width: number, height: number): void {
     if (width <= 0 || height <= 0) return;
-    const rows = height < 32 + 3 * 32 ? 3 : Math.trunc((height - 32) / 32);
-    const nextHeight = 30 + rows * 32 + 2;
+    // Let the table use all the room the slot gives it, minus a small gap.
+    const nextHeight = Math.max(3 * 32 + 32, height - 8);
     const extra = width - 16 - 902;
     const ports = Math.max(140, extra > 0 ? 244 + Math.trunc(extra * 45 / 100) : 244 + extra);
     const name = Math.max(120, 176 + extra - (ports - 244));
