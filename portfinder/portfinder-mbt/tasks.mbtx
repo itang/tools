@@ -36,7 +36,7 @@ async fn step(label~: String, cmd~: String, args~: Array[String], cwd~: String?)
 
 /// 编译 MoonBit（App.tsx 引用 release 产物，必须用 --release）。label 供各命令标注步骤序号。
 async fn build_moonbit(label~: String, root~: String) -> Unit {
-  step(label~, cmd="moon", args=["build", "--release"], cwd=Some(under(root~, rel="moonbit")))
+  step(label~, cmd="moon", args=["build", "--release"], cwd=Some(root))
 }
 
 /// 制作安装包：编译 MoonBit → 跑测试 → 打 nsh 包 → 生成安装程序。

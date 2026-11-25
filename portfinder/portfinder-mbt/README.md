@@ -16,10 +16,8 @@
 在 `portfinder` 目录下按顺序执行：
 
 ```powershell
-# 1. 编译 MoonBit（App.tsx 引用 _build/js/release 下的产物，必须用 --release）
-cd moonbit
+# 1. 编译 MoonBit（App.tsx 引用根目录 _build/js/release 下的产物，必须用 --release）
 moon build --release
-cd ..
 
 # 2. 跑界面测试
 nsh test App.test.tsx
@@ -71,18 +69,23 @@ dist\PortRadarSetup-1.0.0.exe /Q
 ```
 App.tsx              入口：把 nsh:rt、process、nsh/base、nsh/desktop 注入 MoonBit app
 assets/icon.png      应用图标（同时嵌入 exe 与安装包快捷方式）
+moon.mod             MoonBit 模块定义（source = "src"，ffi 子包）
 nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）、外观与主题色、能力清单、nshm 依赖
 nsh.lock             nshm 依赖锁定文件（由 nsh 生成，随项目提交）
 ext/portradar-native/ Rust nshm：Win32 原生进程/端口扫描（0.7 起以 path 依赖接入）
   Cargo.toml         crate 依赖：nsh-core 0.7.0
   src/               lib.rs（#[native_module("portradar-native")]）+ sys/net/process/scan 四个内部模块
 tasks.mbtx           任务脚本：编译、测试、打包、封装安装程序（moon run tasks.mbtx …）
-moonbit/             MoonBit 实现
+src/                 MoonBit app 包（模块默认包）
   app.mbt            界面、查询、过滤与交互
   scan.mbt           进程/端口扫描与命令解析
-  nsh_ffi.mbt        nsh API 桥接（renderer / base 组件 / 存储 / 桌面 / 进程）
-  portrayadar_native_ffi.mbt  Rust nshm 桥接（scan / scanPort / killProcess）
-  js_ffi.mbt         JS 侧时钟与进程表状态桥接
+  scan_wbtest.mbt    scan.mbt 的白盒测试
+  types.mbt          Host / Node / Signal 类型别名（指向 ffi 包）
+  moon.pkg           包配置：导入 ffi 包、导出 js 的 app
+  ffi/               MoonBit ffi 包
+    nsh_ffi.mbt      nsh API 桥接（renderer / base 组件 / 存储 / 桌面 / 进程）
+    portrayadar_native_ffi.mbt  Rust nshm 桥接（scan / scanPort / killProcess）
+    js_ffi.mbt       JS 侧时钟与进程表状态桥接
 installer/           安装器脚本
   install.ps1        复制文件、写快捷方式与卸载项、启动应用
   uninstall.ps1      删除快捷方式、卸载项与安装目录

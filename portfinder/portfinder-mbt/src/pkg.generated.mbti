@@ -1,20 +1,16 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "testnsh/portfinder_ui"
 
+import {
+  "testnsh/portfinder_ui/ffi",
+}
+
 // Values
-pub fn app(Host) -> Node
+pub fn app(@ffi.Host) -> @ffi.Node
 
 // Errors
 
 // Types and methods
-#external
-pub type Host
-
-#external
-pub type Node
-
-#external
-pub type Signal
 
 // Type aliases
 

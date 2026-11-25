@@ -1,0 +1,51 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "testnsh/portfinder_ui/ffi"
+
+// Values
+
+// Errors
+
+// Types and methods
+#external
+pub type Host
+pub fn Host::app_icon(Self, String) -> Node
+pub fn Host::append(Self, Node, Node) -> Unit
+pub fn Host::button(Self, String, Node, () -> Unit) -> Node
+pub fn Host::confirm_destructive(Self, String, String, String, () -> Unit) -> Unit
+pub fn Host::drag_window(Self, Node) -> Unit
+pub fn Host::element(Self, String) -> Node
+pub fn Host::insert(Self, Node, () -> Node) -> Unit
+pub fn Host::load_preference(Self, String, (String) -> Unit) -> Unit
+pub fn Host::local_time_parts(Self, Int32) -> FixedArray[Int32]
+pub fn Host::native_kill(Self, Int32, (Bool) -> Unit, (String) -> Unit) -> Unit
+pub fn Host::native_port(Self, Int32, (String) -> Unit, (String) -> Unit) -> Unit
+pub fn Host::native_scan(Self, (String) -> Unit, (String) -> Unit) -> Unit
+pub fn Host::new_signal(Self, Int32) -> Signal
+pub fn Host::now_s(Self) -> Int32
+pub fn Host::number_input(Self, String, String, Int32, (Int32) -> Unit, (Int32) -> Unit) -> Node
+pub fn Host::on_layout(Self, Node, (Int32, Int32) -> Unit) -> Unit
+pub fn Host::platform(Self) -> String
+pub fn Host::process_table(Self, Int32, Int32, Int32, Int32, String, Bool, Int32, (Int32, String) -> Node, (String, String) -> Unit, (Int32, String) -> Unit, (Int32) -> Unit) -> Node
+pub fn Host::progress(Self, String, String, String) -> Node
+pub fn Host::remember_row(Self, Int32) -> Unit
+pub fn Host::reveal_row(Self, Int32) -> Unit
+pub fn Host::run_command(Self, String, FixedArray[String], Int32, (Int32, String, String) -> Unit, (String) -> Unit) -> Unit
+pub fn Host::save_preference(Self, String, String) -> Unit
+pub fn Host::set_class(Self, Node, String) -> Unit
+pub fn Host::set_color_scheme(Self, String) -> Unit
+pub fn Host::text(Self, String) -> Node
+pub fn Host::text_input(Self, String, String, String, (String) -> Unit, (String) -> Unit) -> Node
+pub fn Host::title_bar_metrics(Self) -> FixedArray[Int32]
+pub fn Host::write_clipboard(Self, String, () -> Unit, (String) -> Unit) -> Unit
+
+#external
+pub type Node
+
+#external
+pub type Signal
+pub fn Signal::bump(Self) -> Unit
+pub fn Signal::get(Self) -> Int32
+
+// Type aliases
+
+// Traits

@@ -2,6 +2,8 @@ name = "testnsh/portfinder_ui"
 
 version = "0.1.0"
 
+source = "src"
+
 license = "Apache-2.0"
 
 preferred_target = "js"

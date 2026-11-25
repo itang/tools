@@ -5,7 +5,7 @@
 // They are not direct Rust FFI: the JS side owns the Promise and errors, and
 // every reply is plain text (or a boolean) that MoonBit parses itself.
 
-extern "js" fn Host::native_port(
+pub extern "js" fn Host::native_port(
   self : Host,
   port : Int,
   done : (String) -> Unit,
@@ -15,7 +15,7 @@ extern "js" fn Host::native_port(
   #|   h.scanPort(port).then(done, (e) => fail(e && e.message ? e.message : String(e)));
   #| }
 
-extern "js" fn Host::native_kill(
+pub extern "js" fn Host::native_kill(
   self : Host,
   pid : Int,
   done : (Bool) -> Unit,
@@ -26,7 +26,7 @@ extern "js" fn Host::native_kill(
   #|   catch (e) { fail(e && e.message ? e.message : String(e)) }
   #| }
 
-extern "js" fn Host::native_scan(
+pub extern "js" fn Host::native_scan(
   self : Host,
   done : (String) -> Unit,
   fail : (String) -> Unit,
