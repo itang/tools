@@ -1,8 +1,8 @@
 // Bridges to the app's own Rust nshm (`ext/portradar-native`).
 //
 // The call chain is: nshm `Scanner` -> `App.tsx` injects the module as
-// `h.scanner` -> a `Host::scanner` accessor returns it -> the methods below
-// belong to `Scanner` itself, not to `Host`.
+// `h.scanner` -> a `NshHost::scanner` accessor returns it -> the methods below
+// belong to `Scanner` itself, not to `NshHost`.
 // They are not direct Rust FFI: the JS side owns the Promise and errors, and
 // every reply is plain text (or a boolean) that MoonBit parses itself.
 
@@ -11,7 +11,7 @@
 pub type Scanner
 
 ///|
-pub extern "js" fn Host::scanner(self : Host) -> Scanner =
+pub extern "js" fn NshHost::scanner(self : NshHost) -> Scanner =
   #| (h) => h.scanner
 
 ///|

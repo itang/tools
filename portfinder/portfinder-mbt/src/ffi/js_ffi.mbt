@@ -1,6 +1,6 @@
 // Bridges to facts and state owned by the JavaScript side, as opposed to the
 // nsh APIs in `nsh_ffi.mbt` and the Rust nshm in `portradar_native_ffi.mbt`.
-// Each concern has its own opaque type; `Host` only hands out the instances
+// Each concern has its own opaque type; `NshHost` only hands out the instances
 // injected by `App.tsx`. Only the read/assignment happens here; all parsing
 // and formatting is MoonBit.
 
@@ -13,11 +13,11 @@ pub type Clock
 pub type TableState
 
 ///|
-pub extern "js" fn Host::clock(self : Host) -> Clock =
+pub extern "js" fn NshHost::clock(self : NshHost) -> Clock =
   #| (h) => h.clock
 
 ///|
-pub extern "js" fn Host::table_state(self : Host) -> TableState =
+pub extern "js" fn NshHost::table_state(self : NshHost) -> TableState =
   #| (h) => h.tableState
 
 // The current wall clock as whole seconds since the Unix epoch, and the

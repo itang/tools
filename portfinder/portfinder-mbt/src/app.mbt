@@ -1,12 +1,12 @@
 ///|
-fn el(host : Host, tag : String, class : String) -> Node {
+fn el(host : NshHost, tag : String, class : String) -> Node {
   let node = host.element(tag)
   host.set_class(node, class)
   node
 }
 
 ///|
-fn txt(host : Host, class : String, content : String) -> Node {
+fn txt(host : NshHost, class : String, content : String) -> Node {
   let node = el(host, "text", class)
   host.append(node, host.text(content))
   node
@@ -261,7 +261,7 @@ fn address_detail(entries : Array[Entry]) -> String {
 
 ///|
 fn answer_strip(
-  host : Host,
+  host : NshHost,
   status : Int32,
   entries : Array[Entry],
   port : Int32,
@@ -325,7 +325,7 @@ fn answer_strip(
 }
 
 ///|
-fn table_state(host : Host, message : String, is_error : Bool) -> Node {
+fn table_state(host : NshHost, message : String, is_error : Bool) -> Node {
   let box = el(
     host, "view", "h-[140px] items-center justify-center rounded-lg border border-border bg-background",
   )
@@ -342,7 +342,7 @@ fn table_state(host : Host, message : String, is_error : Bool) -> Node {
 // while the native scan runs on a background thread, plus a short label.
 
 ///|
-fn table_progress(host : Host, message : String) -> Node {
+fn table_progress(host : NshHost, message : String) -> Node {
   let box = el(
     host, "view", "h-[140px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background",
   )
@@ -358,7 +358,7 @@ fn table_progress(host : Host, message : String) -> Node {
 
 ///|
 fn process_cell(
-  host : Host,
+  host : NshHost,
   row : Int32,
   proc : ProcessRow,
   key : String,
@@ -446,7 +446,7 @@ fn table_metrics(area_w : Int32, area_h : Int32) -> (Int32, Int32, Int32) {
 
 ///|
 fn process_list(
-  host : Host,
+  host : NshHost,
   rows : Array[ProcessRow],
   height : Int32,
   name_width : Int32,
@@ -479,7 +479,7 @@ fn process_list(
 
 ///|
 fn list_view(
-  host : Host,
+  host : NshHost,
   status : Int32,
   rows : Array[ProcessRow],
   filter : String,
@@ -547,7 +547,7 @@ fn socket_pairs(
 }
 
 ///|
-fn inspector_field(host : Host, label : String, value : String) -> Node {
+fn inspector_field(host : NshHost, label : String, value : String) -> Node {
   let field = el(host, "view", "shrink-0 flex-row items-center gap-1")
   host.append(field, txt(host, "text-xs text-muted-foreground", label))
   host.append(field, txt(host, "text-xs text-foreground tabular-nums", value))
@@ -558,7 +558,7 @@ fn inspector_field(host : Host, label : String, value : String) -> Node {
 // address truncates, so a long IPv6 endpoint still fits the line.
 
 ///|
-fn socket_chip(host : Host, pair : (String, String)) -> Node {
+fn socket_chip(host : NshHost, pair : (String, String)) -> Node {
   let (proto, addr) = pair
   let chip = el(
     host, "view", "flex-row items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border border-border bg-background px-1.5 py-0.5",
@@ -587,7 +587,7 @@ fn socket_chip(host : Host, pair : (String, String)) -> Node {
 
 ///|
 fn path_line_view(
-  host : Host,
+  host : NshHost,
   path : String,
   copyable : Bool,
   copied : Bool,
@@ -631,7 +631,7 @@ fn path_line_view(
 
 ///|
 fn inspector_view(
-  host : Host,
+  host : NshHost,
   rows : Array[ProcessRow],
   selected : Int32,
   entries : Array[Entry],
@@ -757,7 +757,7 @@ fn appearance_label(mode : String) -> String {
 
 ///|
 fn appearance_switch(
-  host : Host,
+  host : NshHost,
   mode : String,
   pick : (String) -> Unit,
 ) -> Node {
@@ -790,7 +790,7 @@ fn appearance_switch(
 
 ///|
 fn footer_view(
-  host : Host,
+  host : NshHost,
   count : Int32,
   filter : String,
   notice : String,
@@ -821,7 +821,7 @@ fn footer_view(
 }
 
 ///|
-pub fn app(host : Host) -> Node {
+pub fn app(host : NshHost) -> Node {
   let version = host.new_signal(0)
   let proc_version = host.new_signal(0)
   let notice_version = host.new_signal(0)

@@ -6,7 +6,7 @@
 
 ///|
 #external
-pub type Host
+pub type NshHost
 
 ///|
 #external
@@ -17,20 +17,20 @@ pub type Node
 pub type Signal
 
 ///|
-pub extern "js" fn Host::platform(self : Host) -> String =
+pub extern "js" fn NshHost::platform(self : NshHost) -> String =
   #| (h) => h.platform
 
 ///|
-pub extern "js" fn Host::element(self : Host, tag : String) -> Node =
+pub extern "js" fn NshHost::element(self : NshHost, tag : String) -> Node =
   #| (h, tag) => h.rt.element(tag)
 
 ///|
-pub extern "js" fn Host::text(self : Host, value : String) -> Node =
+pub extern "js" fn NshHost::text(self : NshHost, value : String) -> Node =
   #| (h, value) => h.rt.text(value)
 
 ///|
-pub extern "js" fn Host::append(
-  self : Host,
+pub extern "js" fn NshHost::append(
+  self : NshHost,
   parent : Node,
   child : Node,
 ) -> Unit =
@@ -41,8 +41,8 @@ pub extern "js" fn Host::append(
 // A child area rebuilt from `get` whenever the signals it reads change.
 
 ///|
-pub extern "js" fn Host::insert(
-  self : Host,
+pub extern "js" fn NshHost::insert(
+  self : NshHost,
   parent : Node,
   get : () -> Node,
 ) -> Unit =
@@ -51,8 +51,8 @@ pub extern "js" fn Host::insert(
   #| }
 
 ///|
-pub extern "js" fn Host::set_class(
-  self : Host,
+pub extern "js" fn NshHost::set_class(
+  self : NshHost,
   node : Node,
   value : String,
 ) -> Unit =
@@ -61,7 +61,7 @@ pub extern "js" fn Host::set_class(
   #| }
 
 ///|
-pub extern "js" fn Host::new_signal(self : Host, value : Int32) -> Signal =
+pub extern "js" fn NshHost::new_signal(self : NshHost, value : Int32) -> Signal =
   #| (h, value) => h.signal(value)
 
 ///|
@@ -78,8 +78,8 @@ pub extern "js" fn Signal::bump(self : Signal) -> Unit =
 // caller supplies the outer/track/indicator classes so the app owns the look.
 
 ///|
-pub extern "js" fn Host::progress(
-  self : Host,
+pub extern "js" fn NshHost::progress(
+  self : NshHost,
   class : String,
   track_class : String,
   indicator_class : String,
@@ -98,8 +98,8 @@ pub extern "js" fn Host::progress(
 // call into the platform API.
 
 ///|
-pub extern "js" fn Host::run_command(
-  self : Host,
+pub extern "js" fn NshHost::run_command(
+  self : NshHost,
   exe : String,
   args : FixedArray[String],
   timeout_ms : Int32,
@@ -117,8 +117,8 @@ pub extern "js" fn Host::run_command(
 // hears the reported values.
 
 ///|
-pub extern "js" fn Host::number_input(
-  self : Host,
+pub extern "js" fn NshHost::number_input(
+  self : NshHost,
   class : String,
   input_class : String,
   initial : Int32,
@@ -145,8 +145,8 @@ pub extern "js" fn Host::number_input(
 // hears what the user typed.
 
 ///|
-pub extern "js" fn Host::text_input(
-  self : Host,
+pub extern "js" fn NshHost::text_input(
+  self : NshHost,
   class : String,
   placeholder : String,
   label : String,
@@ -164,8 +164,8 @@ pub extern "js" fn Host::text_input(
   #| })
 
 ///|
-pub extern "js" fn Host::button(
-  self : Host,
+pub extern "js" fn NshHost::button(
+  self : NshHost,
   class : String,
   label : Node,
   on_press : () -> Unit,
@@ -180,8 +180,8 @@ pub extern "js" fn Host::button(
 // `clipboard` capability.
 
 ///|
-pub extern "js" fn Host::write_clipboard(
-  self : Host,
+pub extern "js" fn NshHost::write_clipboard(
+  self : NshHost,
   text : String,
   done : () -> Unit,
   fail : (String) -> Unit,
@@ -197,8 +197,8 @@ pub extern "js" fn Host::write_clipboard(
 // `done` is called for the destructive action.
 
 ///|
-pub extern "js" fn Host::confirm_destructive(
-  self : Host,
+pub extern "js" fn NshHost::confirm_destructive(
+  self : NshHost,
   title : String,
   description : String,
   confirm_label : String,
@@ -222,13 +222,15 @@ pub extern "js" fn Host::confirm_destructive(
 // `h.icon`), shown as an `Image` at the size `class` asks for.
 
 ///|
-pub extern "js" fn Host::app_icon(self : Host, class : String) -> Node =
+pub extern "js" fn NshHost::app_icon(self : NshHost, class : String) -> Node =
   #| (h, class_name) => h.rt.component(h.Image, { src: h.icon, class: class_name })
 
 // `[height, left, right]` of the hidden title bar's area, in points.
 
 ///|
-pub extern "js" fn Host::title_bar_metrics(self : Host) -> FixedArray[Int32] =
+pub extern "js" fn NshHost::title_bar_metrics(
+  self : NshHost,
+) -> FixedArray[Int32] =
   #| (h) => {
   #|   const t = h.titleBar();
   #|   return [Math.round(t.height), Math.round(t.left), Math.round(t.right)];
@@ -237,7 +239,7 @@ pub extern "js" fn Host::title_bar_metrics(self : Host) -> FixedArray[Int32] =
 // Lets a press on `node` drag the window, as a title bar would.
 
 ///|
-pub extern "js" fn Host::drag_window(self : Host, node : Node) -> Unit =
+pub extern "js" fn NshHost::drag_window(self : NshHost, node : Node) -> Unit =
   #| (h, node) => h.rt.prop(node, "desktop", { windowDrag: true })
 
 // The appearance the app shows: `"system"` follows the platform's, `"light"`
@@ -245,15 +247,18 @@ pub extern "js" fn Host::drag_window(self : Host, node : Node) -> Unit =
 // every `nsh/base` component's theme in the same frame.
 
 ///|
-pub extern "js" fn Host::set_color_scheme(self : Host, scheme : String) -> Unit =
+pub extern "js" fn NshHost::set_color_scheme(
+  self : NshHost,
+  scheme : String,
+) -> Unit =
   #| (h, scheme) => h.setColorScheme(scheme)
 
 // The app's key-value storage (`Storage` in `nsh`), kept across launches. A
 // missing key, or a failed read, reports an empty string.
 
 ///|
-pub extern "js" fn Host::load_preference(
-  self : Host,
+pub extern "js" fn NshHost::load_preference(
+  self : NshHost,
   key : String,
   done : (String) -> Unit,
 ) -> Unit =
@@ -267,8 +272,8 @@ pub extern "js" fn Host::load_preference(
 // Writes a preference; a full or unavailable storage leaves the app as it is.
 
 ///|
-pub extern "js" fn Host::save_preference(
-  self : Host,
+pub extern "js" fn NshHost::save_preference(
+  self : NshHost,
   key : String,
   value : String,
 ) -> Unit =
@@ -279,8 +284,8 @@ pub extern "js" fn Host::save_preference(
 // Reports `node`'s laid-out size in points whenever it changes.
 
 ///|
-pub extern "js" fn Host::on_layout(
-  self : Host,
+pub extern "js" fn NshHost::on_layout(
+  self : NshHost,
   node : Node,
   handler : (Int32, Int32) -> Unit,
 ) -> Unit =
@@ -296,8 +301,8 @@ pub extern "js" fn Host::on_layout(
 // gives the table, so a window resize shows more rows and wider columns.
 
 ///|
-pub extern "js" fn Host::process_table(
-  self : Host,
+pub extern "js" fn NshHost::process_table(
+  self : NshHost,
   count : Int32,
   height : Int32,
   name_width : Int32,

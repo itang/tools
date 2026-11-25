@@ -12,35 +12,35 @@ pub fn Clock::local_time_parts(Self, Int32) -> FixedArray[Int32]
 pub fn Clock::now_s(Self) -> Int32
 
 #external
-pub type Host
-pub fn Host::app_icon(Self, String) -> Node
-pub fn Host::append(Self, Node, Node) -> Unit
-pub fn Host::button(Self, String, Node, () -> Unit) -> Node
-pub fn Host::clock(Self) -> Clock
-pub fn Host::confirm_destructive(Self, String, String, String, () -> Unit) -> Unit
-pub fn Host::drag_window(Self, Node) -> Unit
-pub fn Host::element(Self, String) -> Node
-pub fn Host::insert(Self, Node, () -> Node) -> Unit
-pub fn Host::load_preference(Self, String, (String) -> Unit) -> Unit
-pub fn Host::new_signal(Self, Int32) -> Signal
-pub fn Host::number_input(Self, String, String, Int32, (Int32) -> Unit, (Int32) -> Unit) -> Node
-pub fn Host::on_layout(Self, Node, (Int32, Int32) -> Unit) -> Unit
-pub fn Host::platform(Self) -> String
-pub fn Host::process_table(Self, Int32, Int32, Int32, Int32, String, Bool, Int32, (Int32, String) -> Node, (String, String) -> Unit, (Int32, String) -> Unit, (Int32) -> Unit) -> Node
-pub fn Host::progress(Self, String, String, String) -> Node
-pub fn Host::run_command(Self, String, FixedArray[String], Int32, (Int32, String, String) -> Unit, (String) -> Unit) -> Unit
-pub fn Host::save_preference(Self, String, String) -> Unit
-pub fn Host::scanner(Self) -> Scanner
-pub fn Host::set_class(Self, Node, String) -> Unit
-pub fn Host::set_color_scheme(Self, String) -> Unit
-pub fn Host::table_state(Self) -> TableState
-pub fn Host::text(Self, String) -> Node
-pub fn Host::text_input(Self, String, String, String, (String) -> Unit, (String) -> Unit) -> Node
-pub fn Host::title_bar_metrics(Self) -> FixedArray[Int32]
-pub fn Host::write_clipboard(Self, String, () -> Unit, (String) -> Unit) -> Unit
+pub type Node
 
 #external
-pub type Node
+pub type NshHost
+pub fn NshHost::app_icon(Self, String) -> Node
+pub fn NshHost::append(Self, Node, Node) -> Unit
+pub fn NshHost::button(Self, String, Node, () -> Unit) -> Node
+pub fn NshHost::clock(Self) -> Clock
+pub fn NshHost::confirm_destructive(Self, String, String, String, () -> Unit) -> Unit
+pub fn NshHost::drag_window(Self, Node) -> Unit
+pub fn NshHost::element(Self, String) -> Node
+pub fn NshHost::insert(Self, Node, () -> Node) -> Unit
+pub fn NshHost::load_preference(Self, String, (String) -> Unit) -> Unit
+pub fn NshHost::new_signal(Self, Int32) -> Signal
+pub fn NshHost::number_input(Self, String, String, Int32, (Int32) -> Unit, (Int32) -> Unit) -> Node
+pub fn NshHost::on_layout(Self, Node, (Int32, Int32) -> Unit) -> Unit
+pub fn NshHost::platform(Self) -> String
+pub fn NshHost::process_table(Self, Int32, Int32, Int32, Int32, String, Bool, Int32, (Int32, String) -> Node, (String, String) -> Unit, (Int32, String) -> Unit, (Int32) -> Unit) -> Node
+pub fn NshHost::progress(Self, String, String, String) -> Node
+pub fn NshHost::run_command(Self, String, FixedArray[String], Int32, (Int32, String, String) -> Unit, (String) -> Unit) -> Unit
+pub fn NshHost::save_preference(Self, String, String) -> Unit
+pub fn NshHost::scanner(Self) -> Scanner
+pub fn NshHost::set_class(Self, Node, String) -> Unit
+pub fn NshHost::set_color_scheme(Self, String) -> Unit
+pub fn NshHost::table_state(Self) -> TableState
+pub fn NshHost::text(Self, String) -> Node
+pub fn NshHost::text_input(Self, String, String, String, (String) -> Unit, (String) -> Unit) -> Node
+pub fn NshHost::title_bar_metrics(Self) -> FixedArray[Int32]
+pub fn NshHost::write_clipboard(Self, String, () -> Unit, (String) -> Unit) -> Unit
 
 #external
 pub type Scanner

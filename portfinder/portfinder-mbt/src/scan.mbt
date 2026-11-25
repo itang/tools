@@ -118,8 +118,8 @@ fn ss_entries(text : String, port : Int32) -> Array[Entry] {
 // output so the caller can fall back to another source.
 
 ///|
-fn Host::run_quiet(
-  self : Host,
+fn NshHost::run_quiet(
+  self : NshHost,
   exe : String,
   args : FixedArray[String],
   timeout_ms : Int32,
@@ -137,8 +137,8 @@ fn Host::run_quiet(
 // The macOS/Linux fallback: TCP listeners and UDP bindings from lsof.
 
 ///|
-fn Host::scan_lsof(
-  self : Host,
+fn NshHost::scan_lsof(
+  self : NshHost,
   port : Int32,
   done : (Array[Entry]) -> Unit,
 ) -> Unit {
@@ -155,8 +155,8 @@ fn Host::scan_lsof(
 // permission-limited lookup reports the socket with an empty name and pid 0.
 
 ///|
-fn Host::scan_port(
-  self : Host,
+fn NshHost::scan_port(
+  self : NshHost,
   port : Int32,
   done : (Array[Entry]) -> Unit,
   fail : (String) -> Unit,
@@ -184,8 +184,8 @@ fn Host::scan_port(
 // it arrives as UTF-8; Windows' localized output would not decode cleanly.
 
 ///|
-fn Host::kill_process(
-  self : Host,
+fn NshHost::kill_process(
+  self : NshHost,
   pid : Int32,
   done : () -> Unit,
   fail : (String) -> Unit,
@@ -257,8 +257,8 @@ priv struct ProcessRow {
 // bridge used to provide, now expressed with the thin `run_command` bridge.
 
 ///|
-fn Host::run_many(
-  self : Host,
+fn NshHost::run_many(
+  self : NshHost,
   jobs : FixedArray[(String, FixedArray[String])],
   done : (FixedArray[String]) -> Unit,
 ) -> Unit {
@@ -731,8 +731,8 @@ fn linux_rows(ss_text : String, ps_text : String, now_s : Int32) -> String {
 // permission-limited lookup reports the socket with an empty name and pid 0.
 
 ///|
-fn Host::scan_processes(
-  self : Host,
+fn NshHost::scan_processes(
+  self : NshHost,
   done : (String) -> Unit,
   fail : (String) -> Unit,
 ) -> Unit {
@@ -766,7 +766,7 @@ fn Host::scan_processes(
 // The clock read is the only host fact; the subtraction is MoonBit.
 
 ///|
-fn Host::running_seconds(self : Host, started_s : Int32) -> Int32 {
+fn NshHost::running_seconds(self : NshHost, started_s : Int32) -> Int32 {
   if started_s == 0 {
     -1
   } else {
@@ -784,7 +784,7 @@ fn Host::running_seconds(self : Host, started_s : Int32) -> Int32 {
 // are MoonBit.
 
 ///|
-fn Host::format_time(self : Host, started_s : Int32) -> String {
+fn NshHost::format_time(self : NshHost, started_s : Int32) -> String {
   if started_s == 0 {
     ""
   } else {

@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn app(@ffi.Host) -> @ffi.Node
+pub fn app(@ffi.NshHost) -> @ffi.Node
 
 // Errors
 
