@@ -28,7 +28,7 @@ pub fn NshHost::new_signal(Self, Int32) -> Signal
 pub fn NshHost::number_input(Self, String, String, Int32, (Int32) -> Unit, (Int32) -> Unit) -> Node
 pub fn NshHost::on_layout(Self, Node, (Int32, Int32) -> Unit) -> Unit
 pub fn NshHost::platform(Self) -> String
-pub fn NshHost::process_table(Self, Int32, Int32, Int32, Int32, String, Bool, Int32, (Int32, String) -> Node, (String, String) -> Unit, (Int32, String) -> Unit, (Int32) -> Unit) -> Node
+pub fn NshHost::process_table(Self, TableState, Int32, Int32, Int32, Int32, String, Bool, Int32, (Int32, String) -> Node, (String, String) -> Unit, (Int32, String) -> Unit, (Int32) -> Unit) -> Node
 pub fn NshHost::progress(Self, String, String, String) -> Node
 pub fn NshHost::run_command(Self, String, FixedArray[String], Int32, (Int32, String, String) -> Unit, (String) -> Unit) -> Unit
 pub fn NshHost::save_preference(Self, String, String) -> Unit

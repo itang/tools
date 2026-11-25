@@ -144,6 +144,7 @@ fn build_view(rt : Runtime, state : Ref[AppState]) -> Node {
     list_view(
       rt.host,
       rt.clock,
+      rt.table,
       state.val.proc_status,
       rows,
       state.val.name_filter,

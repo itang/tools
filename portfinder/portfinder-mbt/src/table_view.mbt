@@ -123,6 +123,7 @@ fn table_metrics(area_w : Int32, area_h : Int32) -> (Int32, Int32, Int32) {
 fn process_list(
   host : NshHost,
   clock : Clock,
+  table : TableState,
   rows : Array[ProcessRow],
   height : Int32,
   name_width : Int32,
@@ -135,6 +136,7 @@ fn process_list(
   on_kill : (ProcessRow) -> Unit,
 ) -> Node {
   host.process_table(
+    table,
     rows.length(),
     height,
     name_width,
@@ -157,6 +159,7 @@ fn process_list(
 fn list_view(
   host : NshHost,
   clock : Clock,
+  table : TableState,
   status : Int32,
   rows : Array[ProcessRow],
   filter : String,
@@ -186,7 +189,7 @@ fn list_view(
     return table_state(host, empty, false)
   }
   process_list(
-    host, clock, rows, height, name_width, ports_width, sort_key, sort_ascending,
+    host, clock, table, rows, height, name_width, ports_width, sort_key, sort_ascending,
     selected, on_sort, on_select, on_kill,
   )
 }

@@ -303,6 +303,7 @@ pub extern "js" fn NshHost::on_layout(
 ///|
 pub extern "js" fn NshHost::process_table(
   self : NshHost,
+  table : TableState,
   count : Int32,
   height : Int32,
   name_width : Int32,
@@ -315,7 +316,7 @@ pub extern "js" fn NshHost::process_table(
   on_row_press : (Int32, String) -> Unit,
   on_select : (Int32) -> Unit,
 ) -> Node =
-  #| (h, count, height, nameWidth, portsWidth, sortKey, sortAscending, selected, cell, onSort, onRowPress, onSelect) => {
+  #| (h, table, count, height, nameWidth, portsWidth, sortKey, sortAscending, selected, cell, onSort, onRowPress, onSelect) => {
   #|   const columns = [
   #|     { key: "seq", title: "序号", width: 56, fixed: true, align: "end", cellClass: "text-right", headerClass: "text-right" },
   #|     { key: "name", title: "进程", width: nameWidth, fixed: true, sortable: true },
@@ -349,12 +350,12 @@ pub extern "js" fn NshHost::process_table(
   #|       rowSelected: "bg-primary/10",
   #|       cell: "px-3 text-sm text-foreground",
   #|     },
-  #|     ref: (table) => {
-  #|       h.tableState.instance = table;
-  #|       if (table && typeof h.tableState.revealRow === "number" && h.tableState.revealRow >= 0) {
+  #|     ref: (widget) => {
+  #|       table.instance = widget;
+  #|       if (widget && typeof table.revealRow === "number" && table.revealRow >= 0) {
   #|         try {
-  #|           table.select({ row: h.tableState.revealRow });
-  #|           table.scrollToRow(h.tableState.revealRow, false);
+  #|           widget.select({ row: table.revealRow });
+  #|           widget.scrollToRow(table.revealRow, false);
   #|         } catch (e) {}
   #|       }
   #|     },
