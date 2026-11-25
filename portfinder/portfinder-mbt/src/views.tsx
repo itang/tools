@@ -279,49 +279,60 @@ interface InspectorProps {
   selected: number;
   entries: Entry[];
   port: number;
-  copied: boolean;
+  copiedKey: string;
+}
+
+// A compact one-click copy for a single field; the label flips to "已复制"
+// for this field only, driven by the store's copiedKey signal.
+function CopyButton(props: { text: string; field: string; copiedKey: string; copy: (text: string, key: string) => void }): JSX.Element {
+  return (
+    <Button
+      class="shrink-0 rounded border border-border bg-background px-1 py-0 hover:bg-muted active:opacity-90"
+      onPress={() => props.copy(props.text, props.field)}
+    >
+      <Text class="text-[10px] text-muted-foreground">
+        {props.copiedKey === props.field ? "已复制" : "复制"}
+      </Text>
+    </Button>
+  );
 }
 
 function SelectedDetails(props: InspectorProps): JSX.Element {
   const proc = props.rows[props.selected];
   const pairs = socketPairs(proc, props.entries);
   const label = props.entries.some((e) => e.pid === proc.pid) ? `端口 ${props.port}` : "监听地址";
-  const copied = props.copied;
+  const name = proc.name === "" ? "未知进程" : proc.name;
+  const path = proc.path === "" ? "可执行文件路径不可用" : proc.path;
   return (
     <>
-      <View class="h-5 flex-row items-center gap-1.5 overflow-hidden">
-        <Text class="shrink-0 text-sm font-medium text-foreground">{proc.name === "" ? "未知进程" : proc.name}</Text>
-        <View class="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5">
-          <Text class="text-xs text-muted-foreground tabular-nums">PID {proc.pid}</Text>
-        </View>
+      <View class="h-5 flex-row items-center gap-1.5 overflow-hidden" selectable={true}>
+        <Text class="shrink-0 text-sm font-medium text-foreground">{name}</Text>
+        <If when={proc.name !== ""}>
+          <CopyButton text={proc.name} field="name" copiedKey={props.copiedKey} copy={(t, k) => props.store.copyText(t, k)} />
+        </If>
+        <Text class="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5 text-xs text-muted-foreground tabular-nums">
+          PID {proc.pid}
+        </Text>
+        <CopyButton text={String(proc.pid)} field="pid" copiedKey={props.copiedKey} copy={(t, k) => props.store.copyText(t, k)} />
         <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
-        <InspectorField label="父进程" value={proc.ppid > 0 ? String(proc.ppid) : "—"} />
+        <Text class="shrink-0 text-xs text-muted-foreground">父进程 {proc.ppid > 0 ? String(proc.ppid) : "—"}</Text>
         <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
-        <InspectorField label="启动" value={formatTime(proc.started_s) || "—"} />
+        <Text class="shrink-0 text-xs text-muted-foreground">启动 {formatTime(proc.started_s) || "—"}</Text>
       </View>
-      <View class="w-full h-5 flex-row items-center gap-1.5 overflow-hidden">
+      <View class="h-5 flex-row items-center gap-1.5 overflow-hidden" selectable={true}>
         <Text class="shrink-0 text-xs text-muted-foreground">路径</Text>
-        <Text class="flex-1 truncate text-xs text-muted-foreground">{proc.path === "" ? "可执行文件路径不可用" : proc.path}</Text>
+        <Text class="max-w-[340px] truncate text-xs text-muted-foreground">{path}</Text>
         <If when={proc.path !== ""}>
-          <Button
-            class="shrink-0 rounded border border-border bg-background px-1.5 py-0.5 hover:bg-muted active:opacity-90"
-            onPress={() => props.store.copyPath(proc.path)}
-          >
-            <Text class="text-xs text-muted-foreground">{copied ? "已复制" : "复制"}</Text>
-          </Button>
+          <CopyButton text={proc.path} field="path" copiedKey={props.copiedKey} copy={(t, k) => props.store.copyText(t, k)} />
         </If>
-      </View>
-      <View class="h-5 flex-row items-center gap-1.5 overflow-hidden">
-        <If when={pairs.length === 0}>
-          <Text class="text-xs text-muted-foreground">监听地址不可用</Text>
-        </If>
-        <If when={pairs.length > 0}>
+        <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
+        <View class="flex-1 flex-row items-center gap-1 overflow-hidden">
           <Text class="shrink-0 text-xs text-muted-foreground">{label}</Text>
-          {pairs.slice(0, 3).map((pair, i) => <SocketChip pair={pair} />)}
-          <If when={pairs.length > 3}>
-            <Text class="shrink-0 text-xs text-muted-foreground">+{pairs.length - 3}</Text>
+          {pairs.slice(0, 2).map((pair, i) => <SocketChip pair={pair} />)}
+          <If when={pairs.length > 2}>
+            <Text class="shrink-0 text-xs text-muted-foreground">+{pairs.length - 2}</Text>
           </If>
-        </If>
+        </View>
       </View>
     </>
   );
@@ -333,11 +344,11 @@ function InspectorView(props: InspectorProps): JSX.Element {
       <If when={props.selected < 0 || props.selected >= props.rows.length} else={<SelectedDetails {...props} />}>
         <View class="h-5 flex-row items-center">
           <Text class="text-sm font-medium text-muted-foreground">未选择进程</Text>
+          <Text class="text-xs text-muted-foreground"> · 在列表中选择一行，查看进程详情</Text>
         </View>
         <View class="w-full h-5 flex-row items-center">
-          <Text class="text-xs text-muted-foreground">在列表中选择一行，查看父进程、启动时间、路径与监听地址</Text>
+          <Text class="text-xs text-muted-foreground">名称、PID 与路径可一键复制</Text>
         </View>
-        <View class="h-5" />
       </If>
     </View>
   );
@@ -438,7 +449,7 @@ export function AppView(props: { store: Store; icon: unknown }): JSX.Element {
             selected={store.selectedRow()}
             entries={store.entries()}
             port={store.port()}
-            copied={store.copied()}
+            copiedKey={store.copiedKey()}
           />
           <Footer count={visibleRows(store.procs(), store.nameFilter()).length} filter={store.nameFilter()} notice={store.notice()} />
         </View>

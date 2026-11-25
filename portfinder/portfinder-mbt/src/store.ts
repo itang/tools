@@ -43,7 +43,7 @@ export class Store {
   readonly tableNameWidth = signal(176);
   readonly tablePortsWidth = signal(244);
   readonly appearance = signal<Appearance>("system");
-  readonly copied = signal(false);
+  readonly copiedKey = signal("");
 
   // Non-reactive coordination: a newer query wins over an older reply, and a
   // table rebuild re-applies the selection the user last saw.
@@ -269,9 +269,11 @@ export class Store {
     }
   }
 
-  copyPath(path: string): void {
-    Clipboard.writeText(path).then(() => {
-      this.copied.set(true);
+  // Copies one field of the selected process; `key` drives the per-field
+  // "已复制" feedback so each value can be copied independently.
+  copyText(text: string, key: string): void {
+    Clipboard.writeText(text).then(() => {
+      this.copiedKey.set(key);
     }, (error) => {
       this.copyFailed(error instanceof Error ? error.message : String(error));
     });

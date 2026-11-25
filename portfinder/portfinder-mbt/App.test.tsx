@@ -25,6 +25,11 @@ test("opens and reports the outcome of a scan", async () => {
   await app.press("text:svchost.exe >> nth=0");
   await app.waitUntil(() => !app.texts().includes("未选择进程"), { timeout: 10000 });
   expect(app.texts().some((t) => t.includes("TCP 监听") || t.includes("UDP 绑定") || t.includes("监听地址不可用"))).toBe(true);
+  // The inspector is compact (two lines) and offers one-click copy per field.
+  expect(app.texts()).toContain("路径");
+  expect(app.count("text:复制") + app.count("text:已复制")).toBeGreaterThanOrEqual(2);
+  await app.press("text:复制 >> nth=0");
+  await app.waitUntil(() => app.texts().includes("已复制"), { timeout: 5000 });
 });
 
 test("清空 clears both conditions and the port answer", async () => {
