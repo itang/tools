@@ -80,7 +80,9 @@ tasks.mbtx           任务脚本：编译、测试、打包、封装安装程�
 moonbit/             MoonBit 实现
   app.mbt            界面、查询、过滤与交互
   scan.mbt           进程/端口扫描与命令解析
-  nsh.mbt            对 nsh 运行时的绑定
+  nsh_ffi.mbt        nsh API 桥接（renderer / base 组件 / 存储 / 桌面 / 进程）
+  portrayadar_native_ffi.mbt  Rust nshm 桥接（scan / scanPort / killProcess）
+  js_ffi.mbt         JS 侧时钟与进程表状态桥接
 installer/           安装器脚本
   install.ps1        复制文件、写快捷方式与卸载项、启动应用
   uninstall.ps1      删除快捷方式、卸载项与安装目录

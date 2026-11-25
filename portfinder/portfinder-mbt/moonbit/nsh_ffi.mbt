@@ -1,7 +1,8 @@
-// The nsh surface the app uses: `nsh:rt`'s renderer ABI, `nsh`'s signals,
-// `nsh/base`'s Button, NumberInput and AlertDialog, `nsh/desktop`'s window,
-// and `process`/`os` for the scan. App.tsx hands them in because
-// `extern "js"` cannot emit a top-level import.
+// Bridges to nsh's own APIs: `nsh:rt`'s renderer ABI, `nsh`'s signals,
+// `nsh/base` components, `nsh/desktop`'s window, and `process` for the
+// macOS/Linux scan. `App.tsx` hands them in because `extern "js"` cannot emit
+// a top-level import. The app's Rust nshm lives in `portradar_native_ffi.mbt`;
+// JS-owned clocks and state live in `js_ffi.mbt`.
 
 #external
 pub type Host
@@ -63,57 +64,6 @@ extern "js" fn Host::progress(
   #|   indicatorClass: ind,
   #|   accessibilityLabel: "正在处理",
   #| })
-
-// Native (Rust/Win32) port lookup and process termination on Windows. They
-// replace the old powershell / taskkill child processes. The Rust scanPort
-// resolves with `name|pid|proto|state|addr` lines; killProcess resolves with
-// a boolean for success.
-extern "js" fn Host::native_port(
-  self : Host,
-  port : Int,
-  done : (String) -> Unit,
-  fail : (String) -> Unit,
-) -> Unit =
-  #| (h, port, done, fail) => {
-  #|   h.scanPort(port).then(done, (e) => fail(e && e.message ? e.message : String(e)));
-  #| }
-
-extern "js" fn Host::native_kill(
-  self : Host,
-  pid : Int,
-  done : (Bool) -> Unit,
-  fail : (String) -> Unit,
-) -> Unit =
-  #| (h, pid, done, fail) => {
-  #|   try { done(h.killProcess(pid)) }
-  #|   catch (e) { fail(e && e.message ? e.message : String(e)) }
-  #| }
-
-// Windows' full process scan, the Rust `Scanner.scanProcesses()`. Like the
-// two bridges above this is one call into a native capability; the text it
-// resolves with is already the `|`-delimited row format `parse_processes`
-// reads, so all parsing stays in MoonBit.
-extern "js" fn Host::native_scan(
-  self : Host,
-  done : (String) -> Unit,
-  fail : (String) -> Unit,
-) -> Unit =
-  #| (h, done, fail) => {
-  #|   h.scan().then(done, (e) => fail(e && e.message ? e.message : String(e)));
-  #| }
-
-// The current wall clock as whole seconds since the Unix epoch, and the
-// local calendar fields of such a timestamp. These read a platform fact the
-// JS engine owns (the system clock and its timezone); every calculation —
-// uptime subtraction, padding, the date string — is done in MoonBit.
-extern "js" fn Host::now_s(self : Host) -> Int =
-  #| (h) => Math.floor(Date.now() / 1000)
-
-extern "js" fn Host::local_time_parts(self : Host, epoch_s : Int) -> FixedArray[Int] =
-  #| (h, epoch_s) => {
-  #|   const d = new Date(epoch_s * 1000);
-  #|   return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()];
-  #| }
 
 // `process.run`: the executable plus its arguments, resolved with the exit
 // code and captured output. The lookup commands themselves, their output
@@ -287,3 +237,82 @@ extern "js" fn Host::on_layout(
   #|     handler(Math.round(e.bounds.size.width), Math.round(e.bounds.size.height));
   #|   }
   #| })
+
+// nsh/base's DataTable: a virtualized table that owns the header, column
+// widths, row hover/selection, sorting indicators and the keyboard. The app
+// draws each cell from its own rows; the size comes from the room the layout
+// gives the table, so a window resize shows more rows and wider columns.
+extern "js" fn Host::process_table(
+  self : Host,
+  count : Int,
+  height : Int,
+  name_width : Int,
+  ports_width : Int,
+  sort_key : String,
+  sort_ascending : Bool,
+  selected : Int,
+  cell : (Int, String) -> Node,
+  on_sort : (String, String) -> Unit,
+  on_row_press : (Int, String) -> Unit,
+  on_select : (Int) -> Unit,
+) -> Node =
+  #| (h, count, height, nameWidth, portsWidth, sortKey, sortAscending, selected, cell, onSort, onRowPress, onSelect) => {
+  #|   const columns = [
+  #|     { key: "seq", title: "序号", width: 56, fixed: true, align: "end", cellClass: "text-right", headerClass: "text-right" },
+  #|     { key: "name", title: "进程", width: nameWidth, fixed: true, sortable: true },
+  #|     { key: "pid", title: "PID", width: 76, align: "end", sortable: true, cellClass: "text-right", headerClass: "text-right" },
+  #|     { key: "ports", title: "端口", width: portsWidth, sortable: true },
+  #|     { key: "cpu", title: "CPU", width: 76, align: "end", sortable: true, cellClass: "text-right", headerClass: "text-right" },
+  #|     { key: "mem", title: "内存", width: 92, align: "end", sortable: true, cellClass: "text-right", headerClass: "text-right" },
+  #|     { key: "uptime", title: "运行时长", width: 98, sortable: true },
+  #|     { key: "action", title: "", width: 84, selectable: false, movable: false, resizable: false, cellClass: "px-2" },
+  #|   ];
+  #|   return h.rt.component(h.base.DataTable, {
+  #|     columns,
+  #|     data: Array.from({ length: count }, (_, row) => ({ row })),
+  #|     rowHeight: 32,
+  #|     headerHeight: 30,
+  #|     rowHeader: false,
+  #|     columnSelectable: false,
+  #|     cellSelectable: false,
+  #|     stripe: false,
+  #|     sort: sortKey ? { key: sortKey, direction: sortAscending ? "ascending" : "descending" } : null,
+  #|     selection: selected >= 0 ? { row: selected } : null,
+  #|     accessibilityLabel: "占用端口的进程",
+  #|     class: "h-[" + height + "px] rounded-lg border border-border bg-background",
+  #|     classes: {
+  #|       header: "border-b border-border bg-muted/40",
+  #|       headerCell: "px-3 text-xs font-medium text-muted-foreground",
+  #|       headerContent: "gap-1",
+  #|       sortIndicator: "text-muted-foreground",
+  #|       row: "h-8",
+  #|       rowHover: "bg-muted/50",
+  #|       rowSelected: "bg-primary/10",
+  #|       cell: "px-3 text-sm text-foreground",
+  #|     },
+  #|     ref: (table) => {
+  #|       h.__processTable = table;
+  #|       if (table && typeof h.__revealRow === "number" && h.__revealRow >= 0) {
+  #|         try {
+  #|           table.select({ row: h.__revealRow });
+  #|           table.scrollToRow(h.__revealRow, false);
+  #|         } catch (e) {}
+  #|       }
+  #|     },
+  #|     renderCell: (value) => cell(value.row, value.key),
+  #|     onSortChange: (e) => {
+  #|       const s = e && e.sort ? e.sort : null;
+  #|       onSort(s ? s.key : "", s && s.direction ? s.direction : "");
+  #|     },
+  #|     onRowPress: (e) => {
+  #|       const r = e && typeof e.row === "number" ? e.row : -1;
+  #|       const c = e && typeof e.column === "number" ? e.column : -1;
+  #|       if (r >= 0) onRowPress(r, c >= 0 && columns[c] ? columns[c].key : "");
+  #|     },
+  #|     onSelectionChange: (e) => {
+  #|       const sel = e && e.selection ? e.selection : null;
+  #|       if (!sel) return;
+  #|       onSelect(typeof sel.row === "number" ? sel.row : -1);
+  #|     },
+  #|   });
+  #| }
