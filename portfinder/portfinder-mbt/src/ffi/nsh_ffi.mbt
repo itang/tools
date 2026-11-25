@@ -345,11 +345,11 @@ pub extern "js" fn Host::process_table(
   #|       cell: "px-3 text-sm text-foreground",
   #|     },
   #|     ref: (table) => {
-  #|       h.__processTable = table;
-  #|       if (table && typeof h.__revealRow === "number" && h.__revealRow >= 0) {
+  #|       h.tableState.instance = table;
+  #|       if (table && typeof h.tableState.revealRow === "number" && h.tableState.revealRow >= 0) {
   #|         try {
-  #|           table.select({ row: h.__revealRow });
-  #|           table.scrollToRow(h.__revealRow, false);
+  #|           table.select({ row: h.tableState.revealRow });
+  #|           table.scrollToRow(h.tableState.revealRow, false);
   #|         } catch (e) {}
   #|       }
   #|     },

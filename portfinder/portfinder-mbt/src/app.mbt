@@ -910,7 +910,7 @@ pub fn app(host : Host) -> Node {
           selected_pid = if target >= 0 { visible[target].pid } else { -1 }
           proc_version.bump()
           selection_version.bump()
-          host.reveal_row(target)
+          host.table_state().reveal_row(target)
         }
       },
       fn(message) {
@@ -973,7 +973,7 @@ pub fn app(host : Host) -> Node {
           }
           version.bump()
           selection_version.bump()
-          host.reveal_row(reveal)
+          host.table_state().reveal_row(reveal)
         }
       },
       fn(message) {
@@ -985,7 +985,7 @@ pub fn app(host : Host) -> Node {
           pending_reveal_pid = 0
           version.bump()
           selection_version.bump()
-          host.reveal_row(-1)
+          host.table_state().reveal_row(-1)
         }
       },
     )
@@ -1028,7 +1028,7 @@ pub fn app(host : Host) -> Node {
       pending_reveal_pid = 0
       proc_version.bump()
       selection_version.bump()
-      host.reveal_row(-1)
+      host.table_state().reveal_row(-1)
     }
     clear_notice()
     if port <= 0 {
@@ -1070,7 +1070,7 @@ pub fn app(host : Host) -> Node {
     version.bump()
     proc_version.bump()
     selection_version.bump()
-    host.remember_row(-1)
+    host.table_state().remember_row(-1)
     refresh_processes()
   }
 
@@ -1084,7 +1084,7 @@ pub fn app(host : Host) -> Node {
       selected_pid = -1
       proc_version.bump()
       selection_version.bump()
-      host.reveal_row(-1)
+      host.table_state().reveal_row(-1)
     }
   }
 
@@ -1098,7 +1098,7 @@ pub fn app(host : Host) -> Node {
     if row != selected_row || pid != selected_pid {
       selected_row = row
       selected_pid = pid
-      host.remember_row(row)
+      host.table_state().remember_row(row)
       selection_version.bump()
     }
   }

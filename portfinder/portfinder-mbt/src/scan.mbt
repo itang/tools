@@ -741,7 +741,7 @@ fn Host::scan_processes(
     self.scanner().scan_processes(fn(text) { done(keep_lines(text)) }, fail)
     return
   }
-  let now_s = self.now_s()
+  let now_s = self.clock().now_s()
   if os == "macos" {
     self.run_many(
       [
@@ -770,7 +770,7 @@ fn Host::running_seconds(self : Host, started_s : Int32) -> Int32 {
   if started_s == 0 {
     -1
   } else {
-    let delta = self.now_s() - started_s
+    let delta = self.clock().now_s() - started_s
     if delta > 0 {
       delta
     } else {
@@ -788,7 +788,7 @@ fn Host::format_time(self : Host, started_s : Int32) -> String {
   if started_s == 0 {
     ""
   } else {
-    let parts = self.local_time_parts(started_s)
+    let parts = self.clock().local_time_parts(started_s)
     let pad = fn(n : Int32) -> String { if n < 10 { "0\{n}" } else { "\{n}" } }
     "\{parts[0]}-\{pad(parts[1])}-\{pad(parts[2])} \{pad(parts[3])}:\{pad(parts[4])}"
   }

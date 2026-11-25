@@ -1,20 +1,38 @@
 // Bridges to facts and state owned by the JavaScript side, as opposed to the
 // nsh APIs in `nsh_ffi.mbt` and the Rust nshm in `portradar_native_ffi.mbt`.
-// Only the read/assignment happens here; all parsing and formatting is MoonBit.
+// Each concern has its own opaque type; `Host` only hands out the instances
+// injected by `App.tsx`. Only the read/assignment happens here; all parsing
+// and formatting is MoonBit.
+
+///|
+#external
+pub type Clock
+
+///|
+#external
+pub type TableState
+
+///|
+pub extern "js" fn Host::clock(self : Host) -> Clock =
+  #| (h) => h.clock
+
+///|
+pub extern "js" fn Host::table_state(self : Host) -> TableState =
+  #| (h) => h.tableState
 
 // The current wall clock as whole seconds since the Unix epoch, and the
 // local calendar fields of such a timestamp.
 
 ///|
-pub extern "js" fn Host::now_s(self : Host) -> Int32 =
-  #| (h) => Math.floor(Date.now() / 1000)
+pub extern "js" fn Clock::now_s(self : Clock) -> Int32 =
+  #| () => Math.floor(Date.now() / 1000)
 
 ///|
-pub extern "js" fn Host::local_time_parts(
-  self : Host,
+pub extern "js" fn Clock::local_time_parts(
+  self : Clock,
   epoch_s : Int32,
 ) -> FixedArray[Int32] =
-  #| (h, epoch_s) => {
+  #| (_, epoch_s) => {
   #|   const d = new Date(epoch_s * 1000);
   #|   return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()];
   #| }
@@ -24,13 +42,16 @@ pub extern "js" fn Host::local_time_parts(
 // unselected; `-1` clears it.
 
 ///|
-pub extern "js" fn Host::reveal_row(self : Host, row : Int32) -> Unit =
-  #| (h, row) => {
-  #|   h.__revealRow = row;
-  #|   if (row >= 0 && h.__processTable) {
+pub extern "js" fn TableState::reveal_row(
+  self : TableState,
+  row : Int32,
+) -> Unit =
+  #| (s, row) => {
+  #|   s.revealRow = row;
+  #|   if (row >= 0 && s.instance) {
   #|     try {
-  #|       h.__processTable.select({ row });
-  #|       h.__processTable.scrollToRow(row, false);
+  #|       s.instance.select({ row });
+  #|       s.instance.scrollToRow(row, false);
   #|     } catch (e) {}
   #|   }
   #| }
@@ -39,12 +60,8 @@ pub extern "js" fn Host::reveal_row(self : Host, row : Int32) -> Unit =
 // rebuild re-applies it from the same place `reveal_row` stores it.
 
 ///|
-pub extern "js" fn Host::remember_row(self : Host, row : Int32) -> Unit =
-  #| (h, row) => { h.__revealRow = row; }
-
-// The app's Rust nshm module, injected by `App.tsx` as `h.scanner`. Only the
-// lookup lives here; the native operations belong to `Scanner` itself.
-
-///|
-pub extern "js" fn Host::scanner(self : Host) -> Scanner =
-  #| (h) => h.scanner
+pub extern "js" fn TableState::remember_row(
+  self : TableState,
+  row : Int32,
+) -> Unit =
+  #| (s, row) => { s.revealRow = row; }
