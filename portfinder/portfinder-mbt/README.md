@@ -77,15 +77,23 @@ ext/portradar-native/ Rust nshm：Win32 原生进程/端口扫描（0.7 起以 p
   src/               lib.rs（#[native_module("portradar-native")]）+ sys/net/process/scan 四个内部模块
 tasks.mbtx           任务脚本：编译、测试、打包、封装安装程序（moon run tasks.mbtx …）
 src/                 MoonBit app 包（模块默认包）
-  app.mbt            界面、查询、过滤与交互
+  app.mbt            真正的入口：创建状态 → 构建视图 → 启动查询
+  state.mbt          AppState 与全部动作（查询/刷新/清空/排序/选中/结束进程）
+  view.mbt           视图树：只读状态、调用动作，不持有状态
+  model.mbt          纯数据：格式化、排序、过滤
+  ui.mbt             el / txt 两个视图原语
+  answer_view.mbt    查询结果提示条
+  table_view.mbt     进程表与加载/空态
+  inspector_view.mbt 进程检查器
+  chrome.mbt         标题栏外观切换与页脚
   scan.mbt           进程/端口扫描与命令解析
   scan_wbtest.mbt    scan.mbt 的白盒测试
-  types.mbt          Host / Node / Signal 类型别名（指向 ffi 包）
+  types.mbt          NshHost / Node / Signal 类型别名（指向 ffi 包）
   moon.pkg           包配置：导入 ffi 包、导出 js 的 app
   ffi/               MoonBit ffi 包
     nsh_ffi.mbt      nsh API 桥接（renderer / base 组件 / 存储 / 桌面 / 进程）
-    portrayadar_native_ffi.mbt  Rust nshm 桥接（scan / scanPort / killProcess）
-    js_ffi.mbt       JS 侧时钟与进程表状态桥接
+    portrayadar_native_ffi.mbt  Rust nshm 桥接（Scanner）
+    js_ffi.mbt       JS 侧 Clock / TableState 桥接
 installer/           安装器脚本
   install.ps1        复制文件、写快捷方式与卸载项、启动应用
   uninstall.ps1      删除快捷方式、卸载项与安装目录
