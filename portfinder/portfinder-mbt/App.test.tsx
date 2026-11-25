@@ -14,6 +14,17 @@ test("opens and reports the outcome of a scan", async () => {
       ),
     { timeout: 20000 },
   );
+  // The process table is the app's main content: assert its headers and rows
+  // actually render, not just that the surrounding labels are present.
+  await app.waitUntil(() => app.texts().includes("序号"), { timeout: 20000 });
+  expect(app.count("text:序号")).toBeGreaterThan(0);
+  expect(app.count("text:PID")).toBeGreaterThan(0);
+  expect(app.texts().some((text) => text.includes("结束"))).toBe(true);
+  // Selecting a row must fill the inspector; this once rendered empty because
+  // the selected process was computed in the component body (read once).
+  await app.press("text:svchost.exe >> nth=0");
+  await app.waitUntil(() => !app.texts().includes("未选择进程"), { timeout: 10000 });
+  expect(app.texts().some((t) => t.includes("TCP 监听") || t.includes("UDP 绑定") || t.includes("监听地址不可用"))).toBe(true);
 });
 
 test("清空 clears both conditions and the port answer", async () => {

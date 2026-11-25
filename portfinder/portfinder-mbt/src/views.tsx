@@ -1,6 +1,5 @@
-// The view tree. nsh's components run once: only expressions inside JSX bind
-// to signals. So every branch is rendered and its visibility, text and props
-// are bound in JSX — nothing is chosen in a function body.
+// The view tree. nsh binds only expressions inside JSX: conditional areas use
+// the global `<If>` component, and dynamic text/class/values are read in JSX.
 import type { JSX } from "nsh";
 import { Image, Text, View } from "nsh";
 import { Button, DataTable, Input, NumberInput, Progress, type DataTableCell, type DataTableRef } from "nsh/base";
@@ -12,8 +11,6 @@ import {
 import { formatTime, runningSeconds } from "./scan";
 import type { Appearance, Store } from "./store";
 
-const show = (on: boolean) => ({ display: on ? "flex" as const : "none" as const });
-
 interface AnswerProps {
   status: number;
   entries: Entry[];
@@ -23,43 +20,41 @@ interface AnswerProps {
 
 function AnswerStrip(props: AnswerProps): JSX.Element {
   return (
-    <View style={show(props.status !== 0)} class="min-h-9 flex-row items-center gap-2 rounded-md bg-muted px-3 py-2">
-      <Progress
-        style={show(props.status === 1)}
-        class="w-28 shrink-0" indeterminate
-        trackClass="h-1.5 w-full rounded-full bg-border"
-        indicatorClass="h-1.5 w-1/3 rounded-full bg-primary"
-        accessibilityLabel="正在处理"
-      />
-      <View
-        style={show(props.status !== 1)}
-        class={props.status === 3
-          ? "w-2 h-2 rounded-full shrink-0 bg-destructive"
-          : props.entries.length === 0
-            ? "w-2 h-2 rounded-full shrink-0 bg-muted-foreground"
-            : "w-2 h-2 rounded-full shrink-0 bg-primary"}
-      />
-      <Text style={show(props.status === 1)} class="flex-1 text-sm text-muted-foreground">
-        正在查询端口 {props.port} …
-      </Text>
-      <Text style={show(props.status === 3)} class="flex-1 text-sm text-destructive">
-        查询失败：{props.error}
-      </Text>
-      <Text
-        style={show(props.status !== 1 && props.status !== 3)}
-        class={props.entries.length === 0
-          ? "flex-1 truncate text-sm text-foreground"
-          : "flex-1 truncate text-sm font-medium text-foreground"}
-      >
-        {answerText(props.entries, props.port)}
-      </Text>
-      <Text
-        style={show(props.status !== 1 && props.status !== 3 && addressDetail(props.entries) !== "")}
-        class="shrink-0 text-xs text-muted-foreground"
-      >
-        {addressDetail(props.entries)}
-      </Text>
-    </View>
+    <If when={props.status !== 0}>
+      <View class="min-h-9 flex-row items-center gap-2 rounded-md bg-muted px-3 py-2">
+        <If when={props.status === 1}>
+          <Progress
+            class="w-28 shrink-0" indeterminate
+            trackClass="h-1.5 w-full rounded-full bg-border"
+            indicatorClass="h-1.5 w-1/3 rounded-full bg-primary"
+            accessibilityLabel="正在处理"
+          />
+          <Text class="flex-1 text-sm text-muted-foreground">正在查询端口 {props.port} …</Text>
+        </If>
+        <If when={props.status !== 1}>
+          <View
+            class={props.status === 3
+              ? "w-2 h-2 rounded-full shrink-0 bg-destructive"
+              : props.entries.length === 0
+                ? "w-2 h-2 rounded-full shrink-0 bg-muted-foreground"
+                : "w-2 h-2 rounded-full shrink-0 bg-primary"}
+          />
+        </If>
+        <If when={props.status === 3}>
+          <Text class="flex-1 text-sm text-destructive">查询失败：{props.error}</Text>
+        </If>
+        <If when={props.status === 2}>
+          <Text class={props.entries.length === 0
+            ? "flex-1 truncate text-sm text-foreground"
+            : "flex-1 truncate text-sm font-medium text-foreground"}>
+            {answerText(props.entries, props.port)}
+          </Text>
+          <If when={addressDetail(props.entries) !== ""}>
+            <Text class="shrink-0 text-xs text-muted-foreground">{addressDetail(props.entries)}</Text>
+          </If>
+        </If>
+      </View>
+    </If>
   );
 }
 
@@ -144,18 +139,21 @@ const COLUMNS = [
   { key: "action", title: "", width: 84, selectable: false, movable: false, resizable: false, cellClass: "px-2" },
 ];
 
-function processTable(props: TableProps): JSX.Element {
-  const { store, rows } = props;
-  const columns = COLUMNS.map((column) => {
-    if (column.key === "name") return { ...column, width: props.nameWidth };
-    if (column.key === "ports") return { ...column, width: props.portsWidth };
+function tableColumns(nameWidth: number, portsWidth: number) {
+  return COLUMNS.map((column) => {
+    if (column.key === "name") return { ...column, width: nameWidth };
+    if (column.key === "ports") return { ...column, width: portsWidth };
     return column;
   });
+}
+
+function ProcessTable(props: TableProps): JSX.Element {
+  const columns = tableColumns(props.nameWidth, props.portsWidth);
   return (
     <DataTable
-      ref={(ref: DataTableRef) => store.setTableRef(ref)}
+      ref={(ref: DataTableRef) => props.store.setTableRef(ref)}
       columns={columns}
-      data={rows}
+      data={props.rows}
       rowHeight={32}
       headerHeight={30}
       rowHeader={false}
@@ -176,19 +174,19 @@ function processTable(props: TableProps): JSX.Element {
         rowSelected: "bg-primary/10",
         cell: "px-3 text-sm text-foreground",
       }}
-      renderCell={(value: DataTableCell) => processCell(value.row, rows[value.row], value.key, (proc) => store.killProc(proc))}
+      renderCell={(value: DataTableCell) => processCell(value.row, props.rows[value.row], value.key, (proc) => props.store.killProc(proc))}
       onSortChange={(e) => {
         const s = e.sort;
-        store.applySort(s ? s.key : "", s && s.direction ? s.direction : "");
+        props.store.applySort(s ? s.key : "", s && s.direction ? s.direction : "");
       }}
       onRowPress={(e) => {
         if (e.row >= 0 && e.column != null && columns[e.column]?.key === "action") {
-          store.killProc(rows[e.row]);
+          props.store.killProc(props.rows[e.row]);
         }
       }}
       onSelectionChange={(e) => {
         const sel = e.selection;
-        if (sel && typeof sel.row === "number") store.selectRow(sel.row);
+        if (sel && typeof sel.row === "number") props.store.selectRow(sel.row);
       }}
     />
   );
@@ -203,26 +201,32 @@ interface ListProps extends TableProps {
 function ListView(props: ListProps): JSX.Element {
   return (
     <View class="w-full flex-1 overflow-hidden">
-      <View style={show(props.status === 1)} class="h-[140px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background">
-        <Progress
-          class="w-56" indeterminate
-          trackClass="h-1.5 w-full rounded-full bg-border"
-          indicatorClass="h-1.5 w-1/3 rounded-full bg-primary"
-          accessibilityLabel="正在处理"
-        />
-        <Text class="text-sm text-muted-foreground">正在读取系统进程表 …</Text>
-      </View>
-      <View style={show(props.status === 3)} class="h-[140px] items-center justify-center rounded-lg border border-border bg-background">
-        <Text class="text-sm text-destructive">进程列表获取失败：{props.error}</Text>
-      </View>
-      <View style={show(props.status !== 1 && props.status !== 3 && props.rows.length === 0)} class="h-[140px] items-center justify-center rounded-lg border border-border bg-background">
-        <Text class="text-sm text-muted-foreground">
-          {props.filter.trim() === "" ? "没有发现监听端口的进程" : `没有名称匹配「${props.filter.trim()}」的进程`}
-        </Text>
-      </View>
-      <View style={show(props.status !== 1 && props.status !== 3 && props.rows.length > 0)} class="w-full flex-1 overflow-hidden">
-        {processTable(props)}
-      </View>
+      <If when={props.status === 1}>
+        <View class="h-[140px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background">
+          <Progress
+            class="w-56" indeterminate
+            trackClass="h-1.5 w-full rounded-full bg-border"
+            indicatorClass="h-1.5 w-1/3 rounded-full bg-primary"
+            accessibilityLabel="正在处理"
+          />
+          <Text class="text-sm text-muted-foreground">正在读取系统进程表 …</Text>
+        </View>
+      </If>
+      <If when={props.status === 3}>
+        <View class="h-[140px] items-center justify-center rounded-lg border border-border bg-background">
+          <Text class="text-sm text-destructive">进程列表获取失败：{props.error}</Text>
+        </View>
+      </If>
+      <If when={props.status === 2 && props.rows.length === 0}>
+        <View class="h-[140px] items-center justify-center rounded-lg border border-border bg-background">
+          <Text class="text-sm text-muted-foreground">
+            {props.filter.trim() === "" ? "没有发现监听端口的进程" : `没有名称匹配「${props.filter.trim()}」的进程`}
+          </Text>
+        </View>
+      </If>
+      <If when={props.status === 2 && props.rows.length > 0}>
+        <ProcessTable {...props} />
+      </If>
     </View>
   );
 }
@@ -262,7 +266,9 @@ function SocketChip(props: { pair: [string, string] }): JSX.Element {
     <View class="flex-row items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border border-border bg-background px-1.5 py-0.5">
       <Text class="shrink-0 text-xs text-muted-foreground">{proto} {proto === "TCP" ? "监听" : "绑定"}</Text>
       <Text class="truncate text-xs text-foreground tabular-nums">{addr}</Text>
-      {family !== "" && <Text class="shrink-0 text-xs text-muted-foreground">{family}</Text>}
+      <If when={family !== ""}>
+        <Text class="shrink-0 text-xs text-muted-foreground">{family}</Text>
+      </If>
     </View>
   );
 }
@@ -276,42 +282,63 @@ interface InspectorProps {
   copied: boolean;
 }
 
-function InspectorView(props: InspectorProps): JSX.Element {
-  const { store, rows, selected, entries } = props;
-  const proc = selected >= 0 && selected < rows.length ? rows[selected] : null;
-  const path = proc ? (proc.path === "" ? "可执行文件路径不可用" : proc.path) : "在列表中选择一行，查看父进程、启动时间、路径与监听地址";
-  const pairs = proc ? socketPairs(proc, entries) : [];
-  const label = proc && entries.some((e) => e.pid === proc.pid) ? `端口 ${props.port}` : "监听地址";
+function SelectedDetails(props: InspectorProps): JSX.Element {
+  const proc = props.rows[props.selected];
+  const pairs = socketPairs(proc, props.entries);
+  const label = props.entries.some((e) => e.pid === proc.pid) ? `端口 ${props.port}` : "监听地址";
+  const copied = props.copied;
   return (
-    <View class="shrink-0 flex-col gap-1 overflow-hidden rounded-lg bg-muted/40 px-3 py-1.5">
+    <>
       <View class="h-5 flex-row items-center gap-1.5 overflow-hidden">
-        <Text style={show(proc === null)} class="text-sm font-medium text-muted-foreground">未选择进程</Text>
-        <Text style={show(proc !== null)} class="shrink-0 text-sm font-medium text-foreground">{proc ? (proc.name === "" ? "未知进程" : proc.name) : ""}</Text>
-        <View style={show(proc !== null)} class="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5">
-          <Text class="text-xs text-muted-foreground tabular-nums">PID {proc ? proc.pid : ""}</Text>
+        <Text class="shrink-0 text-sm font-medium text-foreground">{proc.name === "" ? "未知进程" : proc.name}</Text>
+        <View class="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5">
+          <Text class="text-xs text-muted-foreground tabular-nums">PID {proc.pid}</Text>
         </View>
-        <Text style={show(proc !== null)} class="shrink-0 text-xs text-muted-foreground">·</Text>
-        <InspectorField label="父进程" value={proc ? (proc.ppid > 0 ? String(proc.ppid) : "—") : "—"} />
-        <Text style={show(proc !== null)} class="shrink-0 text-xs text-muted-foreground">·</Text>
-        <InspectorField label="启动" value={proc ? (formatTime(proc.started_s) || "—") : "—"} />
+        <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
+        <InspectorField label="父进程" value={proc.ppid > 0 ? String(proc.ppid) : "—"} />
+        <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
+        <InspectorField label="启动" value={formatTime(proc.started_s) || "—"} />
       </View>
       <View class="w-full h-5 flex-row items-center gap-1.5 overflow-hidden">
         <Text class="shrink-0 text-xs text-muted-foreground">路径</Text>
-        <Text class="flex-1 truncate text-xs text-muted-foreground">{path}</Text>
-        <Button
-          style={show(proc !== null && proc.path !== "")}
-          class="shrink-0 rounded border border-border bg-background px-1.5 py-0.5 hover:bg-muted active:opacity-90"
-          onPress={() => { if (proc) store.copyPath(proc.path); }}
-        >
-          <Text class="text-xs text-muted-foreground">{props.copied ? "已复制" : "复制"}</Text>
-        </Button>
+        <Text class="flex-1 truncate text-xs text-muted-foreground">{proc.path === "" ? "可执行文件路径不可用" : proc.path}</Text>
+        <If when={proc.path !== ""}>
+          <Button
+            class="shrink-0 rounded border border-border bg-background px-1.5 py-0.5 hover:bg-muted active:opacity-90"
+            onPress={() => props.store.copyPath(proc.path)}
+          >
+            <Text class="text-xs text-muted-foreground">{copied ? "已复制" : "复制"}</Text>
+          </Button>
+        </If>
       </View>
       <View class="h-5 flex-row items-center gap-1.5 overflow-hidden">
-        <Text style={show(proc !== null && pairs.length === 0)} class="text-xs text-muted-foreground">监听地址不可用</Text>
-        <Text style={show(proc !== null && pairs.length > 0)} class="shrink-0 text-xs text-muted-foreground">{label}</Text>
-        {pairs.slice(0, 3).map((pair, i) => <SocketChip pair={pair} />)}
-        <Text style={show(pairs.length > 3)} class="shrink-0 text-xs text-muted-foreground">+{pairs.length - 3}</Text>
+        <If when={pairs.length === 0}>
+          <Text class="text-xs text-muted-foreground">监听地址不可用</Text>
+        </If>
+        <If when={pairs.length > 0}>
+          <Text class="shrink-0 text-xs text-muted-foreground">{label}</Text>
+          {pairs.slice(0, 3).map((pair, i) => <SocketChip pair={pair} />)}
+          <If when={pairs.length > 3}>
+            <Text class="shrink-0 text-xs text-muted-foreground">+{pairs.length - 3}</Text>
+          </If>
+        </If>
       </View>
+    </>
+  );
+}
+
+function InspectorView(props: InspectorProps): JSX.Element {
+  return (
+    <View class="shrink-0 flex-col gap-1 overflow-hidden rounded-lg bg-muted/40 px-3 py-1.5">
+      <If when={props.selected < 0 || props.selected >= props.rows.length} else={<SelectedDetails {...props} />}>
+        <View class="h-5 flex-row items-center">
+          <Text class="text-sm font-medium text-muted-foreground">未选择进程</Text>
+        </View>
+        <View class="w-full h-5 flex-row items-center">
+          <Text class="text-xs text-muted-foreground">在列表中选择一行，查看父进程、启动时间、路径与监听地址</Text>
+        </View>
+        <View class="h-5" />
+      </If>
     </View>
   );
 }
@@ -319,13 +346,15 @@ function InspectorView(props: InspectorProps): JSX.Element {
 function Footer(props: { count: number; filter: string; notice: string }): JSX.Element {
   return (
     <View class="h-5 flex-row items-center overflow-hidden">
-      <Text style={show(props.notice !== "")} class="truncate text-xs text-destructive">{props.notice}</Text>
-      <Text style={show(props.notice === "" && props.filter !== "")} class="truncate text-xs text-muted-foreground">
-        共 {props.count} 个进程 · 名称匹配「{props.filter}」
-      </Text>
-      <Text style={show(props.notice === "" && props.filter === "")} class="text-xs text-muted-foreground">
-        共 {props.count} 个进程 · 含 TCP 监听与 UDP 绑定
-      </Text>
+      <If when={props.notice !== ""}>
+        <Text class="truncate text-xs text-destructive">{props.notice}</Text>
+      </If>
+      <If when={props.notice === "" && props.filter !== ""}>
+        <Text class="truncate text-xs text-muted-foreground">共 {props.count} 个进程 · 名称匹配「{props.filter}」</Text>
+      </If>
+      <If when={props.notice === "" && props.filter === ""}>
+        <Text class="text-xs text-muted-foreground">共 {props.count} 个进程 · 含 TCP 监听与 UDP 绑定</Text>
+      </If>
     </View>
   );
 }
@@ -365,16 +394,10 @@ export function AppView(props: { store: Store; icon: unknown }): JSX.Element {
               onChange={(e) => store.nameDraft.set(e.value)}
               onSubmit={() => store.query()}
             />
-            <Button
-              class="rounded-md bg-primary px-4 py-1.5 hover:bg-primary/90 active:opacity-90"
-              onPress={() => store.query()}
-            >
+            <Button class="rounded-md bg-primary px-4 py-1.5 hover:bg-primary/90 active:opacity-90" onPress={() => store.query()}>
               <Text class="text-sm font-medium text-primary-foreground">查询</Text>
             </Button>
-            <Button
-              class="rounded-md border border-border px-3 py-1.5 hover:bg-muted active:opacity-90"
-              onPress={() => store.clearQuery()}
-            >
+            <Button class="rounded-md border border-border px-3 py-1.5 hover:bg-muted active:opacity-90" onPress={() => store.clearQuery()}>
               <Text class="text-sm font-medium text-muted-foreground">清空</Text>
             </Button>
           </View>
@@ -385,10 +408,7 @@ export function AppView(props: { store: Store; icon: unknown }): JSX.Element {
 
           <View class="shrink-0 flex-row items-center justify-between">
             <Text class="text-sm font-semibold text-foreground">开放端口的进程</Text>
-            <Button
-              class="rounded-md border border-border px-2.5 py-1 hover:bg-muted active:opacity-90"
-              onPress={() => store.refreshAll()}
-            >
+            <Button class="rounded-md border border-border px-2.5 py-1 hover:bg-muted active:opacity-90" onPress={() => store.refreshAll()}>
               <Text class="text-xs text-muted-foreground">刷新</Text>
             </Button>
           </View>
@@ -420,11 +440,7 @@ export function AppView(props: { store: Store; icon: unknown }): JSX.Element {
             port={store.port()}
             copied={store.copied()}
           />
-          <Footer
-            count={visibleRows(store.procs(), store.nameFilter()).length}
-            filter={store.nameFilter()}
-            notice={store.notice()}
-          />
+          <Footer count={visibleRows(store.procs(), store.nameFilter()).length} filter={store.nameFilter()} notice={store.notice()} />
         </View>
       </View>
     </View>
