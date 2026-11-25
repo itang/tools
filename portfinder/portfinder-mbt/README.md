@@ -1,6 +1,6 @@
 # 端口雷达（PortRadar）
 
-一个 nsh 桌面应用：查询端口被哪个进程占用，按进程名模糊过滤，查看父进程、启动时间、路径与监听地址，复制进程路径，并可在确认后结束进程。界面用 MoonBit 写在 nsh 的 TSX 位置，`App.tsx` 只负责把 nsh 的运行时能力注入进去。
+一个 nsh 桌面应用：查询端口被哪个进程占用，按进程名模糊过滤，查看父进程、启动时间、路径与监听地址，复制进程路径，并可在确认后结束进程。应用全部用 nsh 官方的 TSX / TypeScript 编写，界面由 signal 驱动。
 
 原生 Win32 扫描放在 `ext/portradar-native/` 这个本地 nshm 中：由 `nsh.json` 的 `dependencies` 以 path 引入、`nsh.lock` 锁定，TSX 侧按 `portradar-native` 导入；`Scanner` 的类型声明从 Rust 签名生成到 `.nsh/types/`。
 
@@ -8,7 +8,7 @@
 
 - Windows 10 1809 及以上 / Windows 11，WebView2 Runtime（Windows 11 自带）
 - [nsh](https://nsh.run) 0.7.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.7.0"` 由 CLI 校验，低于该版本会直接报错
-- MoonBit 工具链（`moon`）
+- MoonBit 工具链（`moon`，仅用于 `tasks.mbtx` 任务脚本；应用本身不再需要编译 MoonBit）
 - 生成安装包使用 Windows 自带的 IExpress，无需额外安装
 
 ## 构建与打包
@@ -16,20 +16,17 @@
 在 `portfinder` 目录下按顺序执行：
 
 ```powershell
-# 1. 编译 MoonBit（App.tsx 引用根目录 _build/js/release 下的产物，必须用 --release）
-moon build --release
-
-# 2. 跑界面测试
+# 1. 跑界面测试（如需真实窗口，加 --target windows）
 nsh test App.test.tsx
 
-# 3. 打 nsh 包：生成便携目录和 zip
+# 2. 打 nsh 包：生成便携目录和 zip
 nsh package --target windows
 
-# 4. 把便携包封装成安装程序
+# 3. 把便携包封装成安装程序
 powershell -ExecutionPolicy Bypass -File installer\make-installer.ps1
 ```
 
-这四步也可以一次跑完：`moon run tasks.mbtx publish`（另有 `dev`、`build:moonbit` 两个子命令，`--help` 看用法）。
+这三步也可以一次跑完：`moon run tasks.mbtx publish`（另有 `dev`、`check` 两个子命令，`--help` 看用法）。
 
 产物：
 
@@ -67,33 +64,22 @@ dist\PortRadarSetup-1.0.0.exe /Q
 ## 目录结构
 
 ```
-App.tsx              入口：按 nsh / Clock / TableState / Scanner 四类 ffi 参数注入 MoonBit app
+App.tsx              入口：创建 Store、启动查询与进程刷新、mount 应用
+App.test.tsx         界面测试（nsh test，可加 --target windows 用真实窗口）
 assets/icon.png      应用图标（同时嵌入 exe 与安装包快捷方式）
-moon.mod             MoonBit 模块定义（source = "src"，ffi 子包）
 nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）、外观与主题色、能力清单、nshm 依赖
 nsh.lock             nshm 依赖锁定文件（由 nsh 生成，随项目提交）
-ext/portradar-native/ Rust nshm：Win32 原生进程/端口扫描（0.7 起以 path 依赖接入）
+tsconfig.json        继承 .nsh/tsconfig.json，纳入根目录所有 .ts / .tsx
+ext/portradar-native/ Rust nshm：Win32 原生进程/端口扫描（以 path 依赖接入）
   Cargo.toml         crate 依赖：nsh-core 0.7.0
   src/               lib.rs（#[native_module("portradar-native")]）+ sys/net/process/scan 四个内部模块
-tasks.mbtx           任务脚本：编译、测试、打包、封装安装程序（moon run tasks.mbtx …）
-src/                 MoonBit app 包（模块默认包）
-  app.mbt            真正的入口：创建状态 → 构建视图 → 启动查询
-  state.mbt          AppState 与全部动作（查询/刷新/清空/排序/选中/结束进程）
-  view.mbt           视图树：只读状态、调用动作，不持有状态
-  model.mbt          纯数据：格式化、排序、过滤
-  ui.mbt             el / txt 两个视图原语
-  answer_view.mbt    查询结果提示条
-  table_view.mbt     进程表与加载/空态
-  inspector_view.mbt 进程检查器
-  chrome.mbt         标题栏外观切换与页脚
-  scan.mbt           进程/端口扫描与命令解析
-  scan_wbtest.mbt    scan.mbt 的白盒测试
-  types.mbt          NshHost / Node / Signal 类型别名（指向 ffi 包）
-  moon.pkg           包配置：导入 ffi 包、导出 js 的 app
-  ffi/               MoonBit ffi 包
-    nsh_ffi.mbt      nsh API 桥接（renderer / base 组件 / 存储 / 桌面 / 进程）
-    portrayadar_native_ffi.mbt  Rust nshm 桥接（Scanner）
-    js_ffi.mbt       JS 侧 Clock / TableState 桥接
+tasks.mbtx           任务脚本：测试、打包、封装安装程序（moon run tasks.mbtx …）
+src/                 应用的 TypeScript / TSX 源码
+  store.ts           Store 类：signal 状态与全部动作（查询/刷新/清空/排序/选中/结束进程）
+  views.tsx          视图组件（JSX）：工具栏、状态条、进程表、检查器、页脚
+  scan.ts            进程/端口扫描与命令编排（Windows 用 nshm，macOS/Linux 用 lsof/ss + ps）
+  model.ts           纯数据：格式化、排序、过滤与文本解析
+  types.ts           Entry / ProcessRow 类型定义
 installer/           安装器脚本
   install.ps1        复制文件、写快捷方式与卸载项、启动应用
   uninstall.ps1      删除快捷方式、卸载项与安装目录
@@ -119,4 +105,4 @@ dist/                安装包产物（不提交）
 nsh run
 ```
 
-`nsh run` 带 HMR，但修改 MoonBit 后不会重新执行挂载逻辑，需要重启 `nsh run`。改动 MoonBit 后重新生成安装包的完整步骤见上面的「构建与打包」。
+`nsh run` 带 HMR，修改 `src/*.ts(x)` 后会自动热更新且保留 signal 状态。重新生成安装包的完整步骤见上面的「构建与打包」。

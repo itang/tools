@@ -1,7 +1,0 @@
-import {
-  "itang/portfinder_ui/ffi",
-}
-
-options(
-  link: { "js": { "exports": [ "app" ] } },
-)

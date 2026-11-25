@@ -34,24 +34,18 @@ async fn step(label~: String, cmd~: String, args~: Array[String], cwd~: String?)
   check_exit(result~, label~)
 }
 
-/// 编译 MoonBit（App.tsx 引用 release 产物，必须用 --release）。label 供各命令标注步骤序号。
-async fn build_moonbit(label~: String, root~: String) -> Unit {
-  step(label~, cmd="moon", args=["build", "--release"], cwd=Some(root))
-}
-
 /// 制作安装包：编译 MoonBit → 跑测试 → 打 nsh 包 → 生成安装程序。
 async fn publish(root~: String) -> Unit {
   println("开始制作安装包…")
-  build_moonbit(label="[1/4] 编译 MoonBit (release)", root~)
-  step(label="[2/4] 运行界面测试", cmd="nsh", args=["test", "App.test.tsx"], cwd=Some(root))
+  step(label="[1/3] 运行界面测试", cmd="nsh", args=["test", "App.test.tsx"], cwd=Some(root))
   step(
-    label="[3/4] 打包 nsh 便携包",
+    label="[2/3] 打包 nsh 便携包",
     cmd="nsh",
     args=["package", "--target", "windows"],
     cwd=Some(root),
   )
   step(
-    label="[4/4] 生成安装程序",
+    label="[3/3] 生成安装程序",
     cmd="powershell",
     args=["-ExecutionPolicy", "Bypass", "-File", under(root~, rel="installer/make-installer.ps1")],
     cwd=Some(root),
@@ -62,8 +56,7 @@ async fn publish(root~: String) -> Unit {
 /// 开发模式：先编译 MoonBit（App.tsx 引用 release 产物），再运行 nsh run，退出码透传。
 async fn dev(root~: String) -> Unit {
   println("进入开发模式…")
-  build_moonbit(label="[1/2] 编译 MoonBit (release)", root~)
-  println("[2/2] 启动 nsh run（按 Ctrl+C 退出）")
+  println("[1/1] 启动 nsh run（按 Ctrl+C 退出）")
   let result = @process.run("nsh", ["run"], cwd=root)
   println("nsh run 已退出（退出码 \{result.exit_code}）")
   check_exit(result~, label="nsh run")
@@ -73,8 +66,8 @@ fn usage() -> Unit {
   let text = #|PortRadar 任务脚本
     #|用法：
     #|  moon run tasks.mbtx publish       制作安装包
-    #|  moon run tasks.mbtx dev           编译 MoonBit 并开发模式下运行
-    #|  moon run tasks.mbtx build:moonbit 仅编译 MoonBit (release)
+    #|  moon run tasks.mbtx dev           开发模式下运行
+    #|  moon run tasks.mbtx check         仅做类型检查
   println(text)
 }
 
@@ -94,7 +87,7 @@ async fn main {
   match args[1] {
     "publish" => publish(root~)
     "dev" => dev(root~)
-    "build:moonbit" => build_moonbit(label="编译 MoonBit (release)", root~)
+    "check" => step(label="类型检查", cmd="nsh", args=["check"], cwd=Some(root))
     "--help" | "-h" => usage()
     cmd => {
       println("未知命令：\{cmd}")

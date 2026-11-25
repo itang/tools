@@ -1,20 +1,16 @@
-import { mount, signal, List, Image, Clipboard, Storage, setColorScheme } from "nsh";
-import * as rt from "nsh:rt";
-import * as process from "process";
-import { platform } from "os";
-import * as base from "nsh/base";
-import { titleBar } from "nsh/desktop";
+import { mount } from "nsh";
 import icon from "./assets/icon.png";
-import { app } from "./_build/js/release/build/portfinder_ui.js";
-import { Scanner } from "portradar-native";
+import { Store } from "./src/store";
+import { AppView } from "./src/views";
 
-mount(() =>
-  app(
-    {
-      rt, signal, process, base, platform: platform(), titleBar, List, Image, Clipboard, Storage, setColorScheme, icon,
-    },
-    {},
-    {},
-    Scanner,
-  ),
-);
+// One store for the app's lifetime; its signals drive every dynamic area of
+// the view. The native scanner is imported directly by src/scan.ts.
+function App() {
+  const store = new Store();
+  store.loadAppearance();
+  store.search();
+  store.refreshProcesses();
+  return <AppView store={store} icon={icon} />;
+}
+
+mount(App);
