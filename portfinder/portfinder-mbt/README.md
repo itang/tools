@@ -2,10 +2,12 @@
 
 一个 nsh 桌面应用：查询端口被哪个进程占用，按进程名模糊过滤，查看父进程、启动时间、路径与监听地址，复制进程路径，并可在确认后结束进程。界面用 MoonBit 写在 nsh 的 TSX 位置，`App.tsx` 只负责把 nsh 的运行时能力注入进去。
 
+原生 Win32 扫描放在 `ext/portradar-native/` 这个本地 nshm 中：由 `nsh.json` 的 `dependencies` 以 path 引入、`nsh.lock` 锁定，TSX 侧按 `portradar-native` 导入；`Scanner` 的类型声明从 Rust 签名生成到 `.nsh/types/`。
+
 ## 环境要求
 
 - Windows 10 1809 及以上 / Windows 11，WebView2 Runtime（Windows 11 自带）
-- [nsh](https://nsh.run) 0.6.1（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.6.1"` 由 CLI 校验，低于该版本会直接报错
+- [nsh](https://nsh.run) 0.7.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.7.0"` 由 CLI 校验，低于该版本会直接报错
 - MoonBit 工具链（`moon`）
 - 生成安装包使用 Windows 自带的 IExpress，无需额外安装
 
@@ -69,7 +71,11 @@ dist\PortRadarSetup-1.0.0.exe /Q
 ```
 App.tsx              入口：把 nsh:rt、process、nsh/base、nsh/desktop 注入 MoonBit app
 assets/icon.png      应用图标（同时嵌入 exe 与安装包快捷方式）
-nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）、外观与主题色、能力清单
+nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）、外观与主题色、能力清单、nshm 依赖
+nsh.lock             nshm 依赖锁定文件（由 nsh 生成，随项目提交）
+ext/portradar-native/ Rust nshm：Win32 原生进程/端口扫描（0.7 起以 path 依赖接入）
+  Cargo.toml         crate 依赖：nsh-core 0.7.0
+  src/               lib.rs（#[native_module("portradar-native")]）+ sys/net/process/scan 四个内部模块
 tasks.mbtx           任务脚本：编译、测试、打包、封装安装程序（moon run tasks.mbtx …）
 moonbit/             MoonBit 实现
   app.mbt            界面、查询、过滤与交互

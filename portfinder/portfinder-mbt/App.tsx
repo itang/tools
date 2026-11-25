@@ -6,7 +6,7 @@ import * as base from "nsh/base";
 import { titleBar } from "nsh/desktop";
 import icon from "./assets/icon.png";
 import { app } from "./moonbit/_build/js/release/build/portfinder_ui.js";
-import { Scanner } from "portradar/native";
+import { Scanner } from "portradar-native";
 
 mount(() =>
   app({

@@ -17,7 +17,7 @@ mod sys;
 
 use nsh_core::prelude::*;
 
-#[native_module("portradar/native")]
+#[native_module("portradar-native")]
 fn native(registry: &mut Registry) {
     registry.module::<scan::Scanner>();
 }

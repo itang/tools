@@ -4,8 +4,10 @@
   "icon": "assets/icon.png",
   "version": "1.0.0",
   "build": 1,
-  "nsh": "^0.6.1",
-  "rust": ".",
+  "nsh": "^0.7.0",
+  "dependencies": {
+    "portradar-native": { "path": "ext/portradar-native" }
+  },
   "appearance": "system",
   "theme": {
     "cssVars": {

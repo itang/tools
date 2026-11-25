@@ -27,8 +27,8 @@ test("清空 clears both conditions and the port answer", async () => {
   );
   await app.type("label:进程名称", "svc");
   await app.press("text:查询");
-  // The process table's first load runs a PowerShell scan; a machine with
-  // hundreds of processes takes over ten seconds to report its rows.
+  // The process table's first load runs the native Win32 scan in Rust; a
+  // machine with hundreds of processes can take a while to report its rows.
   await app.waitUntil(() => app.texts().some((text) => text.includes("名称匹配「svc」")), {
     timeout: 45000,
   });

@@ -1,11 +1,11 @@
 [package]
-name = "nsh-app-portradar"
+name = "portradar-native"
 version = "0.1.0"
 edition = "2024"
 publish = false
+keywords = ["nshm"]
 
 [workspace]
 
 [dependencies]
-nsh-core = "0.6.1"
-nsh-base = "0.6.1"
+nsh-core = "0.7.0"
