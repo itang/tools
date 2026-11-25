@@ -148,11 +148,10 @@ function tableColumns(nameWidth: number, portsWidth: number) {
 }
 
 function ProcessTable(props: TableProps): JSX.Element {
-  const columns = tableColumns(props.nameWidth, props.portsWidth);
   return (
     <DataTable
       ref={(ref: DataTableRef) => props.store.setTableRef(ref)}
-      columns={columns}
+      columns={tableColumns(props.nameWidth, props.portsWidth)}
       data={props.rows}
       rowHeight={32}
       headerHeight={30}
@@ -180,7 +179,7 @@ function ProcessTable(props: TableProps): JSX.Element {
         props.store.applySort(s ? s.key : "", s && s.direction ? s.direction : "");
       }}
       onRowPress={(e) => {
-        if (e.row >= 0 && e.column != null && columns[e.column]?.key === "action") {
+        if (e.row >= 0 && e.column != null && tableColumns(props.nameWidth, props.portsWidth)[e.column]?.key === "action") {
           props.store.killProc(props.rows[e.row]);
         }
       }}
@@ -260,14 +259,12 @@ function InspectorField(props: { label: string; value: string }): JSX.Element {
 }
 
 function SocketChip(props: { pair: [string, string] }): JSX.Element {
-  const [proto, addr] = props.pair;
-  const family = addrFamily(addr);
   return (
     <View class="flex-row items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border border-border bg-background px-1.5 py-0.5">
-      <Text class="shrink-0 text-xs text-muted-foreground">{proto} {proto === "TCP" ? "监听" : "绑定"}</Text>
-      <Text class="truncate text-xs text-foreground tabular-nums">{addr}</Text>
-      <If when={family !== ""}>
-        <Text class="shrink-0 text-xs text-muted-foreground">{family}</Text>
+      <Text class="shrink-0 text-xs text-muted-foreground">{props.pair[0]} {props.pair[0] === "TCP" ? "监听" : "绑定"}</Text>
+      <Text class="truncate text-xs text-foreground tabular-nums">{props.pair[1]}</Text>
+      <If when={addrFamily(props.pair[1]) !== ""}>
+        <Text class="shrink-0 text-xs text-muted-foreground">{addrFamily(props.pair[1])}</Text>
       </If>
     </View>
   );
@@ -298,39 +295,61 @@ function CopyButton(props: { text: string; field: string; copiedKey: string; cop
 }
 
 function SelectedDetails(props: InspectorProps): JSX.Element {
-  const proc = props.rows[props.selected];
-  const pairs = socketPairs(proc, props.entries);
-  const label = props.entries.some((e) => e.pid === proc.pid) ? `端口 ${props.port}` : "监听地址";
-  const name = proc.name === "" ? "未知进程" : proc.name;
-  const path = proc.path === "" ? "可执行文件路径不可用" : proc.path;
   return (
     <>
       <View class="h-5 flex-row items-center gap-1.5 overflow-hidden" selectable={true}>
-        <Text class="shrink-0 text-sm font-medium text-foreground">{name}</Text>
-        <If when={proc.name !== ""}>
-          <CopyButton text={proc.name} field="name" copiedKey={props.copiedKey} copy={(t, k) => props.store.copyText(t, k)} />
+        <Text class="shrink-0 text-sm font-medium text-foreground">
+          {props.rows[props.selected].name === "" ? "未知进程" : props.rows[props.selected].name}
+        </Text>
+        <If when={props.rows[props.selected].name !== ""}>
+          <CopyButton
+            text={props.rows[props.selected].name}
+            field="name"
+            copiedKey={props.copiedKey}
+            copy={(t, k) => props.store.copyText(t, k)}
+          />
         </If>
         <Text class="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5 text-xs text-muted-foreground tabular-nums">
-          PID {proc.pid}
+          PID {props.rows[props.selected].pid}
         </Text>
-        <CopyButton text={String(proc.pid)} field="pid" copiedKey={props.copiedKey} copy={(t, k) => props.store.copyText(t, k)} />
+        <CopyButton
+          text={String(props.rows[props.selected].pid)}
+          field="pid"
+          copiedKey={props.copiedKey}
+          copy={(t, k) => props.store.copyText(t, k)}
+        />
         <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
-        <Text class="shrink-0 text-xs text-muted-foreground">父进程 {proc.ppid > 0 ? String(proc.ppid) : "—"}</Text>
+        <Text class="shrink-0 text-xs text-muted-foreground">
+          父进程 {props.rows[props.selected].ppid > 0 ? String(props.rows[props.selected].ppid) : "—"}
+        </Text>
         <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
-        <Text class="shrink-0 text-xs text-muted-foreground">启动 {formatTime(proc.started_s) || "—"}</Text>
+        <Text class="shrink-0 text-xs text-muted-foreground">
+          启动 {formatTime(props.rows[props.selected].started_s) || "—"}
+        </Text>
       </View>
       <View class="h-5 flex-row items-center gap-1.5 overflow-hidden" selectable={true}>
         <Text class="shrink-0 text-xs text-muted-foreground">路径</Text>
-        <Text class="max-w-[340px] truncate text-xs text-muted-foreground">{path}</Text>
-        <If when={proc.path !== ""}>
-          <CopyButton text={proc.path} field="path" copiedKey={props.copiedKey} copy={(t, k) => props.store.copyText(t, k)} />
+        <Text class="max-w-[340px] truncate text-xs text-muted-foreground">
+          {props.rows[props.selected].path === "" ? "可执行文件路径不可用" : props.rows[props.selected].path}
+        </Text>
+        <If when={props.rows[props.selected].path !== ""}>
+          <CopyButton
+            text={props.rows[props.selected].path}
+            field="path"
+            copiedKey={props.copiedKey}
+            copy={(t, k) => props.store.copyText(t, k)}
+          />
         </If>
         <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
         <View class="flex-1 flex-row items-center gap-1 overflow-hidden">
-          <Text class="shrink-0 text-xs text-muted-foreground">{label}</Text>
-          {pairs.slice(0, 2).map((pair, i) => <SocketChip pair={pair} />)}
-          <If when={pairs.length > 2}>
-            <Text class="shrink-0 text-xs text-muted-foreground">+{pairs.length - 2}</Text>
+          <Text class="shrink-0 text-xs text-muted-foreground">
+            {props.entries.some((e) => e.pid === props.rows[props.selected].pid) ? `端口 ${props.port}` : "监听地址"}
+          </Text>
+          {socketPairs(props.rows[props.selected], props.entries).slice(0, 2).map((pair) => <SocketChip pair={pair} />)}
+          <If when={socketPairs(props.rows[props.selected], props.entries).length > 2}>
+            <Text class="shrink-0 text-xs text-muted-foreground">
+              +{socketPairs(props.rows[props.selected], props.entries).length - 2}
+            </Text>
           </If>
         </View>
       </View>

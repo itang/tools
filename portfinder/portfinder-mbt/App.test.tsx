@@ -25,6 +25,18 @@ test("opens and reports the outcome of a scan", async () => {
   await app.press("text:svchost.exe >> nth=0");
   await app.waitUntil(() => !app.texts().includes("未选择进程"), { timeout: 10000 });
   expect(app.texts().some((t) => t.includes("TCP 监听") || t.includes("UDP 绑定") || t.includes("监听地址不可用"))).toBe(true);
+  // Switching to a different row must refresh every field. This once stayed
+  // on the first process because the details were computed in the component
+  // body, which nsh runs only once.
+  const firstPid = app.texts().find((t) => t.startsWith("PID "));
+  const names = [...new Set(app.texts().filter((t) => /^[A-Za-z0-9_.-]+\.exe$/.test(t)))];
+  const other = names.find((n) => n !== "svchost.exe");
+  expect(other).toBeDefined();
+  await app.press(`text:${other} >> nth=0`);
+  await app.waitUntil(() => {
+    const pid = app.texts().find((t) => t.startsWith("PID "));
+    return pid !== undefined && pid !== firstPid;
+  }, { timeout: 10000 });
   // The inspector is compact (two lines) and offers one-click copy per field.
   expect(app.texts()).toContain("路径");
   expect(app.count("text:复制") + app.count("text:已复制")).toBeGreaterThanOrEqual(2);
