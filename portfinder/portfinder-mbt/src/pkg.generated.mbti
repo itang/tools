@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "testnsh/portfinder_ui"
+package "itang/portfinder_ui"
 
 import {
-  "testnsh/portfinder_ui/ffi",
+  "itang/portfinder_ui/ffi",
 }
 
 // Values

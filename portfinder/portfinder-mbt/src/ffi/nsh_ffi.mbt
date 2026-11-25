@@ -4,46 +4,71 @@
 // a top-level import. The app's Rust nshm lives in `portradar_native_ffi.mbt`;
 // JS-owned clocks and state live in `js_ffi.mbt`.
 
+///|
 #external
 pub type Host
 
+///|
 #external
 pub type Node
 
+///|
 #external
 pub type Signal
 
+///|
 pub extern "js" fn Host::platform(self : Host) -> String =
   #| (h) => h.platform
 
+///|
 pub extern "js" fn Host::element(self : Host, tag : String) -> Node =
   #| (h, tag) => h.rt.element(tag)
 
+///|
 pub extern "js" fn Host::text(self : Host, value : String) -> Node =
   #| (h, value) => h.rt.text(value)
 
-pub extern "js" fn Host::append(self : Host, parent : Node, child : Node) -> Unit =
+///|
+pub extern "js" fn Host::append(
+  self : Host,
+  parent : Node,
+  child : Node,
+) -> Unit =
   #| (h, parent, child) => {
   #|   h.rt.append(parent, child);
   #| }
 
 // A child area rebuilt from `get` whenever the signals it reads change.
-pub extern "js" fn Host::insert(self : Host, parent : Node, get : () -> Node) -> Unit =
+
+///|
+pub extern "js" fn Host::insert(
+  self : Host,
+  parent : Node,
+  get : () -> Node,
+) -> Unit =
   #| (h, parent, get) => {
   #|   h.rt.insert(parent, get);
   #| }
 
-pub extern "js" fn Host::set_class(self : Host, node : Node, value : String) -> Unit =
+///|
+pub extern "js" fn Host::set_class(
+  self : Host,
+  node : Node,
+  value : String,
+) -> Unit =
   #| (h, node, value) => {
   #|   h.rt.prop(node, "class", value);
   #| }
 
-pub extern "js" fn Host::new_signal(self : Host, value : Int) -> Signal =
+///|
+pub extern "js" fn Host::new_signal(self : Host, value : Int32) -> Signal =
   #| (h, value) => h.signal(value)
 
-pub extern "js" fn Signal::get(self : Signal) -> Int =
+///|
+pub extern "js" fn Signal::get(self : Signal) -> Int32 =
   #| (signal) => signal()
 
+///|
 pub extern "js" fn Signal::bump(self : Signal) -> Unit =
   #| (signal) => {
   #|   signal.set(signal() + 1);
@@ -51,6 +76,8 @@ pub extern "js" fn Signal::bump(self : Signal) -> Unit =
 
 // nsh/base's Progress bar: indeterminate for scans of unknown length. The
 // caller supplies the outer/track/indicator classes so the app owns the look.
+
+///|
 pub extern "js" fn Host::progress(
   self : Host,
   class : String,
@@ -69,12 +96,14 @@ pub extern "js" fn Host::progress(
 // code and captured output. The lookup commands themselves, their output
 // parsing and every decision around them live in MoonBit; this is only the
 // call into the platform API.
+
+///|
 pub extern "js" fn Host::run_command(
   self : Host,
   exe : String,
   args : FixedArray[String],
-  timeout_ms : Int,
-  done : (Int, String, String) -> Unit,
+  timeout_ms : Int32,
+  done : (Int32, String, String) -> Unit,
   fail : (String) -> Unit,
 ) -> Unit =
   #| (h, exe, args, timeout_ms, done, fail) => {
@@ -86,13 +115,15 @@ pub extern "js" fn Host::run_command(
 
 // nsh/base's NumberInput: uncontrolled (`defaultValue`), so the app only
 // hears the reported values.
+
+///|
 pub extern "js" fn Host::number_input(
   self : Host,
   class : String,
   input_class : String,
-  initial : Int,
-  on_change : (Int) -> Unit,
-  on_submit : (Int) -> Unit,
+  initial : Int32,
+  on_change : (Int32) -> Unit,
+  on_submit : (Int32) -> Unit,
 ) -> Node =
   #| (h, cls, inputCls, initial, onChange, onSubmit) => h.rt.component(h.base.NumberInput, {
   #|   class: cls,
@@ -112,6 +143,8 @@ pub extern "js" fn Host::number_input(
 
 // nsh/base's Input for a single line of text; uncontrolled, so the app only
 // hears what the user typed.
+
+///|
 pub extern "js" fn Host::text_input(
   self : Host,
   class : String,
@@ -130,6 +163,7 @@ pub extern "js" fn Host::text_input(
   #|   onSubmit: (e) => onSubmit(e && typeof e.text === "string" ? e.text : ""),
   #| })
 
+///|
 pub extern "js" fn Host::button(
   self : Host,
   class : String,
@@ -144,6 +178,8 @@ pub extern "js" fn Host::button(
 
 // `nsh`'s Clipboard.writeText: the system clipboard, gated by nsh.json's
 // `clipboard` capability.
+
+///|
 pub extern "js" fn Host::write_clipboard(
   self : Host,
   text : String,
@@ -159,6 +195,8 @@ pub extern "js" fn Host::write_clipboard(
 
 // nsh/base's AlertDialog: the platform's own confirmation, resolved when
 // `done` is called for the destructive action.
+
+///|
 pub extern "js" fn Host::confirm_destructive(
   self : Host,
   title : String,
@@ -182,28 +220,38 @@ pub extern "js" fn Host::confirm_destructive(
 
 // The app's icon (an imported image asset, `App.tsx` hands it in as
 // `h.icon`), shown as an `Image` at the size `class` asks for.
+
+///|
 pub extern "js" fn Host::app_icon(self : Host, class : String) -> Node =
   #| (h, class_name) => h.rt.component(h.Image, { src: h.icon, class: class_name })
 
 // `[height, left, right]` of the hidden title bar's area, in points.
-pub extern "js" fn Host::title_bar_metrics(self : Host) -> FixedArray[Int] =
+
+///|
+pub extern "js" fn Host::title_bar_metrics(self : Host) -> FixedArray[Int32] =
   #| (h) => {
   #|   const t = h.titleBar();
   #|   return [Math.round(t.height), Math.round(t.left), Math.round(t.right)];
   #| }
 
 // Lets a press on `node` drag the window, as a title bar would.
+
+///|
 pub extern "js" fn Host::drag_window(self : Host, node : Node) -> Unit =
   #| (h, node) => h.rt.prop(node, "desktop", { windowDrag: true })
 
 // The appearance the app shows: `"system"` follows the platform's, `"light"`
 // and `"dark"` pin it. It switches `colorScheme()`, the `dark:` classes and
 // every `nsh/base` component's theme in the same frame.
+
+///|
 pub extern "js" fn Host::set_color_scheme(self : Host, scheme : String) -> Unit =
   #| (h, scheme) => h.setColorScheme(scheme)
 
 // The app's key-value storage (`Storage` in `nsh`), kept across launches. A
 // missing key, or a failed read, reports an empty string.
+
+///|
 pub extern "js" fn Host::load_preference(
   self : Host,
   key : String,
@@ -217,6 +265,8 @@ pub extern "js" fn Host::load_preference(
   #| }
 
 // Writes a preference; a full or unavailable storage leaves the app as it is.
+
+///|
 pub extern "js" fn Host::save_preference(
   self : Host,
   key : String,
@@ -227,10 +277,12 @@ pub extern "js" fn Host::save_preference(
   #| }
 
 // Reports `node`'s laid-out size in points whenever it changes.
+
+///|
 pub extern "js" fn Host::on_layout(
   self : Host,
   node : Node,
-  handler : (Int, Int) -> Unit,
+  handler : (Int32, Int32) -> Unit,
 ) -> Unit =
   #| (h, node, handler) => h.rt.prop(node, "onLayout", (e) => {
   #|   if (e && e.bounds && e.bounds.size) {
@@ -242,19 +294,21 @@ pub extern "js" fn Host::on_layout(
 // widths, row hover/selection, sorting indicators and the keyboard. The app
 // draws each cell from its own rows; the size comes from the room the layout
 // gives the table, so a window resize shows more rows and wider columns.
+
+///|
 pub extern "js" fn Host::process_table(
   self : Host,
-  count : Int,
-  height : Int,
-  name_width : Int,
-  ports_width : Int,
+  count : Int32,
+  height : Int32,
+  name_width : Int32,
+  ports_width : Int32,
   sort_key : String,
   sort_ascending : Bool,
-  selected : Int,
-  cell : (Int, String) -> Node,
+  selected : Int32,
+  cell : (Int32, String) -> Node,
   on_sort : (String, String) -> Unit,
-  on_row_press : (Int, String) -> Unit,
-  on_select : (Int) -> Unit,
+  on_row_press : (Int32, String) -> Unit,
+  on_select : (Int32) -> Unit,
 ) -> Node =
   #| (h, count, height, nameWidth, portsWidth, sortKey, sortAscending, selected, cell, onSort, onRowPress, onSelect) => {
   #|   const columns = [

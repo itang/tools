@@ -1,4 +1,4 @@
-name = "testnsh/portfinder_ui"
+name = "itang/portfinder_ui"
 
 version = "0.1.0"
 

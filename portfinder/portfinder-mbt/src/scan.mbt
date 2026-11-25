@@ -1,23 +1,29 @@
 // One listener: the process owning it (name and pid may be unknown without
 // permission), the protocol and the local address.
+
+///|
 priv struct Entry {
   name : String
-  pid : Int
+  pid : Int32
   proto : String
   addr : String
 }
 
 // Splits one line of `lsof`/`ss` output into its non-empty fields.
+
+///|
 fn words(line : StringView) -> Array[StringView] {
   line
-    .split(" ")
-    .flat_map(fn(chunk) { chunk.split("\t") })
-    .filter(fn(part) { !part.is_empty() })
-    .to_array()
+  .split(" ")
+  .flat_map(fn(chunk) { chunk.split("\t") })
+  .filter(fn(part) { !part.is_empty() })
+  .to_array()
 }
 
 // True when `addr` names `port` (`*:8080`, `0.0.0.0:8080`, `[::1]:8080`).
-fn addr_has_port(addr : StringView, port : Int) -> Bool {
+
+///|
+fn addr_has_port(addr : StringView, port : Int32) -> Bool {
   let parts = addr.split(":").to_array()
   if parts.length() < 2 {
     false
@@ -27,7 +33,9 @@ fn addr_has_port(addr : StringView, port : Int) -> Bool {
 }
 
 // `lsof -nP -iPROTO:port` rows: COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME.
-fn lsof_entries(text : String, port : Int) -> Array[Entry] {
+
+///|
+fn lsof_entries(text : String, port : Int32) -> Array[Entry] {
   let entries : Array[Entry] = []
   for raw in text.split("\n") {
     let line = raw.trim()
@@ -35,7 +43,9 @@ fn lsof_entries(text : String, port : Int) -> Array[Entry] {
       continue
     }
     let fields = words(line)
-    let proto_at = fields.search_by(fn(field) { field == "TCP" || field == "UDP" }).unwrap_or(-1)
+    let proto_at = fields
+      .search_by(fn(field) { field == "TCP" || field == "UDP" })
+      .unwrap_or(-1)
     if proto_at < 0 || proto_at + 1 >= fields.length() {
       continue
     }
@@ -54,7 +64,9 @@ fn lsof_entries(text : String, port : Int) -> Array[Entry] {
 }
 
 // The `"name"` quoted by `ss`'s `users:(("name",pid=1234,...))` column.
-fn ss_quoted(line : StringView, index : Int) -> String {
+
+///|
+fn ss_quoted(line : StringView, index : Int32) -> String {
   let parts = line.split("\"").to_array()
   if parts.length() > index {
     parts[index].to_owned()
@@ -63,7 +75,8 @@ fn ss_quoted(line : StringView, index : Int) -> String {
   }
 }
 
-fn ss_pid(line : StringView) -> Int {
+///|
+fn ss_pid(line : StringView) -> Int32 {
   let rest = ss_quoted(line, 2)
   let parts = rest.split("pid=").to_array()
   if parts.length() >= 2 {
@@ -74,7 +87,9 @@ fn ss_pid(line : StringView) -> Int {
 }
 
 // `ss -H -l -n -t -u -p` rows: PROTO STATE RECV-Q SEND-Q LOCAL PEER PROCESS.
-fn ss_entries(text : String, port : Int) -> Array[Entry] {
+
+///|
+fn ss_entries(text : String, port : Int32) -> Array[Entry] {
   let entries : Array[Entry] = []
   for raw in text.split("\n") {
     let line = raw.trim()
@@ -101,11 +116,13 @@ fn ss_entries(text : String, port : Int) -> Array[Entry] {
 
 // Runs a lookup tool, treating a missing tool or a failed call as empty
 // output so the caller can fall back to another source.
+
+///|
 fn Host::run_quiet(
   self : Host,
   exe : String,
   args : FixedArray[String],
-  timeout_ms : Int,
+  timeout_ms : Int32,
   done : (String) -> Unit,
 ) -> Unit {
   self.run_command(
@@ -118,8 +135,16 @@ fn Host::run_quiet(
 }
 
 // The macOS/Linux fallback: TCP listeners and UDP bindings from lsof.
-fn Host::scan_lsof(self : Host, port : Int, done : (Array[Entry]) -> Unit) -> Unit {
-  self.run_quiet("lsof", ["-nP", "-iTCP:\{port}", "-sTCP:LISTEN"], 8000, fn(tcp) {
+
+///|
+fn Host::scan_lsof(
+  self : Host,
+  port : Int32,
+  done : (Array[Entry]) -> Unit,
+) -> Unit {
+  self.run_quiet("lsof", ["-nP", "-iTCP:\{port}", "-sTCP:LISTEN"], 8000, fn(
+    tcp,
+  ) {
     self.run_quiet("lsof", ["-nP", "-iUDP:\{port}"], 8000, fn(udp) {
       done(lsof_entries(tcp, port) + lsof_entries(udp, port))
     })
@@ -128,19 +153,17 @@ fn Host::scan_lsof(self : Host, port : Int, done : (Array[Entry]) -> Unit) -> Un
 
 // Runs the platform's port lookup and reports the listeners it finds; a
 // permission-limited lookup reports the socket with an empty name and pid 0.
+
+///|
 fn Host::scan_port(
   self : Host,
-  port : Int,
+  port : Int32,
   done : (Array[Entry]) -> Unit,
   fail : (String) -> Unit,
 ) -> Unit {
   let os = self.platform()
   if os == "windows" {
-    self.native_port(
-      port,
-      fn(text) { done(parse_entries(text)) },
-      fail,
-    )
+    self.scanner().scan_port(port, fn(text) { done(parse_entries(text)) }, fail)
     return
   }
   if os == "macos" {
@@ -151,26 +174,26 @@ fn Host::scan_port(
     "ss",
     ["-H", "-l", "-n", "-t", "-u", "-p"],
     8000,
-    fn(_code, stdout, _stderr) {
-      done(ss_entries(stdout, port))
-    },
-    fn(_message) {
-      self.scan_lsof(port, done)
-    },
+    fn(_code, stdout, _stderr) { done(ss_entries(stdout, port)) },
+    fn(_message) { self.scan_lsof(port, done) },
   )
 }
 
 // Ends the process that owns a listener: forced on Windows, SIGTERM on
 // macOS and Linux. The platform's error text is only shown on POSIX, where
 // it arrives as UTF-8; Windows' localized output would not decode cleanly.
+
+///|
 fn Host::kill_process(
   self : Host,
-  pid : Int,
+  pid : Int32,
   done : () -> Unit,
   fail : (String) -> Unit,
 ) -> Unit {
   if self.platform() == "windows" {
-    self.native_kill(
+    self
+    .scanner()
+    .kill_process(
       pid,
       fn(ok) {
         if ok {
@@ -206,17 +229,19 @@ fn Host::kill_process(
 // One process that holds listening TCP sockets or bound UDP endpoints, with
 // whatever metadata the system exposes; fields it withholds stay empty
 // (`-1` for an unknown number).
+
+///|
 priv struct ProcessRow {
-  pid : Int
+  pid : Int32
   name : String
-  ppid : Int
+  ppid : Int32
   path : String
   tcp_ports : String
   udp_ports : String
   listeners : String
-  started_s : Int
-  cpu_x10 : Int
-  mem_kb : Int
+  started_s : Int32
+  cpu_x10 : Int32
+  mem_kb : Int32
 }
 
 // Lists every process behind a listening TCP socket or UDP endpoint. Windows
@@ -230,6 +255,8 @@ priv struct ProcessRow {
 // job order. A missing tool or a failed call contributes an empty string, so
 // the parsers see a uniform shape — the same `Promise.all` behaviour the JS
 // bridge used to provide, now expressed with the thin `run_command` bridge.
+
+///|
 fn Host::run_many(
   self : Host,
   jobs : FixedArray[(String, FixedArray[String])],
@@ -265,6 +292,8 @@ fn Host::run_many(
 
 // Collapses a native scan's text to non-empty, newline-joined rows, dropping
 // the stray `\r` Windows tools emit.
+
+///|
 fn keep_lines(text : String) -> String {
   let lines : Array[String] = []
   for raw in text.split("\n") {
@@ -276,6 +305,7 @@ fn keep_lines(text : String) -> String {
   lines.join("\n")
 }
 
+///|
 fn all_digits(value : StringView) -> Bool {
   if value.is_empty() {
     return false
@@ -289,6 +319,7 @@ fn all_digits(value : StringView) -> Bool {
   true
 }
 
+///|
 fn is_decimal(value : StringView) -> Bool {
   if value.is_empty() {
     return false
@@ -310,6 +341,7 @@ fn is_decimal(value : StringView) -> Bool {
   true
 }
 
+///|
 fn leading_digits(value : StringView) -> StringView {
   let mut n : Int32 = 0
   for c in value {
@@ -319,12 +351,14 @@ fn leading_digits(value : StringView) -> StringView {
     }
     n = n + 1
   }
-  value.get_view(end = n).unwrap_or("")
+  value.get_view(end=n).unwrap_or("")
 }
 
 // Splits a ps line into leading whitespace fields, keeping the rest — the
 // command, which may contain spaces — as the final field. ps' `comm=` column
 // can hold a path with spaces, so a plain `words()` would lose it.
+
+///|
 fn ps_fields(line : StringView) -> Array[StringView] {
   let fields : Array[StringView] = []
   let mut rest = line
@@ -335,8 +369,8 @@ fn ps_fields(line : StringView) -> Array[StringView] {
     }
     match trimmed.find_by(fn(c) { c == ' ' || c == '\t' }) {
       Some(at) => {
-        fields.push(trimmed.get_view(end = at).unwrap_or(""))
-        rest = trimmed.get_view(start = at).unwrap_or("")
+        fields.push(trimmed.get_view(end=at).unwrap_or(""))
+        rest = trimmed.get_view(start=at).unwrap_or("")
       }
       None => {
         fields.push(trimmed)
@@ -352,13 +386,15 @@ fn ps_fields(line : StringView) -> Array[StringView] {
 }
 
 // macOS `etime` (`1-02:03:04` or `02:03:04`) as whole seconds.
-fn parse_etime(text : StringView) -> Int {
+
+///|
+fn parse_etime(text : StringView) -> Int32 {
   let mut rest = text
   let mut days = 0
   match rest.find("-") {
     Some(at) => {
-      days = parse_number(rest.get_view(end = at).unwrap_or(""))
-      rest = rest.get_view(start = at + 1).unwrap_or("")
+      days = parse_number(rest.get_view(end=at).unwrap_or(""))
+      rest = rest.get_view(start=at + 1).unwrap_or("")
     }
     None => ()
   }
@@ -369,15 +405,18 @@ fn parse_etime(text : StringView) -> Int {
   days * 86400 + seconds
 }
 
+///|
 fn port_after_last_colon(addr : StringView) -> StringView {
   match addr.rev_find(":") {
-    Some(at) => addr.get_view(start = at + 1).unwrap_or("")
+    Some(at) => addr.get_view(start=at + 1).unwrap_or("")
     None => ""
   }
 }
 
 // ADDRESS is lsof's NAME column (from field 8 on); words() already made
 // `(LISTEN)` its own token, so dropping a trailing one mirrors the regex.
+
+///|
 fn lsof_address(fields : Array[StringView]) -> String {
   let n = fields.length()
   let parts : Array[String] = []
@@ -392,19 +431,21 @@ fn lsof_address(fields : Array[StringView]) -> String {
 }
 
 // Every `pid=NNNN` in an ss line, as the JS global regex did.
-fn ss_pids(line : StringView) -> Array[Int] {
-  let out : Array[Int] = []
+
+///|
+fn ss_pids(line : StringView) -> Array[Int32] {
+  let out : Array[Int32] = []
   for rest = line {
     match rest.find("pid=") {
       None => break
       Some(at) => {
-        let tail = rest.get_view(start = at + 4).unwrap_or("")
+        let tail = rest.get_view(start=at + 4).unwrap_or("")
         let digits = leading_digits(tail)
         if digits.is_empty() {
           continue tail
         }
         out.push(parse_number(digits))
-        continue tail.get_view(start = digits.char_length()).unwrap_or("")
+        continue tail.get_view(start=digits.char_length()).unwrap_or("")
       }
     }
   }
@@ -413,6 +454,8 @@ fn ss_pids(line : StringView) -> Array[Int] {
 
 // Per-pid metadata the ps row supplies; ports and addresses accumulate in
 // their own maps because they are merged from two commands per platform.
+
+///|
 priv struct PsInfo {
   ppid : String
   name : String
@@ -422,12 +465,18 @@ priv struct PsInfo {
   mem : String
 }
 
+///|
 priv struct ScanRow {
-  first_port : Int
+  first_port : Int32
   line : String
 }
 
-fn add_addr(addrs : Map[Int, Array[String]], pid : Int, label : String) -> Unit {
+///|
+fn add_addr(
+  addrs : Map[Int32, Array[String]],
+  pid : Int32,
+  label : String,
+) -> Unit {
   let list = match addrs.get(pid) {
     Some(a) => a
     None => {
@@ -443,12 +492,14 @@ fn add_addr(addrs : Map[Int, Array[String]], pid : Int, label : String) -> Unit 
 
 // lsof's `-iTCP -sTCP:LISTEN` / `-iUDP` output: COMMAND PID USER FD TYPE
 // DEVICE SIZE/OFF NODE NAME...
+
+///|
 fn add_lsof(
   text : String,
   proto : String,
-  tcp : Map[Int, Array[Int]],
-  udp : Map[Int, Array[Int]],
-  addrs : Map[Int, Array[String]],
+  tcp : Map[Int32, Array[Int32]],
+  udp : Map[Int32, Array[Int32]],
+  addrs : Map[Int32, Array[String]],
 ) -> Unit {
   for raw in text.split("\n") {
     let fields = words(raw)
@@ -472,7 +523,7 @@ fn add_lsof(
     let list = match ports.get(pid) {
       Some(p) => p
       None => {
-        let p : Array[Int] = []
+        let p : Array[Int32] = []
         ports.set(pid, p)
         p
       }
@@ -484,20 +535,23 @@ fn add_lsof(
   }
 }
 
-fn join_ports_sorted(ports : Array[Int]) -> String {
+///|
+fn join_ports_sorted(ports : Array[Int32]) -> String {
   ports.sort()
   ports.map(fn(p) { p.to_string() }).join(",")
 }
 
 // Turns the accumulated maps into the `|`-delimited rows parse_processes
 // reads, ordered by first port like the Rust scanner's output.
+
+///|
 fn emit_rows(
-  info : Map[Int, PsInfo],
-  tcp : Map[Int, Array[Int]],
-  udp : Map[Int, Array[Int]],
-  addrs : Map[Int, Array[String]],
+  info : Map[Int32, PsInfo],
+  tcp : Map[Int32, Array[Int32]],
+  udp : Map[Int32, Array[Int32]],
+  addrs : Map[Int32, Array[String]],
 ) -> String {
-  let pids : Array[Int] = []
+  let pids : Array[Int32] = []
   for pid in tcp.keys() {
     if !pids.contains(pid) {
       pids.push(pid)
@@ -547,7 +601,7 @@ fn emit_rows(
     }
     let addr_text = addrs.get(pid).unwrap_or([]).join(";")
     let line = "\{pid}|\{name}|\{ppid}|\{path}|\{tcp_text}|\{udp_text}|\{started}|\{cpu}|\{mem}|\{addr_text}"
-    rows.push({ first_port: first, line })
+    rows.push({ first_port: first, line, })
   }
   rows.sort_by(fn(a, b) { a.first_port - b.first_port })
   rows.map(fn(r) { r.line }).join("\n")
@@ -555,14 +609,23 @@ fn emit_rows(
 
 // macOS: lsof (TCP listeners + UDP bindings) paired with ps. `etime` is a
 // wall-clock delta, so the current second turns it into a start timestamp.
-fn macos_rows(tcp_text : String, udp_text : String, ps_text : String, now_s : Int) -> String {
-  let info : Map[Int, PsInfo] = Map([])
+
+///|
+fn macos_rows(
+  tcp_text : String,
+  udp_text : String,
+  ps_text : String,
+  now_s : Int32,
+) -> String {
+  let info : Map[Int32, PsInfo] = Map([])
   for raw in ps_text.split("\n") {
     let fields = ps_fields(raw)
     if fields.length() < 6 {
       continue
     }
-    if !all_digits(fields[0]) || !all_digits(fields[1]) || !is_decimal(fields[4]) {
+    if !all_digits(fields[0]) ||
+      !all_digits(fields[1]) ||
+      !is_decimal(fields[4]) {
       continue
     }
     let pid = parse_number(fields[0])
@@ -571,7 +634,7 @@ fn macos_rows(tcp_text : String, udp_text : String, ps_text : String, now_s : In
     }
     let comm = fields[5]
     let name = match comm.rev_find("/") {
-      Some(at) => comm.get_view(start = at + 1).unwrap_or("").to_owned()
+      Some(at) => comm.get_view(start=at + 1).unwrap_or("").to_owned()
       None => comm.to_owned()
     }
     let path = match comm.rev_find("/") {
@@ -588,9 +651,9 @@ fn macos_rows(tcp_text : String, udp_text : String, ps_text : String, now_s : In
       mem: parse_number(fields[3]).to_string(),
     })
   }
-  let tcp : Map[Int, Array[Int]] = Map([])
-  let udp : Map[Int, Array[Int]] = Map([])
-  let addrs : Map[Int, Array[String]] = Map([])
+  let tcp : Map[Int32, Array[Int32]] = Map([])
+  let udp : Map[Int32, Array[Int32]] = Map([])
+  let addrs : Map[Int32, Array[String]] = Map([])
   add_lsof(tcp_text, "TCP", tcp, udp, addrs)
   add_lsof(udp_text, "UDP", tcp, udp, addrs)
   emit_rows(info, tcp, udp, addrs)
@@ -598,15 +661,19 @@ fn macos_rows(tcp_text : String, udp_text : String, ps_text : String, now_s : In
 
 // Linux: ss paired with ps. `etimes` is already seconds; ps' `comm=` has no
 // path on Linux, so `path` stays empty.
-fn linux_rows(ss_text : String, ps_text : String, now_s : Int) -> String {
-  let info : Map[Int, PsInfo] = Map([])
+
+///|
+fn linux_rows(ss_text : String, ps_text : String, now_s : Int32) -> String {
+  let info : Map[Int32, PsInfo] = Map([])
   for raw in ps_text.split("\n") {
     let fields = ps_fields(raw)
     if fields.length() < 6 {
       continue
     }
-    if !all_digits(fields[0]) || !all_digits(fields[1]) ||
-      !all_digits(fields[2]) || !is_decimal(fields[4]) {
+    if !all_digits(fields[0]) ||
+      !all_digits(fields[1]) ||
+      !all_digits(fields[2]) ||
+      !is_decimal(fields[4]) {
       continue
     }
     let pid = parse_number(fields[0])
@@ -623,9 +690,9 @@ fn linux_rows(ss_text : String, ps_text : String, now_s : Int) -> String {
       mem: parse_number(fields[3]).to_string(),
     })
   }
-  let tcp : Map[Int, Array[Int]] = Map([])
-  let udp : Map[Int, Array[Int]] = Map([])
-  let addrs : Map[Int, Array[String]] = Map([])
+  let tcp : Map[Int32, Array[Int32]] = Map([])
+  let udp : Map[Int32, Array[Int32]] = Map([])
+  let addrs : Map[Int32, Array[String]] = Map([])
   for raw in ss_text.split("\n") {
     let fields = words(raw)
     if fields.length() < 5 {
@@ -646,7 +713,7 @@ fn linux_rows(ss_text : String, ps_text : String, now_s : Int) -> String {
       let list = match ports.get(pid) {
         Some(p) => p
         None => {
-          let p : Array[Int] = []
+          let p : Array[Int32] = []
           ports.set(pid, p)
           p
         }
@@ -662,6 +729,8 @@ fn linux_rows(ss_text : String, ps_text : String, now_s : Int) -> String {
 
 // Runs the platform's port lookup and reports the listeners it finds; a
 // permission-limited lookup reports the socket with an empty name and pid 0.
+
+///|
 fn Host::scan_processes(
   self : Host,
   done : (String) -> Unit,
@@ -669,7 +738,7 @@ fn Host::scan_processes(
 ) -> Unit {
   let os = self.platform()
   if os == "windows" {
-    self.native_scan(fn(text) { done(keep_lines(text)) }, fail)
+    self.scanner().scan_processes(fn(text) { done(keep_lines(text)) }, fail)
     return
   }
   let now_s = self.now_s()
@@ -695,29 +764,38 @@ fn Host::scan_processes(
 
 // Seconds `started_s` has been running, or -1 when the start is unknown.
 // The clock read is the only host fact; the subtraction is MoonBit.
-fn Host::running_seconds(self : Host, started_s : Int) -> Int {
+
+///|
+fn Host::running_seconds(self : Host, started_s : Int32) -> Int32 {
   if started_s == 0 {
     -1
   } else {
     let delta = self.now_s() - started_s
-    if delta > 0 { delta } else { 0 }
+    if delta > 0 {
+      delta
+    } else {
+      0
+    }
   }
 }
 
 // `started_s` as local `YYYY-MM-DD HH:MM`; an empty label when unknown. The
 // timezone-aware calendar fields come from the host; padding and assembly
 // are MoonBit.
-fn Host::format_time(self : Host, started_s : Int) -> String {
+
+///|
+fn Host::format_time(self : Host, started_s : Int32) -> String {
   if started_s == 0 {
     ""
   } else {
     let parts = self.local_time_parts(started_s)
-    let pad = fn(n : Int) -> String { if n < 10 { "0\{n}" } else { "\{n}" } }
+    let pad = fn(n : Int32) -> String { if n < 10 { "0\{n}" } else { "\{n}" } }
     "\{parts[0]}-\{pad(parts[1])}-\{pad(parts[2])} \{pad(parts[3])}:\{pad(parts[4])}"
   }
 }
 
-fn parse_number(value : StringView) -> Int {
+///|
+fn parse_number(value : StringView) -> Int32 {
   let mut number = 0
   let mut seen = false
   for char in value {
@@ -735,6 +813,7 @@ fn parse_number(value : StringView) -> Int {
   }
 }
 
+///|
 fn parse_entries(text : String) -> Array[Entry] {
   let entries : Array[Entry] = []
   for raw in text.split("\n") {
@@ -756,7 +835,9 @@ fn parse_entries(text : String) -> Array[Entry] {
 }
 
 // A decimal (`0.3`, `12`) in tenths; -1 when the text has no digits.
-fn parse_x10(value : StringView) -> Int {
+
+///|
+fn parse_x10(value : StringView) -> Int32 {
   let mut whole = 0
   let mut frac = 0
   let mut seen = false
@@ -787,6 +868,7 @@ fn parse_x10(value : StringView) -> Int {
   }
 }
 
+///|
 fn parse_processes(text : String) -> Array[ProcessRow] {
   let rows : Array[ProcessRow] = []
   for raw in text.split("\n") {
@@ -796,33 +878,26 @@ fn parse_processes(text : String) -> Array[ProcessRow] {
     }
     let fields = line.split("|").to_array()
     if fields.length() >= 10 {
-    let mem = parse_number(fields[8])
-    let cpu_text = fields[7].trim()
-    let mem_text = fields[8].trim()
-    // "!" is emitted when a process is visible but its handle cannot be
-    // opened; -2 renders as "受限" instead of the ambiguous "—".
-    let cpu_x10 = if cpu_text == "!" { -2 } else { parse_x10(cpu_text) }
-    let mem_kb = if mem_text == "!" {
-      -2
-    } else if mem > 0 {
-      mem
-    } else {
-      -1
-    }
-    rows.push({
-      pid: parse_number(fields[0]),
-      name: fields[1].trim().to_owned(),
-      ppid: parse_number(fields[2]),
-      path: fields[3].trim().to_owned(),
-      tcp_ports: fields[4].trim().to_owned(),
-      udp_ports: fields[5].trim().to_owned(),
-      started_s: parse_number(fields[6]),
-      cpu_x10: cpu_x10,
-      mem_kb: mem_kb,
-      listeners: fields[9].trim().to_owned(),
-    })
+      let mem = parse_number(fields[8])
+      let cpu_text = fields[7].trim()
+      let mem_text = fields[8].trim()
+      // "!" is emitted when a process is visible but its handle cannot be
+      // opened; -2 renders as "受限" instead of the ambiguous "—".
+      let cpu_x10 = if cpu_text == "!" { -2 } else { parse_x10(cpu_text) }
+      let mem_kb = if mem_text == "!" { -2 } else if mem > 0 { mem } else { -1 }
+      rows.push({
+        pid: parse_number(fields[0]),
+        name: fields[1].trim().to_owned(),
+        ppid: parse_number(fields[2]),
+        path: fields[3].trim().to_owned(),
+        tcp_ports: fields[4].trim().to_owned(),
+        udp_ports: fields[5].trim().to_owned(),
+        started_s: parse_number(fields[6]),
+        cpu_x10,
+        mem_kb,
+        listeners: fields[9].trim().to_owned(),
+      })
     }
   }
   rows
 }
-

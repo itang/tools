@@ -4,10 +4,16 @@
 
 // The current wall clock as whole seconds since the Unix epoch, and the
 // local calendar fields of such a timestamp.
-pub extern "js" fn Host::now_s(self : Host) -> Int =
+
+///|
+pub extern "js" fn Host::now_s(self : Host) -> Int32 =
   #| (h) => Math.floor(Date.now() / 1000)
 
-pub extern "js" fn Host::local_time_parts(self : Host, epoch_s : Int) -> FixedArray[Int] =
+///|
+pub extern "js" fn Host::local_time_parts(
+  self : Host,
+  epoch_s : Int32,
+) -> FixedArray[Int32] =
   #| (h, epoch_s) => {
   #|   const d = new Date(epoch_s * 1000);
   #|   return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()];
@@ -16,7 +22,9 @@ pub extern "js" fn Host::local_time_parts(self : Host, epoch_s : Int) -> FixedAr
 // Selects a row and brings it into view. The row stays remembered on the JS
 // side so a table rebuilt by a refresh re-applies it instead of coming back
 // unselected; `-1` clears it.
-pub extern "js" fn Host::reveal_row(self : Host, row : Int) -> Unit =
+
+///|
+pub extern "js" fn Host::reveal_row(self : Host, row : Int32) -> Unit =
   #| (h, row) => {
   #|   h.__revealRow = row;
   #|   if (row >= 0 && h.__processTable) {
@@ -29,5 +37,14 @@ pub extern "js" fn Host::reveal_row(self : Host, row : Int) -> Unit =
 
 // Remembers the row the user selected without touching the live table; a
 // rebuild re-applies it from the same place `reveal_row` stores it.
-pub extern "js" fn Host::remember_row(self : Host, row : Int) -> Unit =
+
+///|
+pub extern "js" fn Host::remember_row(self : Host, row : Int32) -> Unit =
   #| (h, row) => { h.__revealRow = row; }
+
+// The app's Rust nshm module, injected by `App.tsx` as `h.scanner`. Only the
+// lookup lives here; the native operations belong to `Scanner` itself.
+
+///|
+pub extern "js" fn Host::scanner(self : Host) -> Scanner =
+  #| (h) => h.scanner

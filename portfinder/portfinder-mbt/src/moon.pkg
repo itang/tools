@@ -1,2 +1,7 @@
-import { "testnsh/portfinder_ui/ffi" }
-options(link: { "js": { "exports": ["app"] } })
+import {
+  "itang/portfinder_ui/ffi",
+}
+
+options(
+  link: { "js": { "exports": [ "app" ] } },
+)

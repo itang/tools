@@ -11,8 +11,6 @@ import { Scanner } from "portradar-native";
 mount(() =>
   app({
     rt, signal, process, base, platform: platform(), titleBar, List, Image, Clipboard, Storage, setColorScheme, icon,
-    scan: () => Scanner.scanProcesses(),
-    scanPort: (port: number) => Scanner.scanPort(port),
-    killProcess: (pid: number) => Scanner.killProcess(pid),
+    scanner: Scanner,
   }),
 );

@@ -1,5 +1,6 @@
 // Behavioural checks for the pure-MoonBit port of the old JS scanners.
 
+///|
 test "all_digits / is_decimal" {
   assert_true(all_digits("8080"))
   assert_false(all_digits("80a0"))
@@ -10,11 +11,13 @@ test "all_digits / is_decimal" {
   assert_false(is_decimal(""))
 }
 
+///|
 test "parse_etime" {
   assert_eq(parse_etime("02:03:04"), 2 * 3600 + 3 * 60 + 4)
   assert_eq(parse_etime("1-02:03:04"), 86400 + 2 * 3600 + 3 * 60 + 4)
 }
 
+///|
 test "ps_fields keeps command with spaces" {
   let f = ps_fields("  1234     1 01:02 456 0.5 /usr/bin/my proc")
   assert_eq(f.length(), 6)
@@ -26,29 +29,42 @@ test "ps_fields keeps command with spaces" {
   assert_eq(f[5].to_owned(), "/usr/bin/my proc")
 }
 
+///|
 test "port_after_last_colon" {
   assert_eq(port_after_last_colon("*:8080").to_owned(), "8080")
   assert_eq(port_after_last_colon("[::1]:443").to_owned(), "443")
 }
 
+///|
 test "ss_pids finds every pid" {
-  let p = ss_pids("tcp LISTEN 0 4096 0.0.0.0:80 0.0.0.0:* users:((\"a\",pid=12,fd=3),(\"b\",pid=34,fd=4))")
+  let p = ss_pids(
+    "tcp LISTEN 0 4096 0.0.0.0:80 0.0.0.0:* users:((\"a\",pid=12,fd=3),(\"b\",pid=34,fd=4))",
+  )
   assert_eq(p, [12, 34])
 }
 
+///|
 test "lsof_address drops trailing LISTEN" {
   let f = words("node 1234 user 12u IPv4 0x0 0t0 TCP *:8080 (LISTEN)")
   assert_eq(lsof_address(f), "*:8080")
 }
 
+///|
 test "emit_rows orders by first port and formats 10 fields" {
-  let info : Map[Int, PsInfo] = Map([])
-  info.set(20, { ppid: "1", name: "two", path: "", started: "100", cpu: "5", mem: "200" })
-  let tcp : Map[Int, Array[Int]] = Map([])
+  let info : Map[Int32, PsInfo] = Map([])
+  info.set(20, {
+    ppid: "1",
+    name: "two",
+    path: "",
+    started: "100",
+    cpu: "5",
+    mem: "200",
+  })
+  let tcp : Map[Int32, Array[Int32]] = Map([])
   tcp.set(20, [443, 80])
-  let udp : Map[Int, Array[Int]] = Map([])
+  let udp : Map[Int32, Array[Int32]] = Map([])
   udp.set(10, [53])
-  let addrs : Map[Int, Array[String]] = Map([])
+  let addrs : Map[Int32, Array[String]] = Map([])
   addrs.set(20, ["TCP 0.0.0.0:80", "TCP 0.0.0.0:443"])
   addrs.set(10, ["UDP *:53"])
   let out = emit_rows(info, tcp, udp, addrs)
@@ -62,6 +78,7 @@ test "emit_rows orders by first port and formats 10 fields" {
   assert_true(lines[1].contains("80,443"))
 }
 
+///|
 test "macos_rows and linux_rows parse end to end" {
   let ps = " 1234 1 01:02:03 4567 0.5 /usr/bin/node\n"
   let tcp = "COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME\nnode 1234 u 12u IPv4 0x0 0t0 TCP *:8080 (LISTEN)\n"

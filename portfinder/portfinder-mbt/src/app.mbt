@@ -1,21 +1,30 @@
+///|
 fn el(host : Host, tag : String, class : String) -> Node {
   let node = host.element(tag)
   host.set_class(node, class)
   node
 }
 
+///|
 fn txt(host : Host, class : String, content : String) -> Node {
   let node = el(host, "text", class)
   host.append(node, host.text(content))
   node
 }
 
+///|
 fn port_list(raw : String) -> String {
-  raw.split(",").map(fn(part) { part.trim() }).filter(fn(part) { !part.is_empty() }).join(", ")
+  raw
+  .split(",")
+  .map(fn(part) { part.trim() })
+  .filter(fn(part) { !part.is_empty() })
+  .join(", ")
 }
 
 // A process may listen on TCP and bind UDP at once, so the column says which
 // list a port comes from.
+
+///|
 fn ports_label(tcp : String, udp : String) -> String {
   let tcp_text = port_list(tcp)
   let udp_text = port_list(udp)
@@ -30,7 +39,8 @@ fn ports_label(tcp : String, udp : String) -> String {
   }
 }
 
-fn cpu_label(cpu_x10 : Int) -> String {
+///|
+fn cpu_label(cpu_x10 : Int32) -> String {
   if cpu_x10 == -2 {
     return "受限"
   }
@@ -40,7 +50,8 @@ fn cpu_label(cpu_x10 : Int) -> String {
   "\{cpu_x10 / 10}.\{cpu_x10 % 10}%"
 }
 
-fn mem_label(mem_kb : Int) -> String {
+///|
+fn mem_label(mem_kb : Int32) -> String {
   if mem_kb == -2 {
     return "受限"
   }
@@ -49,17 +60,19 @@ fn mem_label(mem_kb : Int) -> String {
   }
   if mem_kb >= 1048576 {
     let whole = mem_kb / 1048576
-    let tenth = (mem_kb % 1048576) * 10 / 1048576
+    let tenth = mem_kb % 1048576 * 10 / 1048576
     "\{whole}.\{tenth} GB"
   } else {
     let whole = mem_kb / 1024
-    let tenth = (mem_kb % 1024) * 10 / 1024
+    let tenth = mem_kb % 1024 * 10 / 1024
     "\{whole}.\{tenth} MB"
   }
 }
 
 // IPv4 or IPv6 from the local address; empty when the socket is a wildcard
 // the system does not say the family of.
+
+///|
 fn addr_family(addr : String) -> String {
   if addr.is_empty() {
     return ""
@@ -73,6 +86,7 @@ fn addr_family(addr : String) -> String {
   }
 }
 
+///|
 fn entry_short(entry : Entry) -> String {
   let family = addr_family(entry.addr)
   let base = "\{entry.proto} \{entry.addr}"
@@ -83,13 +97,14 @@ fn entry_short(entry : Entry) -> String {
   }
 }
 
-fn since_label(seconds : Int) -> String {
+///|
+fn since_label(seconds : Int32) -> String {
   if seconds < 0 {
     return ""
   }
   let minutes = seconds / 60
   let days = minutes / 1440
-  let hours = (minutes % 1440) / 60
+  let hours = minutes % 1440 / 60
   let mins = minutes % 60
   if days > 0 {
     if hours > 0 {
@@ -110,11 +125,13 @@ fn since_label(seconds : Int) -> String {
   }
 }
 
-fn first_port(raw : String) -> Int {
+///|
+fn first_port(raw : String) -> Int32 {
   parse_number(raw.split(",").nth(0).unwrap_or("").trim())
 }
 
-fn min_port(proc : ProcessRow) -> Int {
+///|
+fn min_port(proc : ProcessRow) -> Int32 {
   let tcp = first_port(proc.tcp_ports)
   let udp = first_port(proc.udp_ports)
   if tcp == 0 {
@@ -129,7 +146,9 @@ fn min_port(proc : ProcessRow) -> Int {
 }
 
 // Rows the system withholds a start time for sort after the known ones.
-fn compare_start(a : ProcessRow, b : ProcessRow) -> Int {
+
+///|
+fn compare_start(a : ProcessRow, b : ProcessRow) -> Int32 {
   if a.started_s == 0 && b.started_s == 0 {
     0
   } else if a.started_s == 0 {
@@ -142,7 +161,9 @@ fn compare_start(a : ProcessRow, b : ProcessRow) -> Int {
 }
 
 // Unknown numbers (`-1`) sort after the known ones.
-fn compare_metric(a : Int, b : Int) -> Int {
+
+///|
+fn compare_metric(a : Int32, b : Int32) -> Int32 {
   if a < 0 && b < 0 {
     0
   } else if a < 0 {
@@ -154,7 +175,8 @@ fn compare_metric(a : Int, b : Int) -> Int {
   }
 }
 
-fn compare_rows(a : ProcessRow, b : ProcessRow, key : String) -> Int {
+///|
+fn compare_rows(a : ProcessRow, b : ProcessRow, key : String) -> Int32 {
   match key {
     "name" => a.name.compare_ignore_ascii_case(b.name)
     "pid" => a.pid - b.pid
@@ -166,13 +188,19 @@ fn compare_rows(a : ProcessRow, b : ProcessRow, key : String) -> Int {
   }
 }
 
-fn index_of_pid(rows : Array[ProcessRow], pid : Int) -> Int {
+///|
+fn index_of_pid(rows : Array[ProcessRow], pid : Int32) -> Int32 {
   rows.search_by(fn(row) { row.pid == pid }).unwrap_or(-1)
 }
 
 // The rows the query condition leaves: a case-insensitive substring of the
 // process name, or every row when the field is empty.
-fn visible_rows(procs : Array[ProcessRow], filter : String) -> Array[ProcessRow] {
+
+///|
+fn visible_rows(
+  procs : Array[ProcessRow],
+  filter : String,
+) -> Array[ProcessRow] {
   let needle = filter.trim().to_lower()
   if needle.is_empty() {
     return procs
@@ -182,22 +210,33 @@ fn visible_rows(procs : Array[ProcessRow], filter : String) -> Array[ProcessRow]
 
 // The list's default order (by first port) and the user's sort share one
 // function, so a refresh keeps the order the table shows.
-fn sort_processes(rows : Array[ProcessRow], key : String, ascending : Bool) -> Unit {
+
+///|
+fn sort_processes(
+  rows : Array[ProcessRow],
+  key : String,
+  ascending : Bool,
+) -> Unit {
   rows.sort_by(fn(a, b) {
     let order = compare_rows(a, b, key)
-    if ascending { order } else { -order }
+    if ascending {
+      order
+    } else {
+      -order
+    }
   })
 }
 
-fn answer_text(entries : Array[Entry], port : Int) -> String {
+///|
+fn answer_text(entries : Array[Entry], port : Int32) -> String {
   if entries.is_empty() {
     return "端口 \{port} 空闲"
   }
   let owners : Array[String] = []
-  let pids : Array[Int] = []
+  let pids : Array[Int32] = []
   let any_tcp = entries.any(fn(entry) { entry.proto == "TCP" })
   for entry in entries {
-    if !(pids.contains(entry.pid)) {
+    if !pids.contains(entry.pid) {
       pids.push(entry.pid)
       if entry.name.is_empty() {
         owners.push("PID \{entry.pid}")
@@ -210,6 +249,7 @@ fn answer_text(entries : Array[Entry], port : Int) -> String {
   "端口 \{port} 正被 " + owners.join("、") + " " + verb
 }
 
+///|
 fn address_detail(entries : Array[Entry]) -> String {
   let text = entries.iter().take(3).map(entry_short).to_array().join(" · ")
   if entries.length() > 3 {
@@ -219,11 +259,12 @@ fn address_detail(entries : Array[Entry]) -> String {
   }
 }
 
+///|
 fn answer_strip(
   host : Host,
-  status : Int,
+  status : Int32,
   entries : Array[Entry],
-  port : Int,
+  port : Int32,
   error : String,
 ) -> Node {
   // No condition: the strip is gone until a port is queried again.
@@ -231,9 +272,7 @@ fn answer_strip(
     return el(host, "view", "h-0")
   }
   let strip = el(
-    host,
-    "view",
-    "min-h-9 flex-row items-center gap-2 rounded-md bg-muted px-3 py-2",
+    host, "view", "min-h-9 flex-row items-center gap-2 rounded-md bg-muted px-3 py-2",
   )
   if status == 1 {
     // An indeterminate bar keeps moving while the native port query runs on
@@ -241,14 +280,16 @@ fn answer_strip(
     host.append(
       strip,
       host.progress(
-        "w-28 shrink-0",
-        "h-1.5 w-full rounded-full bg-border",
-        "h-1.5 w-1/3 rounded-full bg-primary",
+        "w-28 shrink-0", "h-1.5 w-full rounded-full bg-border", "h-1.5 w-1/3 rounded-full bg-primary",
       ),
     )
     host.append(
       strip,
-      txt(host, "flex-1 text-sm text-muted-foreground", "正在查询端口 \{port} …"),
+      txt(
+        host,
+        "flex-1 text-sm text-muted-foreground",
+        "正在查询端口 \{port} …",
+      ),
     )
     return strip
   }
@@ -283,11 +324,10 @@ fn answer_strip(
   strip
 }
 
+///|
 fn table_state(host : Host, message : String, is_error : Bool) -> Node {
   let box = el(
-    host,
-    "view",
-    "h-[140px] items-center justify-center rounded-lg border border-border bg-background",
+    host, "view", "h-[140px] items-center justify-center rounded-lg border border-border bg-background",
   )
   let class = if is_error {
     "text-sm text-destructive"
@@ -300,44 +340,47 @@ fn table_state(host : Host, message : String, is_error : Bool) -> Node {
 
 // Loading state for the process table: an indeterminate bar that animates
 // while the native scan runs on a background thread, plus a short label.
+
+///|
 fn table_progress(host : Host, message : String) -> Node {
   let box = el(
-    host,
-    "view",
-    "h-[140px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background",
+    host, "view", "h-[140px] flex-col items-center justify-center gap-3 rounded-lg border border-border bg-background",
   )
   host.append(
     box,
     host.progress(
-      "w-56",
-      "h-1.5 w-full rounded-full bg-border",
-      "h-1.5 w-1/3 rounded-full bg-primary",
+      "w-56", "h-1.5 w-full rounded-full bg-border", "h-1.5 w-1/3 rounded-full bg-primary",
     ),
   )
   host.append(box, txt(host, "text-sm text-muted-foreground", message))
   box
 }
 
+///|
 fn process_cell(
   host : Host,
-  row : Int,
+  row : Int32,
   proc : ProcessRow,
   key : String,
   on_kill : (ProcessRow) -> Unit,
 ) -> Node {
   match key {
-    "seq" => {
+    "seq" =>
       txt(
         host,
         "w-full text-right text-xs text-muted-foreground tabular-nums",
         (row + 1).to_string(),
       )
-    }
     "name" => {
       let name = if proc.name.is_empty() { "—" } else { proc.name }
       txt(host, "truncate text-sm font-medium text-foreground", name)
     }
-    "pid" => txt(host, "w-full text-right text-sm text-foreground tabular-nums", proc.pid.to_string())
+    "pid" =>
+      txt(
+        host,
+        "w-full text-right text-sm text-foreground tabular-nums",
+        proc.pid.to_string(),
+      )
     "ports" => {
       let ports = ports_label(proc.tcp_ports, proc.udp_ports)
       let label = if ports.is_empty() { "—" } else { ports }
@@ -345,16 +388,25 @@ fn process_cell(
     }
     "cpu" => {
       let label = cpu_label(proc.cpu_x10)
-      txt(host, "w-full truncate whitespace-nowrap text-right text-sm text-foreground tabular-nums", label)
+      txt(
+        host, "w-full truncate whitespace-nowrap text-right text-sm text-foreground tabular-nums",
+        label,
+      )
     }
     "mem" => {
       let label = mem_label(proc.mem_kb)
-      txt(host, "w-full truncate whitespace-nowrap text-right text-sm text-foreground tabular-nums", label)
+      txt(
+        host, "w-full truncate whitespace-nowrap text-right text-sm text-foreground tabular-nums",
+        label,
+      )
     }
     "uptime" => {
       let since = since_label(host.running_seconds(proc.started_s))
       let label = if since.is_empty() { "—" } else { since }
-      txt(host, "truncate whitespace-nowrap text-sm text-muted-foreground tabular-nums", label)
+      txt(
+        host, "truncate whitespace-nowrap text-sm text-muted-foreground tabular-nums",
+        label,
+      )
     }
     "action" => {
       let cell = el(host, "view", "w-full flex-row items-center justify-center")
@@ -363,8 +415,7 @@ fn process_cell(
         host.button(
           "group shrink-0 rounded-md border border-border bg-background px-2 py-0.5 hover:border-destructive/50 hover:bg-destructive/10 active:opacity-90",
           txt(
-            host,
-            "whitespace-nowrap text-xs font-medium text-muted-foreground group-hover:text-destructive",
+            host, "whitespace-nowrap text-xs font-medium text-muted-foreground group-hover:text-destructive",
             "结束",
           ),
           fn() { on_kill(proc) },
@@ -380,7 +431,9 @@ fn process_cell(
 // at the least, and the two text columns share the extra width. The fixed
 // columns (序号 56, PID 76, CPU 76, 内存 92, 运行时长 98, 结束 84) plus the
 // ports column's base 244 and a 16-point scrollbar make the base 902.
-fn table_metrics(area_w : Int, area_h : Int) -> (Int, Int, Int) {
+
+///|
+fn table_metrics(area_w : Int32, area_h : Int32) -> (Int32, Int32, Int32) {
   let rows = if area_h < 32 + 3 * 32 { 3 } else { (area_h - 32) / 32 }
   let height = 30 + rows * 32 + 2
   let extra = area_w - 16 - 902
@@ -391,17 +444,18 @@ fn table_metrics(area_w : Int, area_h : Int) -> (Int, Int, Int) {
   (height, name, ports)
 }
 
+///|
 fn process_list(
   host : Host,
   rows : Array[ProcessRow],
-  height : Int,
-  name_width : Int,
-  ports_width : Int,
+  height : Int32,
+  name_width : Int32,
+  ports_width : Int32,
   sort_key : String,
   sort_ascending : Bool,
-  selected : Int,
+  selected : Int32,
   on_sort : (String, String) -> Unit,
-  on_select : (Int) -> Unit,
+  on_select : (Int32) -> Unit,
   on_kill : (ProcessRow) -> Unit,
 ) -> Node {
   host.process_table(
@@ -423,20 +477,21 @@ fn process_list(
   )
 }
 
+///|
 fn list_view(
   host : Host,
-  status : Int,
+  status : Int32,
   rows : Array[ProcessRow],
   filter : String,
   error : String,
-  height : Int,
-  name_width : Int,
-  ports_width : Int,
+  height : Int32,
+  name_width : Int32,
+  ports_width : Int32,
   sort_key : String,
   sort_ascending : Bool,
-  selected : Int,
+  selected : Int32,
   on_sort : (String, String) -> Unit,
-  on_select : (Int) -> Unit,
+  on_select : (Int32) -> Unit,
   on_kill : (ProcessRow) -> Unit,
 ) -> Node {
   if status == 1 {
@@ -454,23 +509,19 @@ fn list_view(
     return table_state(host, empty, false)
   }
   process_list(
-    host,
-    rows,
-    height,
-    name_width,
-    ports_width,
-    sort_key,
-    sort_ascending,
-    selected,
-    on_sort,
-    on_select,
-    on_kill,
+    host, rows, height, name_width, ports_width, sort_key, sort_ascending, selected,
+    on_sort, on_select, on_kill,
   )
 }
 
 // The sockets the inspector shows for the row: the queried port's endpoints
 // when the row owns it, otherwise everything the process listens on or binds.
-fn socket_pairs(proc : ProcessRow, entries : Array[Entry]) -> Array[(String, String)] {
+
+///|
+fn socket_pairs(
+  proc : ProcessRow,
+  entries : Array[Entry],
+) -> Array[(String, String)] {
   let pairs : Array[(String, String)] = []
   let mut owns_port = false
   for entry in entries {
@@ -495,6 +546,7 @@ fn socket_pairs(proc : ProcessRow, entries : Array[Entry]) -> Array[(String, Str
   pairs
 }
 
+///|
 fn inspector_field(host : Host, label : String, value : String) -> Node {
   let field = el(host, "view", "shrink-0 flex-row items-center gap-1")
   host.append(field, txt(host, "text-xs text-muted-foreground", label))
@@ -504,25 +556,36 @@ fn inspector_field(host : Host, label : String, value : String) -> Node {
 
 // One endpoint: protocol and verb, address, family. The chip shrinks and the
 // address truncates, so a long IPv6 endpoint still fits the line.
+
+///|
 fn socket_chip(host : Host, pair : (String, String)) -> Node {
   let (proto, addr) = pair
   let chip = el(
-    host,
-    "view",
-    "flex-row items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border border-border bg-background px-1.5 py-0.5",
+    host, "view", "flex-row items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border border-border bg-background px-1.5 py-0.5",
   )
   let verb = if proto == "TCP" { "监听" } else { "绑定" }
-  host.append(chip, txt(host, "shrink-0 text-xs text-muted-foreground", "\{proto} \{verb}"))
-  host.append(chip, txt(host, "truncate text-xs text-foreground tabular-nums", addr))
+  host.append(
+    chip,
+    txt(host, "shrink-0 text-xs text-muted-foreground", "\{proto} \{verb}"),
+  )
+  host.append(
+    chip,
+    txt(host, "truncate text-xs text-foreground tabular-nums", addr),
+  )
   let family = addr_family(addr)
   if family != "" {
-    host.append(chip, txt(host, "shrink-0 text-xs text-muted-foreground", family))
+    host.append(
+      chip,
+      txt(host, "shrink-0 text-xs text-muted-foreground", family),
+    )
   }
   chip
 }
 
 // The path line: the executable's location, selectable, with a Copy button
 // that reports success in place.
+
+///|
 fn path_line_view(
   host : Host,
   path : String,
@@ -530,8 +593,13 @@ fn path_line_view(
   copied : Bool,
   copy : () -> Unit,
 ) -> Node {
-  let row = el(host, "view", "w-full flex-row items-center gap-1.5 overflow-hidden")
-  host.append(row, txt(host, "shrink-0 text-xs text-muted-foreground", "路径"))
+  let row = el(
+    host, "view", "w-full flex-row items-center gap-1.5 overflow-hidden",
+  )
+  host.append(
+    row,
+    txt(host, "shrink-0 text-xs text-muted-foreground", "路径"),
+  )
   host.append(
     row,
     txt(host, "flex-1 truncate select-text text-xs text-muted-foreground", path),
@@ -541,7 +609,15 @@ fn path_line_view(
       row,
       host.button(
         "shrink-0 rounded border border-border bg-background px-1.5 py-0.5 hover:bg-muted active:opacity-90",
-        txt(host, "text-xs text-muted-foreground", if copied { "已复制" } else { "复制" }),
+        txt(
+          host,
+          "text-xs text-muted-foreground",
+          if copied {
+            "已复制"
+          } else {
+            "复制"
+          },
+        ),
         copy,
       ),
     )
@@ -552,44 +628,52 @@ fn path_line_view(
 // The selected row as a detail card: identity and provenance, the executable
 // path, then its sockets as chips. The three lines stay in place when nothing
 // is selected, so picking a row does not resize the table.
+
+///|
 fn inspector_view(
   host : Host,
   rows : Array[ProcessRow],
-  selected : Int,
+  selected : Int32,
   entries : Array[Entry],
-  port : Int,
+  port : Int32,
   copy_failed : (String) -> Unit,
 ) -> Node {
   let box = el(
-    host,
-    "view",
-    "shrink-0 flex-col gap-1 overflow-hidden rounded-lg bg-muted/40 px-3 py-1.5",
+    host, "view", "shrink-0 flex-col gap-1 overflow-hidden rounded-lg bg-muted/40 px-3 py-1.5",
   )
-  let head = el(host, "view", "h-5 flex-row items-center gap-1.5 overflow-hidden")
-  let path_line = el(host, "view", "h-5 flex-row items-center gap-1.5 overflow-hidden")
-  let socket_line = el(host, "view", "h-5 flex-row items-center gap-1.5 overflow-hidden")
+  let head = el(
+    host, "view", "h-5 flex-row items-center gap-1.5 overflow-hidden",
+  )
+  let path_line = el(
+    host, "view", "h-5 flex-row items-center gap-1.5 overflow-hidden",
+  )
+  let socket_line = el(
+    host, "view", "h-5 flex-row items-center gap-1.5 overflow-hidden",
+  )
   host.append(box, head)
   host.append(box, path_line)
   host.append(box, socket_line)
   if selected < 0 || selected >= rows.length() {
-    host.append(head, txt(host, "text-sm font-medium text-muted-foreground", "未选择进程"))
+    host.append(
+      head,
+      txt(host, "text-sm font-medium text-muted-foreground", "未选择进程"),
+    )
     host.append(
       path_line,
       txt(
-        host,
-        "text-xs text-muted-foreground",
-        "在列表中选择一行，查看父进程、启动时间、路径与监听地址",
+        host, "text-xs text-muted-foreground", "在列表中选择一行，查看父进程、启动时间、路径与监听地址",
       ),
     )
     return box
   }
   let proc = rows[selected]
   let name = if proc.name.is_empty() { "未知进程" } else { proc.name }
-  host.append(head, txt(host, "shrink-0 text-sm font-medium text-foreground", name))
+  host.append(
+    head,
+    txt(host, "shrink-0 text-sm font-medium text-foreground", name),
+  )
   let badge = el(
-    host,
-    "view",
-    "shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5",
+    host, "view", "shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5",
   )
   host.append(
     badge,
@@ -626,12 +710,18 @@ fn inspector_view(
   })
   let pairs = socket_pairs(proc, entries)
   if pairs.is_empty() {
-    host.append(socket_line, txt(host, "text-xs text-muted-foreground", "监听地址不可用"))
+    host.append(
+      socket_line,
+      txt(host, "text-xs text-muted-foreground", "监听地址不可用"),
+    )
     return box
   }
   let owns_port = entries.any(fn(entry) { entry.pid == proc.pid })
   let label = if owns_port { "端口 \{port}" } else { "监听地址" }
-  host.append(socket_line, txt(host, "shrink-0 text-xs text-muted-foreground", label))
+  host.append(
+    socket_line,
+    txt(host, "shrink-0 text-xs text-muted-foreground", label),
+  )
   for pair in pairs.iter().take(3) {
     host.append(socket_line, socket_chip(host, pair))
   }
@@ -650,6 +740,8 @@ fn inspector_view(
 
 // The three appearances the app offers: follow the system, always light,
 // always dark. The labels are the user's words; the values are nsh's.
+
+///|
 fn appearance_label(mode : String) -> String {
   if mode == "light" {
     "浅色"
@@ -662,11 +754,15 @@ fn appearance_label(mode : String) -> String {
 
 // A segmented control in the title bar: the current appearance reads as the
 // raised segment, the other two are quiet until hovered. A press picks one.
-fn appearance_switch(host : Host, mode : String, pick : (String) -> Unit) -> Node {
+
+///|
+fn appearance_switch(
+  host : Host,
+  mode : String,
+  pick : (String) -> Unit,
+) -> Node {
   let group = el(
-    host,
-    "view",
-    "flex-row items-center gap-0.5 rounded-md border border-border bg-muted/60 p-0.5",
+    host, "view", "flex-row items-center gap-0.5 rounded-md border border-border bg-muted/60 p-0.5",
   )
   for option in ["system", "light", "dark"] {
     let active = option == mode
@@ -692,7 +788,13 @@ fn appearance_switch(host : Host, mode : String, pick : (String) -> Unit) -> Nod
   group
 }
 
-fn footer_view(host : Host, count : Int, filter : String, notice : String) -> Node {
+///|
+fn footer_view(
+  host : Host,
+  count : Int32,
+  filter : String,
+  notice : String,
+) -> Node {
   let line = el(host, "view", "h-5 flex-row items-center overflow-hidden")
   if notice != "" {
     host.append(line, txt(host, "truncate text-xs text-destructive", notice))
@@ -718,6 +820,7 @@ fn footer_view(host : Host, count : Int, filter : String, notice : String) -> No
   line
 }
 
+///|
 pub fn app(host : Host) -> Node {
   let version = host.new_signal(0)
   let proc_version = host.new_signal(0)
@@ -985,9 +1088,13 @@ pub fn app(host : Host) -> Node {
     }
   }
 
-  let select_row = fn(row : Int) {
+  let select_row = fn(row : Int32) {
     let visible = visible_rows(procs, name_filter)
-    let pid = if row >= 0 && row < visible.length() { visible[row].pid } else { -1 }
+    let pid = if row >= 0 && row < visible.length() {
+      visible[row].pid
+    } else {
+      -1
+    }
     if row != selected_row || pid != selected_pid {
       selected_row = row
       selected_pid = pid
@@ -1018,7 +1125,9 @@ pub fn app(host : Host) -> Node {
     )
   }
 
-  let root = el(host, "view", "flex-1 bg-background flex flex-col overflow-hidden")
+  let root = el(
+    host, "view", "flex-1 bg-background flex flex-col overflow-hidden",
+  )
   let bar = el(
     host,
     "view",
@@ -1027,7 +1136,10 @@ pub fn app(host : Host) -> Node {
   host.drag_window(bar)
   let bar_left = el(host, "view", "flex-row items-center gap-2")
   host.append(bar_left, host.app_icon("w-[20px] h-[20px]"))
-  host.append(bar_left, txt(host, "text-xs text-muted-foreground", "端口雷达"))
+  host.append(
+    bar_left,
+    txt(host, "text-xs text-muted-foreground", "端口雷达"),
+  )
   host.append(bar, bar_left)
   // The appearance control sits at the bar's trailing edge, left of the
   // platform's own caption buttons (the bar's right padding keeps clear of
@@ -1041,7 +1153,9 @@ pub fn app(host : Host) -> Node {
   host.append(root, bar)
 
   let content = el(host, "view", "flex-1 flex-col p-4 overflow-hidden")
-  let body = el(host, "view", "w-full flex-1 flex flex-col gap-3 overflow-hidden")
+  let body = el(
+    host, "view", "w-full flex-1 flex flex-col gap-3 overflow-hidden",
+  )
 
   let toolbar = el(host, "view", "shrink-0 flex-row items-center gap-2")
   host.append(toolbar, txt(host, "text-xs text-muted-foreground", "端口"))
@@ -1101,7 +1215,9 @@ pub fn app(host : Host) -> Node {
   })
   host.append(body, answer_slot)
 
-  let section = el(host, "view", "shrink-0 flex-row items-center justify-between")
+  let section = el(
+    host, "view", "shrink-0 flex-row items-center justify-between",
+  )
   host.append(
     section,
     txt(host, "text-sm font-semibold text-foreground", "开放端口的进程"),
@@ -1124,19 +1240,8 @@ pub fn app(host : Host) -> Node {
     let _ = layout_version.get()
     let rows = visible_rows(procs, name_filter)
     list_view(
-      host,
-      proc_status,
-      rows,
-      name_filter,
-      proc_error,
-      table_height,
-      table_name_width,
-      table_ports_width,
-      sort_key,
-      sort_ascending,
-      selected_row,
-      apply_sort,
-      select_row,
+      host, proc_status, rows, name_filter, proc_error, table_height, table_name_width,
+      table_ports_width, sort_key, sort_ascending, selected_row, apply_sort, select_row,
       kill_proc,
     )
   })
@@ -1154,7 +1259,12 @@ pub fn app(host : Host) -> Node {
   host.insert(footer_slot, fn() {
     let _ = proc_version.get()
     let _ = notice_version.get()
-    footer_view(host, visible_rows(procs, name_filter).length(), name_filter, notice)
+    footer_view(
+      host,
+      visible_rows(procs, name_filter).length(),
+      name_filter,
+      notice,
+    )
   })
   host.append(body, footer_slot)
 

@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "testnsh/portfinder_ui/ffi"
+package "itang/portfinder_ui/ffi"
 
 // Values
 
@@ -17,9 +17,6 @@ pub fn Host::element(Self, String) -> Node
 pub fn Host::insert(Self, Node, () -> Node) -> Unit
 pub fn Host::load_preference(Self, String, (String) -> Unit) -> Unit
 pub fn Host::local_time_parts(Self, Int32) -> FixedArray[Int32]
-pub fn Host::native_kill(Self, Int32, (Bool) -> Unit, (String) -> Unit) -> Unit
-pub fn Host::native_port(Self, Int32, (String) -> Unit, (String) -> Unit) -> Unit
-pub fn Host::native_scan(Self, (String) -> Unit, (String) -> Unit) -> Unit
 pub fn Host::new_signal(Self, Int32) -> Signal
 pub fn Host::now_s(Self) -> Int32
 pub fn Host::number_input(Self, String, String, Int32, (Int32) -> Unit, (Int32) -> Unit) -> Node
@@ -31,6 +28,7 @@ pub fn Host::remember_row(Self, Int32) -> Unit
 pub fn Host::reveal_row(Self, Int32) -> Unit
 pub fn Host::run_command(Self, String, FixedArray[String], Int32, (Int32, String, String) -> Unit, (String) -> Unit) -> Unit
 pub fn Host::save_preference(Self, String, String) -> Unit
+pub fn Host::scanner(Self) -> Scanner
 pub fn Host::set_class(Self, Node, String) -> Unit
 pub fn Host::set_color_scheme(Self, String) -> Unit
 pub fn Host::text(Self, String) -> Node
@@ -40,6 +38,12 @@ pub fn Host::write_clipboard(Self, String, () -> Unit, (String) -> Unit) -> Unit
 
 #external
 pub type Node
+
+#external
+pub type Scanner
+pub fn Scanner::kill_process(Self, Int32, (Bool) -> Unit, (String) -> Unit) -> Unit
+pub fn Scanner::scan_port(Self, Int32, (String) -> Unit, (String) -> Unit) -> Unit
+pub fn Scanner::scan_processes(Self, (String) -> Unit, (String) -> Unit) -> Unit
 
 #external
 pub type Signal
