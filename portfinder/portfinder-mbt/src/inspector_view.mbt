@@ -113,6 +113,7 @@ fn path_line_view(
 ///|
 fn inspector_view(
   host : NshHost,
+  clock : Clock,
   rows : Array[ProcessRow],
   selected : Int32,
   entries : Array[Entry],
@@ -165,7 +166,7 @@ fn inspector_view(
   let ppid = if proc.ppid > 0 { proc.ppid.to_string() } else { "—" }
   host.append(head, inspector_field(host, "父进程", ppid))
   host.append(head, txt(host, "shrink-0 text-xs text-muted-foreground", "·"))
-  let started = host.format_time(proc.started_s)
+  let started = format_time(clock, proc.started_s)
   let started_text = if started.is_empty() { "—" } else { started }
   host.append(head, inspector_field(host, "启动", started_text))
   let path = if proc.path.is_empty() {

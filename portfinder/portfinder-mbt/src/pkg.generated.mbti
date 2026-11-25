@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn app(@ffi.NshHost) -> @ffi.Node
+pub fn app(@ffi.NshHost, @ffi.Clock, @ffi.TableState, @ffi.Scanner) -> @ffi.Node
 
 // Errors
 

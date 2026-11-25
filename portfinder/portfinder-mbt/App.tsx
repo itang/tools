@@ -9,8 +9,12 @@ import { app } from "./_build/js/release/build/portfinder_ui.js";
 import { Scanner } from "portradar-native";
 
 mount(() =>
-  app({
-    rt, signal, process, base, platform: platform(), titleBar, List, Image, Clipboard, Storage, setColorScheme, icon,
-    clock: {}, tableState: {}, scanner: Scanner,
-  }),
+  app(
+    {
+      rt, signal, process, base, platform: platform(), titleBar, List, Image, Clipboard, Storage, setColorScheme, icon,
+    },
+    {},
+    {},
+    Scanner,
+  ),
 );

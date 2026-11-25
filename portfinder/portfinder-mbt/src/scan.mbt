@@ -157,13 +157,14 @@ fn NshHost::scan_lsof(
 ///|
 fn NshHost::scan_port(
   self : NshHost,
+  scanner : Scanner,
   port : Int32,
   done : (Array[Entry]) -> Unit,
   fail : (String) -> Unit,
 ) -> Unit {
   let os = self.platform()
   if os == "windows" {
-    self.scanner().scan_port(port, fn(text) { done(parse_entries(text)) }, fail)
+    scanner.scan_port(port, fn(text) { done(parse_entries(text)) }, fail)
     return
   }
   if os == "macos" {
@@ -186,14 +187,13 @@ fn NshHost::scan_port(
 ///|
 fn NshHost::kill_process(
   self : NshHost,
+  scanner : Scanner,
   pid : Int32,
   done : () -> Unit,
   fail : (String) -> Unit,
 ) -> Unit {
   if self.platform() == "windows" {
-    self
-    .scanner()
-    .kill_process(
+    scanner.kill_process(
       pid,
       fn(ok) {
         if ok {
@@ -733,15 +733,17 @@ fn linux_rows(ss_text : String, ps_text : String, now_s : Int32) -> String {
 ///|
 fn NshHost::scan_processes(
   self : NshHost,
+  scanner : Scanner,
+  clock : Clock,
   done : (String) -> Unit,
   fail : (String) -> Unit,
 ) -> Unit {
   let os = self.platform()
   if os == "windows" {
-    self.scanner().scan_processes(fn(text) { done(keep_lines(text)) }, fail)
+    scanner.scan_processes(fn(text) { done(keep_lines(text)) }, fail)
     return
   }
-  let now_s = self.clock().now_s()
+  let now_s = clock.now_s()
   if os == "macos" {
     self.run_many(
       [
@@ -766,11 +768,11 @@ fn NshHost::scan_processes(
 // The clock read is the only host fact; the subtraction is MoonBit.
 
 ///|
-fn NshHost::running_seconds(self : NshHost, started_s : Int32) -> Int32 {
+fn running_seconds(clock : Clock, started_s : Int32) -> Int32 {
   if started_s == 0 {
     -1
   } else {
-    let delta = self.clock().now_s() - started_s
+    let delta = clock.now_s() - started_s
     if delta > 0 {
       delta
     } else {
@@ -784,11 +786,11 @@ fn NshHost::running_seconds(self : NshHost, started_s : Int32) -> Int32 {
 // are MoonBit.
 
 ///|
-fn NshHost::format_time(self : NshHost, started_s : Int32) -> String {
+fn format_time(clock : Clock, started_s : Int32) -> String {
   if started_s == 0 {
     ""
   } else {
-    let parts = self.clock().local_time_parts(started_s)
+    let parts = clock.local_time_parts(started_s)
     let pad = fn(n : Int32) -> String { if n < 10 { "0\{n}" } else { "\{n}" } }
     "\{parts[0]}-\{pad(parts[1])}-\{pad(parts[2])} \{pad(parts[3])}:\{pad(parts[4])}"
   }

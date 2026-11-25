@@ -40,12 +40,12 @@ priv struct AppState {
 }
 
 ///|
-fn new_state(host : NshHost) -> Ref[AppState] {
+fn new_state(rt : Runtime) -> Ref[AppState] {
   // nsh.json hides the system title bar; the platform keeps its caption
   // buttons in the area the metrics report.
-  let metrics = host.title_bar_metrics()
+  let metrics = rt.host.title_bar_metrics()
   let bar_height = if metrics[0] > 0 { metrics[0] } else { 44 }
-  let platform = host.platform()
+  let platform = rt.host.platform()
   let pad_left = if metrics[1] > 0 {
     metrics[1] + 12
   } else if platform == "macos" {
@@ -62,14 +62,14 @@ fn new_state(host : NshHost) -> Ref[AppState] {
   }
   let state : Ref[AppState] = {
     val: {
-      version: host.new_signal(0),
-      proc_version: host.new_signal(0),
-      notice_version: host.new_signal(0),
-      selection_version: host.new_signal(0),
-      layout_version: host.new_signal(0),
-      port_clear_version: host.new_signal(0),
-      name_clear_version: host.new_signal(0),
-      appearance_version: host.new_signal(0),
+      version: rt.host.new_signal(0),
+      proc_version: rt.host.new_signal(0),
+      notice_version: rt.host.new_signal(0),
+      selection_version: rt.host.new_signal(0),
+      layout_version: rt.host.new_signal(0),
+      port_clear_version: rt.host.new_signal(0),
+      name_clear_version: rt.host.new_signal(0),
+      appearance_version: rt.host.new_signal(0),
       port: 8080,
       status: 1,
       entries: [],
@@ -115,35 +115,31 @@ fn copy_failed(state : Ref[AppState], message : String) -> Unit {
 }
 
 ///|
-fn apply_appearance(
-  state : Ref[AppState],
-  host : NshHost,
-  mode : String,
-) -> Unit {
+fn apply_appearance(state : Ref[AppState], rt : Runtime, mode : String) -> Unit {
   if mode != state.val.appearance {
     state.val.appearance = mode
-    host.set_color_scheme(mode)
-    host.save_preference("appearance", mode)
+    rt.host.set_color_scheme(mode)
+    rt.host.save_preference("appearance", mode)
     state.val.appearance_version.bump()
   }
 }
 
 ///|
-fn load_appearance(state : Ref[AppState], host : NshHost) -> Unit {
+fn load_appearance(state : Ref[AppState], rt : Runtime) -> Unit {
   // The stored choice arrives asynchronously: the first frame uses `system`,
   // then switches. A missing or unknown value leaves it alone.
-  host.load_preference("appearance", fn(value) {
+  rt.host.load_preference("appearance", fn(value) {
     let known = value == "light" || value == "dark" || value == "system"
     if known && value != state.val.appearance {
       state.val.appearance = value
-      host.set_color_scheme(value)
+      rt.host.set_color_scheme(value)
       state.val.appearance_version.bump()
     }
   })
 }
 
 ///|
-fn refresh_processes(state : Ref[AppState], host : NshHost) -> Unit {
+fn refresh_processes(state : Ref[AppState], rt : Runtime) -> Unit {
   state.val.proc_sequence = state.val.proc_sequence + 1
   let current = state.val.proc_sequence
   state.val.proc_inflight = state.val.proc_inflight + 1
@@ -151,7 +147,9 @@ fn refresh_processes(state : Ref[AppState], host : NshHost) -> Unit {
   state.val.proc_status = 1
   state.val.proc_error = ""
   state.val.proc_version.bump()
-  host.scan_processes(
+  rt.host.scan_processes(
+    rt.scanner,
+    rt.clock,
     fn(text) {
       state.val.proc_inflight = state.val.proc_inflight - 1
       if current == state.val.proc_sequence {
@@ -179,7 +177,7 @@ fn refresh_processes(state : Ref[AppState], host : NshHost) -> Unit {
         }
         state.val.proc_version.bump()
         state.val.selection_version.bump()
-        host.table_state().reveal_row(target)
+        rt.table.reveal_row(target)
       }
     },
     fn(message) {
@@ -203,13 +201,14 @@ fn refresh_processes(state : Ref[AppState], host : NshHost) -> Unit {
 }
 
 ///|
-fn search(state : Ref[AppState], host : NshHost) -> Unit {
+fn search(state : Ref[AppState], rt : Runtime) -> Unit {
   state.val.sequence = state.val.sequence + 1
   let current = state.val.sequence
   state.val.pending_reveal_pid = 0
   state.val.status = 1
   state.val.version.bump()
-  host.scan_port(
+  rt.host.scan_port(
+    rt.scanner,
     state.val.port,
     fn(found) {
       if current == state.val.sequence {
@@ -231,13 +230,13 @@ fn search(state : Ref[AppState], host : NshHost) -> Unit {
           if target < 0 && index_of_pid(state.val.procs, pid) < 0 {
             state.val.pending_reveal_pid = pid
             if state.val.proc_inflight == 0 {
-              refresh_processes(state, host)
+              refresh_processes(state, rt)
             }
           }
         }
         state.val.version.bump()
         state.val.selection_version.bump()
-        host.table_state().reveal_row(reveal)
+        rt.table.reveal_row(reveal)
       }
     },
     fn(message) {
@@ -249,14 +248,14 @@ fn search(state : Ref[AppState], host : NshHost) -> Unit {
         state.val.pending_reveal_pid = 0
         state.val.version.bump()
         state.val.selection_version.bump()
-        host.table_state().reveal_row(-1)
+        rt.table.reveal_row(-1)
       }
     },
   )
 }
 
 ///|
-fn query(state : Ref[AppState], host : NshHost) -> Unit {
+fn query(state : Ref[AppState], rt : Runtime) -> Unit {
   let next_filter = state.val.name_draft.trim().to_owned()
   if next_filter != state.val.name_filter {
     state.val.name_filter = next_filter
@@ -265,7 +264,7 @@ fn query(state : Ref[AppState], host : NshHost) -> Unit {
     state.val.pending_reveal_pid = 0
     state.val.proc_version.bump()
     state.val.selection_version.bump()
-    host.table_state().reveal_row(-1)
+    rt.table.reveal_row(-1)
   }
   clear_notice(state)
   if state.val.port <= 0 {
@@ -277,20 +276,20 @@ fn query(state : Ref[AppState], host : NshHost) -> Unit {
     state.val.version.bump()
     return
   }
-  search(state, host)
+  search(state, rt)
 }
 
 ///|
-fn refresh_all(state : Ref[AppState], host : NshHost) -> Unit {
+fn refresh_all(state : Ref[AppState], rt : Runtime) -> Unit {
   clear_notice(state)
   if state.val.port > 0 {
-    search(state, host)
+    search(state, rt)
   }
-  refresh_processes(state, host)
+  refresh_processes(state, rt)
 }
 
 ///|
-fn clear_query(state : Ref[AppState], host : NshHost) -> Unit {
+fn clear_query(state : Ref[AppState], rt : Runtime) -> Unit {
   state.val.sequence = state.val.sequence + 1
   state.val.port = 0
   state.val.name_draft = ""
@@ -307,14 +306,14 @@ fn clear_query(state : Ref[AppState], host : NshHost) -> Unit {
   state.val.version.bump()
   state.val.proc_version.bump()
   state.val.selection_version.bump()
-  host.table_state().remember_row(-1)
-  refresh_processes(state, host)
+  rt.table.remember_row(-1)
+  refresh_processes(state, rt)
 }
 
 ///|
 fn apply_sort(
   state : Ref[AppState],
-  host : NshHost,
+  rt : Runtime,
   key : String,
   direction : String,
 ) -> Unit {
@@ -331,12 +330,12 @@ fn apply_sort(
     state.val.selected_pid = -1
     state.val.proc_version.bump()
     state.val.selection_version.bump()
-    host.table_state().reveal_row(-1)
+    rt.table.reveal_row(-1)
   }
 }
 
 ///|
-fn select_row(state : Ref[AppState], host : NshHost, row : Int32) -> Unit {
+fn select_row(state : Ref[AppState], rt : Runtime, row : Int32) -> Unit {
   let visible = visible_rows(state.val.procs, state.val.name_filter)
   let pid = if row >= 0 && row < visible.length() {
     visible[row].pid
@@ -346,24 +345,25 @@ fn select_row(state : Ref[AppState], host : NshHost, row : Int32) -> Unit {
   if row != state.val.selected_row || pid != state.val.selected_pid {
     state.val.selected_row = row
     state.val.selected_pid = pid
-    host.table_state().remember_row(row)
+    rt.table.remember_row(row)
     state.val.selection_version.bump()
   }
 }
 
 ///|
-fn kill_proc(state : Ref[AppState], host : NshHost, proc : ProcessRow) -> Unit {
+fn kill_proc(state : Ref[AppState], rt : Runtime, proc : ProcessRow) -> Unit {
   let name = if proc.name.is_empty() { "该进程" } else { proc.name }
-  host.confirm_destructive(
+  rt.host.confirm_destructive(
     "结束进程",
     "确定结束 \{name}（PID \{proc.pid}）？它占用的端口会随之释放。",
     "结束进程",
     fn() {
-      host.kill_process(
+      rt.host.kill_process(
+        rt.scanner,
         proc.pid,
         fn() {
-          refresh_processes(state, host)
-          search(state, host)
+          refresh_processes(state, rt)
+          search(state, rt)
         },
         fn(message) {
           state.val.notice = "结束 PID \{proc.pid} 失败：\{message}"

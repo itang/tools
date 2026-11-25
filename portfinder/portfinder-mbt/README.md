@@ -67,7 +67,7 @@ dist\PortRadarSetup-1.0.0.exe /Q
 ## 目录结构
 
 ```
-App.tsx              入口：把 nsh:rt、process、nsh/base、nsh/desktop 与 portradar-native 的 Scanner 注入 MoonBit app
+App.tsx              入口：按 nsh / Clock / TableState / Scanner 四类 ffi 参数注入 MoonBit app
 assets/icon.png      应用图标（同时嵌入 exe 与安装包快捷方式）
 moon.mod             MoonBit 模块定义（source = "src"，ffi 子包）
 nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐藏标题栏）、外观与主题色、能力清单、nshm 依赖

@@ -33,6 +33,7 @@ fn table_progress(host : NshHost, message : String) -> Node {
 ///|
 fn process_cell(
   host : NshHost,
+  clock : Clock,
   row : Int32,
   proc : ProcessRow,
   key : String,
@@ -75,7 +76,7 @@ fn process_cell(
       )
     }
     "uptime" => {
-      let since = since_label(host.running_seconds(proc.started_s))
+      let since = since_label(running_seconds(clock, proc.started_s))
       let label = if since.is_empty() { "—" } else { since }
       txt(
         host, "truncate whitespace-nowrap text-sm text-muted-foreground tabular-nums",
@@ -121,6 +122,7 @@ fn table_metrics(area_w : Int32, area_h : Int32) -> (Int32, Int32, Int32) {
 ///|
 fn process_list(
   host : NshHost,
+  clock : Clock,
   rows : Array[ProcessRow],
   height : Int32,
   name_width : Int32,
@@ -140,7 +142,7 @@ fn process_list(
     sort_key,
     sort_ascending,
     selected,
-    fn(row, key) { process_cell(host, row, rows[row], key, on_kill) },
+    fn(row, key) { process_cell(host, clock, row, rows[row], key, on_kill) },
     on_sort,
     fn(row, key) {
       if key == "action" && row >= 0 && row < rows.length() {
@@ -154,6 +156,7 @@ fn process_list(
 ///|
 fn list_view(
   host : NshHost,
+  clock : Clock,
   status : Int32,
   rows : Array[ProcessRow],
   filter : String,
@@ -183,8 +186,8 @@ fn list_view(
     return table_state(host, empty, false)
   }
   process_list(
-    host, rows, height, name_width, ports_width, sort_key, sort_ascending, selected,
-    on_sort, on_select, on_kill,
+    host, clock, rows, height, name_width, ports_width, sort_key, sort_ascending,
+    selected, on_sort, on_select, on_kill,
   )
 }
 

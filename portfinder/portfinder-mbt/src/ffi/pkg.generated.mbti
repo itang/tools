@@ -19,7 +19,6 @@ pub type NshHost
 pub fn NshHost::app_icon(Self, String) -> Node
 pub fn NshHost::append(Self, Node, Node) -> Unit
 pub fn NshHost::button(Self, String, Node, () -> Unit) -> Node
-pub fn NshHost::clock(Self) -> Clock
 pub fn NshHost::confirm_destructive(Self, String, String, String, () -> Unit) -> Unit
 pub fn NshHost::drag_window(Self, Node) -> Unit
 pub fn NshHost::element(Self, String) -> Node
@@ -33,10 +32,8 @@ pub fn NshHost::process_table(Self, Int32, Int32, Int32, Int32, String, Bool, In
 pub fn NshHost::progress(Self, String, String, String) -> Node
 pub fn NshHost::run_command(Self, String, FixedArray[String], Int32, (Int32, String, String) -> Unit, (String) -> Unit) -> Unit
 pub fn NshHost::save_preference(Self, String, String) -> Unit
-pub fn NshHost::scanner(Self) -> Scanner
 pub fn NshHost::set_class(Self, Node, String) -> Unit
 pub fn NshHost::set_color_scheme(Self, String) -> Unit
-pub fn NshHost::table_state(Self) -> TableState
 pub fn NshHost::text(Self, String) -> Node
 pub fn NshHost::text_input(Self, String, String, String, (String) -> Unit, (String) -> Unit) -> Node
 pub fn NshHost::title_bar_metrics(Self) -> FixedArray[Int32]
