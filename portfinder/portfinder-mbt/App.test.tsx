@@ -42,6 +42,15 @@ test("opens and reports the outcome of a scan", async () => {
   expect(app.count("text:复制") + app.count("text:已复制")).toBeGreaterThanOrEqual(2);
   await app.press("text:复制 >> nth=0");
   await app.waitUntil(() => app.texts().includes("已复制"), { timeout: 5000 });
+
+  // Columns use DataTable's `grow`, so resizing the window must keep the table
+  // intact at both narrow and wide sizes (no crash, no lost headers/rows).
+  for (const width of [820, 1600]) {
+    await app.setViewport(width, 720);
+    await app.waitUntil(() => app.count("text:序号") > 0, { timeout: 10000 });
+    expect(app.texts().includes("序号")).toBe(true);
+    expect(app.texts().includes("PID")).toBe(true);
+  }
 });
 
 test("清空 clears both conditions and the port answer", async () => {

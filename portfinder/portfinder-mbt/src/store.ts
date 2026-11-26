@@ -40,8 +40,6 @@ export class Store {
   readonly selectedRow = signal(-1);
   readonly selectedPid = signal(-1);
   readonly tableHeight = signal(30 + 9 * 32 + 2);
-  readonly tableNameWidth = signal(176);
-  readonly tablePortsWidth = signal(244);
   readonly appearance = signal<Appearance>("system");
   readonly copiedKey = signal("");
 
@@ -279,18 +277,11 @@ export class Store {
     });
   }
 
-  onTableLayout(width: number, height: number): void {
-    if (width <= 0 || height <= 0) return;
-    // Let the table use all the room the slot gives it, minus a small gap.
+  // Column widths are handled by DataTable's `grow`, so only the height needs
+  // measuring here: the table fills the slot minus a small gap.
+  onTableLayout(height: number): void {
+    if (height <= 0) return;
     const nextHeight = Math.max(3 * 32 + 32, height - 8);
-    const extra = width - 16 - 902;
-    const ports = Math.max(140, extra > 0 ? 244 + Math.trunc(extra * 45 / 100) : 244 + extra);
-    const name = Math.max(120, 176 + extra - (ports - 244));
-    if (nextHeight !== this.tableHeight() ||
-        name !== this.tableNameWidth() || ports !== this.tablePortsWidth()) {
-      this.tableHeight.set(nextHeight);
-      this.tableNameWidth.set(name);
-      this.tablePortsWidth.set(ports);
-    }
+    if (nextHeight !== this.tableHeight()) this.tableHeight.set(nextHeight);
   }
 }

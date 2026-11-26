@@ -121,48 +121,43 @@ interface TableProps {
   store: Store;
   rows: ProcessRow[];
   height: number;
-  nameWidth: number;
-  portsWidth: number;
   sortKey: string;
   sortAscending: boolean;
   selectedRow: number;
 }
 
+// Base widths are the minimum at narrow sizes; `grow` shares all extra room
+// with the columns, so a maximized window spreads the space instead of dumping
+// it into just two columns. Name and ports need the most room, numeric columns
+// a little, and the sequence/action columns keep a fixed width.
 const COLUMNS = [
   { key: "seq", title: "序号", width: 56, fixed: true, align: "end" as const, cellClass: "text-right", headerClass: "text-right" },
-  { key: "name", title: "进程", width: 176, fixed: true, sortable: true },
-  { key: "pid", title: "PID", width: 76, align: "end" as const, sortable: true, cellClass: "text-right", headerClass: "text-right" },
-  { key: "ports", title: "端口", width: 244, sortable: true },
-  { key: "cpu", title: "CPU", width: 76, align: "end" as const, sortable: true, cellClass: "text-right", headerClass: "text-right" },
-  { key: "mem", title: "内存", width: 92, align: "end" as const, sortable: true, cellClass: "text-right", headerClass: "text-right" },
-  { key: "uptime", title: "运行时长", width: 98, sortable: true },
+  { key: "name", title: "进程", width: 176, fixed: true, sortable: true, grow: 5 },
+  { key: "pid", title: "PID", width: 76, align: "end" as const, sortable: true, cellClass: "text-right", headerClass: "text-right", grow: 1 },
+  { key: "ports", title: "端口", width: 244, sortable: true, grow: 4 },
+  { key: "cpu", title: "CPU", width: 76, align: "end" as const, sortable: true, cellClass: "text-right", headerClass: "text-right", grow: 1 },
+  { key: "mem", title: "内存", width: 92, align: "end" as const, sortable: true, cellClass: "text-right", headerClass: "text-right", grow: 1 },
+  { key: "uptime", title: "运行时长", width: 98, sortable: true, grow: 1 },
   { key: "action", title: "", width: 84, selectable: false, movable: false, resizable: false, cellClass: "px-2" },
 ];
-
-function tableColumns(nameWidth: number, portsWidth: number) {
-  return COLUMNS.map((column) => {
-    if (column.key === "name") return { ...column, width: nameWidth };
-    if (column.key === "ports") return { ...column, width: portsWidth };
-    return column;
-  });
-}
 
 function ProcessTable(props: TableProps): JSX.Element {
   return (
     <DataTable
       ref={(ref: DataTableRef) => props.store.setTableRef(ref)}
-      columns={tableColumns(props.nameWidth, props.portsWidth)}
+      columns={COLUMNS}
       data={props.rows}
       rowHeight={32}
       headerHeight={30}
       rowHeader={false}
       columnSelectable={false}
       cellSelectable={false}
+      resizableColumns={false}
       stripe={false}
       sort={props.sortKey === "" ? null : { key: props.sortKey, direction: props.sortAscending ? "ascending" : "descending" }}
       selection={props.selectedRow >= 0 ? { row: props.selectedRow } : null}
       accessibilityLabel="占用端口的进程"
-      class={`h-[${props.height}px] rounded-lg border border-border bg-background`}
+      class={`w-full h-[${props.height}px] rounded-lg border border-border bg-background`}
       classes={{
         header: "border-b border-border bg-muted/40",
         headerCell: "px-3 text-xs font-medium text-muted-foreground",
@@ -179,7 +174,7 @@ function ProcessTable(props: TableProps): JSX.Element {
         props.store.applySort(s ? s.key : "", s && s.direction ? s.direction : "");
       }}
       onRowPress={(e) => {
-        if (e.row >= 0 && e.column != null && tableColumns(props.nameWidth, props.portsWidth)[e.column]?.key === "action") {
+        if (e.row >= 0 && e.column != null && COLUMNS[e.column]?.key === "action") {
           props.store.killProc(props.rows[e.row]);
         }
       }}
@@ -445,14 +440,12 @@ export function AppView(props: { store: Store; icon: unknown }): JSX.Element {
 
           <View
             class="w-full flex-1 overflow-hidden"
-            onLayout={(e) => store.onTableLayout(Math.round(e.bounds.size.width), Math.round(e.bounds.size.height))}
+            onLayout={(e) => store.onTableLayout(Math.round(e.bounds.size.height))}
           >
             <ListView
               store={store}
               rows={visibleRows(store.procs(), store.nameFilter())}
               height={store.tableHeight()}
-              nameWidth={store.tableNameWidth()}
-              portsWidth={store.tablePortsWidth()}
               sortKey={store.sortKey()}
               sortAscending={store.sortAscending()}
               selectedRow={store.selectedRow()}
