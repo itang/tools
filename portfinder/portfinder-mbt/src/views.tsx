@@ -2,7 +2,7 @@
 // the global `<If>` component, and dynamic text/class/values are read in JSX.
 import type { JSX } from "nsh";
 import { Image, Text, View } from "nsh";
-import { Button, DataTable, Input, NumberInput, Progress, type DataTableCell, type DataTableRef } from "nsh/base";
+import { Button, DataTable, Input, NumberInput, Progress, Tooltip, type DataTableCell, type DataTableRef } from "nsh/base";
 import type { Entry, ProcessRow } from "./types";
 import {
   addrFamily, answerText, addressDetail, cpuLabel, memLabel, portsLabel,
@@ -321,20 +321,6 @@ function SelectedDetails(props: InspectorProps): JSX.Element {
         <Text class="shrink-0 text-xs text-muted-foreground">
           启动 {formatTime(props.rows[props.selected].started_s) || "—"}
         </Text>
-      </View>
-      <View class="h-5 flex-row items-center gap-1.5 overflow-hidden" selectable={true}>
-        <Text class="shrink-0 text-xs text-muted-foreground">路径</Text>
-        <Text class="max-w-[340px] truncate text-xs text-muted-foreground">
-          {props.rows[props.selected].path === "" ? "可执行文件路径不可用" : props.rows[props.selected].path}
-        </Text>
-        <If when={props.rows[props.selected].path !== ""}>
-          <CopyButton
-            text={props.rows[props.selected].path}
-            field="path"
-            copiedKey={props.copiedKey}
-            copy={(t, k) => props.store.copyText(t, k)}
-          />
-        </If>
         <Text class="shrink-0 text-xs text-muted-foreground">·</Text>
         <View class="flex-1 flex-row items-center gap-1 overflow-hidden">
           <Text class="shrink-0 text-xs text-muted-foreground">
@@ -347,6 +333,31 @@ function SelectedDetails(props: InspectorProps): JSX.Element {
             </Text>
           </If>
         </View>
+      </View>
+      <View class="h-5 flex-row items-center gap-1.5 overflow-hidden" selectable={true}>
+        <Text class="shrink-0 text-xs text-muted-foreground">路径</Text>
+        <View
+          class="flex-1 overflow-hidden"
+          tooltip={
+            <Tooltip placement="top">
+              <Text class="max-w-[720px] text-xs text-foreground">
+                {props.rows[props.selected].path === "" ? "可执行文件路径不可用" : props.rows[props.selected].path}
+              </Text>
+            </Tooltip>
+          }
+        >
+          <Text class="truncate text-xs text-muted-foreground">
+            {props.rows[props.selected].path === "" ? "可执行文件路径不可用" : props.rows[props.selected].path}
+          </Text>
+        </View>
+        <If when={props.rows[props.selected].path !== ""}>
+          <CopyButton
+            text={props.rows[props.selected].path}
+            field="path"
+            copiedKey={props.copiedKey}
+            copy={(t, k) => props.store.copyText(t, k)}
+          />
+        </If>
       </View>
     </>
   );

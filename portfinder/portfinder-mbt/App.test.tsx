@@ -43,6 +43,14 @@ test("opens and reports the outcome of a scan", async () => {
   await app.press("text:复制 >> nth=0");
   await app.waitUntil(() => app.texts().includes("已复制"), { timeout: 5000 });
 
+  // The selected process's full path appears as its own text node. CSS
+  // truncation hides the tail visually but never changes the text, so a
+  // Windows path is present in full rather than being cut in the source.
+  const pathText = app.texts().find((t) => /^[A-Za-z]:\\/.test(t));
+  if (pathText) {
+    expect(pathText.endsWith(".exe")).toBe(true);
+  }
+
   // Columns use DataTable's `grow`, so resizing the window must keep the table
   // intact at both narrow and wide sizes (no crash, no lost headers/rows).
   for (const width of [820, 1600]) {
