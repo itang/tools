@@ -8,4 +8,4 @@ keywords = ["nshm"]
 [workspace]
 
 [dependencies]
-nsh-core = "0.7.0"
+nsh-core = "0.7.1"

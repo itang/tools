@@ -4,7 +4,7 @@
   "icon": "assets/icon.png",
   "version": "1.0.0",
   "build": 1,
-  "nsh": "^0.7.0",
+  "nsh": "^0.7.1",
   "dependencies": {
     "portradar-native": { "path": "ext/portradar-native" }
   },

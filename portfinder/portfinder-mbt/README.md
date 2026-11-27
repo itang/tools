@@ -7,7 +7,7 @@
 ## 环境要求
 
 - Windows 10 1809 及以上 / Windows 11，WebView2 Runtime（Windows 11 自带）
-- [nsh](https://nsh.run) 0.7.0（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.7.0"` 由 CLI 校验，低于该版本会直接报错
+- [nsh](https://nsh.run) 0.7.1（本机在 `D:\dev-env\nsh\bin\nsh.exe`，已加入 `PATH` 时直接用 `nsh`）；`nsh.json` 里的 `"nsh": "^0.7.1"` 由 CLI 校验，低于该版本会直接报错
 - MoonBit 工具链（`moon`，仅用于 `tasks.mbtx` 任务脚本；应用本身不再需要编译 MoonBit）
 - 生成安装包使用 Windows 自带的 IExpress，无需额外安装
 
@@ -71,7 +71,7 @@ nsh.json             应用名、id、版本、图标、主窗口（尺寸与隐
 nsh.lock             nshm 依赖锁定文件（由 nsh 生成，随项目提交）
 tsconfig.json        继承 .nsh/tsconfig.json，纳入根目录所有 .ts / .tsx
 ext/portradar-native/ Rust nshm：Win32 原生进程/端口扫描（以 path 依赖接入）
-  Cargo.toml         crate 依赖：nsh-core 0.7.0
+  Cargo.toml         crate 依赖：nsh-core 0.7.1
   src/               lib.rs（#[native_module("portradar-native")]）+ sys/net/process/scan 四个内部模块
 tasks.mbtx           任务脚本：测试、打包、封装安装程序（moon run tasks.mbtx …）
 src/                 应用的 TypeScript / TSX 源码
